@@ -1,0 +1,20 @@
+
+  <header class="main-header">
+    <div class="container">
+      <a routerLink="/" class="logo">TechRoom</a>
+      <nav>
+        <ul>
+          <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Trang chủ</a></li>
+          <li><a routerLink="/rooms" routerLinkActive="active">Phòng trọ</a></li>
+          <li><a routerLink="/about" routerLinkActive="active">Giới thiệu</a></li>
+          <li><a routerLink="/contact" routerLinkActive="active">Liên hệ</a></li>
+        </ul>
+      </nav>
+      <div class="user-actions">
+        <div class="user-actions">
+          <a routerLink="/login" class="btn btn-secondary">Đăng nhập</a>
+          <a routerLink="/register" class="btn btn-primary">Đăng ký</a>
+        </div>
+      </div>
+    </div>
+  </header>

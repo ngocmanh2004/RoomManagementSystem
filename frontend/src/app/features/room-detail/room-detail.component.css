@@ -1,0 +1,255 @@
+.room-detail-page {
+    padding: 30px 0;
+}
+.breadcrumb {
+    margin-bottom: 20px;
+    color: #666;
+}
+.breadcrumb a {
+    color: #0d6efd;
+    text-decoration: none;
+}
+.breadcrumb span {
+    font-weight: 500;
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+.header-section h1 {
+    margin: 0 0 5px 0;
+    font-size: 28px;
+}
+.address {
+    color: #666;
+    margin: 0;
+}
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+
+/* === PHẦN SỬA LỖI QUAN TRỌNG === */
+.image-gallery {
+    display: grid;
+    grid-template-areas: "main thumbnails";
+    grid-template-columns: 2fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+    /* SỬA LẠI Ở ĐÂY: Dùng height thay cho max-height để ép layout có chiều cao cố định */
+    height: 450px;
+}
+.image-gallery:has(.thumbnail-images:empty) {
+    grid-template-areas: "main main";
+}
+
+.main-image {
+    grid-area: main;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    /* THÊM VÀO: Quan trọng để grid item không bị tràn */
+    min-height: 0;
+}
+.main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Các nút chuyển ảnh */
+.nav-arrows {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    right: 15px;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    opacity: 0; /* Ẩn đi mặc định */
+    transition: opacity 0.3s ease;
+}
+/* Hiện nút khi hover vào ảnh chính */
+.main-image:hover .nav-arrows {
+    opacity: 1;
+}
+
+.nav-arrow {
+    background-color: rgba(0, 0, 0, 0.4);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 16px;
+}
+.nav-arrow:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Khu vực ảnh nhỏ */
+.thumbnail-images {
+    grid-area: thumbnails;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, 1fr);
+    gap: 10px;
+    overflow-y: auto; /* Thêm thanh cuộn dọc nếu có nhiều ảnh */
+    /* THÊM VÀO: Quan trọng để grid item không bị tràn */
+    min-height: 0;
+}
+
+.thumbnail-images img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: opacity 0.3s, border-color 0.3s;
+    opacity: 0.6;
+}
+
+.thumbnail-images img:hover {
+    opacity: 1;
+}
+
+.thumbnail-images img.active {
+    opacity: 1;
+    border-color: #0d6efd;
+}
+/* === KẾT THÚC PHẦN SỬA LỖI === */
+
+
+.info-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 40px;
+    text-align: center;
+}
+.info-bar div span {
+    display: block;
+    color: #666;
+    margin-bottom: 5px;
+}
+.info-bar div strong {
+    font-size: 18px;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+}
+.content-section {
+    margin-bottom: 40px;
+}
+.content-section h2 {
+    font-size: 22px;
+    border-bottom: 2px solid #0d6efd;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+.amenities-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.amenities-list li i {
+    color: #28a745;
+    margin-right: 8px;
+}
+.map-container {
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 15px;
+}
+.notes-box {
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+    border-radius: 8px;
+    padding: 20px;
+}
+.notes-box ul {
+    padding-left: 20px;
+    margin-top: 15px;
+}
+
+.sidebar {
+    position: sticky;
+    top: 100px;
+    align-self: start;
+}
+.booking-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+.price-section {
+    font-size: 28px;
+    font-weight: bold;
+    color: #dc3545;
+    margin-bottom: 20px;
+}
+.price-section span {
+    font-size: 16px;
+    color: #666;
+    font-weight: normal;
+    margin-left: 5px;
+}
+.quick-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-top: 1px solid #e9ecef;
+    border-bottom: 1px solid #e9ecef;
+    padding: 15px 0;
+    margin-bottom: 20px;
+}
+.quick-info .fa-star {
+    color: #ffc107;
+}
+.contact-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.btn-full {
+    width: 100%;
+    padding: 12px;
+}
+.btn-secondary {
+    background-color: #e9ecef;
+    color: #333;
+    border: none;
+}
+.important-note {
+    display: flex;
+    gap: 10px;
+    background-color: #fff3cd;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+.important-note i {
+    color: #ffc107;
+    font-size: 20px;
+}
+.important-note p {
+    margin: 0;
+    font-size: 14px;
+}

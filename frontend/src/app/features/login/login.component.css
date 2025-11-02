@@ -1,0 +1,174 @@
+/* Main container for the page */
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 150px); /* Adjust based on header/footer height */
+    padding: 40px 0;
+    background-color: #f8f9fa;
+}
+
+/* The white box in the middle */
+.login-container {
+    width: 100%;
+    max-width: 450px;
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Header with icon and text */
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.icon-wrapper {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 20px;
+    background-color: #0d6efd;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 32px;
+}
+
+.login-header h2 {
+    margin: 0 0 10px 0;
+    font-size: 28px;
+}
+
+.login-header p {
+    color: #6c757d;
+    margin: 0;
+}
+
+/* Form styling */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper i {
+    position: absolute;
+    left: 15px;
+    color: #adb5bd;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 12px 15px 12px 45px; /* Add padding for the icon */
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.input-wrapper input:focus {
+    outline: none;
+    border-color: #0d6efd;
+}
+
+.password-toggle {
+    left: auto !important;
+    right: 15px;
+    cursor: pointer;
+}
+
+/* Remember me & Forgot password */
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    font-size: 14px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.forgot-password {
+    color: #0d6efd;
+    text-decoration: none;
+}
+
+.btn-full {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+}
+
+/* Social login section */
+.social-login {
+    margin-top: 30px;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #adb5bd;
+    margin-bottom: 20px;
+}
+
+.divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.divider span {
+    padding: 0 15px;
+    font-size: 14px;
+}
+
+.social-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.btn-social {
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ced4da;
+    background-color: #fff;
+    color: #333;
+}
+.btn-social i {
+    margin-right: 10px;
+}
+.btn-social.google i { color: #DB4437; }
+.btn-social.facebook i { color: #4267B2; }
+
+/* Register link at the bottom */
+.register-link {
+    text-align: center;
+    margin-top: 30px;
+    color: #6c757d;
+}
+
+.register-link a {
+    color: #0d6efd;
+    text-decoration: none;
+    font-weight: 500;
+}

@@ -1,0 +1,167 @@
+/* General container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* 1. Hero Section */
+.hero-section {
+  height: 500px;
+  background-image: url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2070&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+}
+
+.hero-content {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 40px;
+  border-radius: 10px;
+  max-width: 700px;
+}
+
+.hero-content h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.hero-content p {
+  font-size: 18px;
+  margin-bottom: 30px;
+}
+
+.hero-buttons .btn {
+  margin: 0 10px;
+}
+
+.btn-large {
+  padding: 15px 30px;
+  font-size: 16px;
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 2px solid white;
+  color: white;
+}
+
+/* 2. Search Section */
+.search-section {
+    transform: translateY(-50%); /* Kéo form lên trên */
+}
+.search-box {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.search-form {
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+}
+.form-group {
+    flex: 1;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+/* 3. Main Content Section */
+.main-content {
+    display: flex;
+    gap: 30px;
+    margin-top: -50px; /* Bù lại khoảng trống do search form kéo lên */
+    padding-bottom: 50px;
+}
+.filter-sidebar {
+    width: 25%;
+}
+.room-list-container {
+    width: 75%;
+}
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.room-list {
+    display: grid;
+    gap: 20px;
+}
+.view-more {
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* 4. Features Section */
+.features-section {
+    background-color: #f8f9fa;
+    padding: 60px 0;
+    text-align: center;
+}
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    margin-top: 40px;
+}
+.feature-item {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #eaf4ff;
+    color: #007bff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+/* 5. Stats Section - CSS đã được chuyển đi */
+
+
+/* 6. CTA Section */
+.cta-section {
+    background-color: #007bff;
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+}
+.cta-form {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+.cta-form input {
+    width: 300px;
+    padding: 15px;
+    border-radius: 5px;
+    border: none;
+}
+.btn-light {
+    background-color: white;
+    color: #007bff;
+}

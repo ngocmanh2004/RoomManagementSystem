@@ -1,0 +1,105 @@
+<div class="room-detail-page" *ngIf="room">
+  <div class="container">
+    <div class="breadcrumb">
+      <a routerLink="/">Trang chủ</a> >
+      <a routerLink="/rooms">Phòng trọ</a> >
+      <span>Chi tiết phòng</span>
+    </div>
+
+    <div class="header-section">
+      <div>
+        <h1>{{ room.title }}</h1>
+        <p class="address"><i class="fa-solid fa-location-dot"></i> {{ room.address }}</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-outline"><i class="fa-regular fa-bookmark"></i> Lưu tin</button>
+        <button class="btn btn-outline"><i class="fa-regular fa-comment-dots"></i> Chat</button>
+        <button class="btn btn-outline"><i class="fa-solid fa-share-nodes"></i> Chia sẻ</button>
+      </div>
+    </div>
+
+    <div class="image-gallery">
+      <div class="main-image">
+        <img [src]="currentMainImage" alt="Main room image">
+        <div class="nav-arrows" *ngIf="room.images.length > 1">
+          <button class="nav-arrow prev" (click)="prevImage()"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="nav-arrow next" (click)="nextImage()"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="thumbnail-images" *ngIf="room.images.length > 1">
+        <img *ngFor="let image of room.images; let i = index"
+             [src]="image"
+             [alt]="'Thumbnail ' + (i + 1)"
+             [class.active]="image === currentMainImage"
+             (click)="changeMainImage(image, i)">
+      </div>
+    </div>
+
+    <div class="info-bar">
+      <div><span>Giá thuê</span><strong>{{ room.price | number }}đ</strong>/tháng</div>
+      <div><span>Đặt cọc</span><strong>{{ room.deposit | number }}đ</strong></div>
+      <div><span>Tình trạng</span><strong>{{ room.status }}</strong></div>
+      <div><span>Ngày đăng</span><strong>{{ room.postDate }}</strong></div>
+    </div>
+
+    <div class="content-grid">
+      <div class="main-content">
+        <div class="content-section">
+          <h2>Giới thiệu</h2>
+          <p>{{ room.description }}</p>
+        </div>
+
+        <div class="content-section">
+          <h2>Tiện nghi</h2>
+          <ul class="amenities-list">
+            <li *ngFor="let feature of room.features"><i class="fa-solid fa-check"></i> {{ feature }}</li>
+          </ul>
+        </div>
+
+        <div class="content-section">
+          <h2>Vị trí & Bản đồ</h2>
+          <p><i class="fa-solid fa-location-dot"></i> {{ room.address }}</p>
+          <div class="map-container">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.668925526017!2d106.68000157588301!3d10.759973989387434!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f09351e9e03%3A0x2615c59b6a2417d9!2zMTIzIE5ndXnhu4VuIEjhu691IEjDoG8sIFBoxrDhu51uZyA5LCBRdeG6rW4gNCwgVGjDoG5oIHBo4buRIEjhu5MgQ2jDrSBNaW5oLCBWaeG7h3QgTmFt!5e0!3m2!1svi!2s!4v1678886400000!5m2!1svi!2s"
+              width="100%" height="350" style="border:0;" allowfullscreen="" loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h2>Lưu ý</h2>
+          <div class="notes-box">
+            <p>Để đảm bảo an toàn và tránh các trường hợp lừa đảo, vui lòng không đặt cọc hay trả bất kỳ khoản nào trước khi xem phòng và ký hợp đồng.</p>
+            <ul>
+              <li *ngFor="let note of room.notes"><i class="fa-solid fa-circle-info"></i> {{ note }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <div class="booking-card">
+          <div class="price-section">
+            <strong>{{ room.price | number }}đ</strong><span>/tháng</span>
+          </div>
+          <div class="quick-info">
+            <span>Loại phòng: <strong>Nhà trọ</strong></span>
+            <span>Diện tích: <strong>{{ room.area }} m²</strong></span>
+            <span>Sức chứa: <strong>{{ room.capacity }} người</strong></span>
+            <span>Đánh giá: <strong>{{ room.rating }} <i class="fa-solid fa-star"></i> ({{ room.reviews }} reviews)</strong></span>
+          </div>
+          <div class="contact-buttons">
+            <button class="btn btn-primary btn-full"><i class="fa-solid fa-phone"></i> Gọi chủ nhà</button>
+            <button class="btn btn-secondary btn-full"><i class="fa-brands fa-rocketchat"></i> Nhắn tin Zalo</button>
+            <button class="btn btn-outline btn-full"><i class="fa-regular fa-calendar-check"></i> Đặt lịch xem phòng</button>
+          </div>
+          <div class="important-note">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <p><strong>Lưu ý quan trọng:</strong> Xác minh kỹ thông tin trước khi đặt cọc để tránh rủi ro không đáng có.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>

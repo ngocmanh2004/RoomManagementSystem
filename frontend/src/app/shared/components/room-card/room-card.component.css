@@ -1,0 +1,112 @@
+.room-card {
+  display: flex;
+  gap: 20px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  transition: box-shadow 0.3s;
+}
+
+.room-card:hover {
+  box-shadow: 0 8px 12px rgba(0,0,0,0.1);
+}
+
+.card-image {
+  position: relative;
+  width: 250px;
+  flex-shrink: 0;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.status-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #28a745;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+.card-content {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.title {
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+.address {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.meta span i {
+  color: #007bff;
+  margin-right: 5px;
+}
+
+.card-footer {
+  margin-top: auto; /* Push footer to the bottom */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 10px;
+}
+
+.price {
+  font-size: 20px;
+  font-weight: bold;
+  color: #dc3545;
+  margin: 0;
+}
+
+.price small {
+  font-size: 14px;
+  color: #666;
+  font-weight: normal;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-icon {
+  background: none;
+  border: 1px solid #ddd;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.btn-sm {
+  padding: 8px 15px;
+  font-size: 14px;
+}

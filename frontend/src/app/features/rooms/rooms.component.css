@@ -1,0 +1,97 @@
+.rooms-page {
+    background-color: #f8f9fa;
+}
+
+.page-header {
+    background-color: #007bff;
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+}
+
+.breadcrumb {
+    font-size: 14px;
+    opacity: 0.8;
+    margin-bottom: 10px;
+}
+
+.page-header h1 {
+    font-size: 42px;
+    margin: 0;
+}
+
+.main-section {
+    padding: 40px 15px;
+}
+
+/* Filter Bar */
+.filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+}
+
+.filter-options {
+    display: flex;
+    gap: 15px;
+}
+
+.filter-options select, .filter-options input {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+}
+
+.filter-options input {
+    width: 200px;
+}
+
+.sort-options {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sort-options select {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Room Grid */
+.room-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Tạo layout 2 cột */
+    gap: 30px;
+}
+
+/* Load More */
+.load-more {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.load-more .btn {
+    padding: 12px 25px;
+    font-size: 16px;
+}
+
+/* Responsive for smaller screens */
+@media (max-width: 992px) {
+    .filter-bar {
+        flex-direction: column;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .room-grid {
+        grid-template-columns: 1fr; /* 1 cột trên điện thoại */
+    }
+}
