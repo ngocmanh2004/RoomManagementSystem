@@ -4,9 +4,8 @@
         <p>Hệ thống quản lý phòng trọ thông minh - Một nơi cho chủ trọ và người thuê kết nối cách tin cậy, hiệu quả và
             chuyên nghiệp</p>
         <div class="hero-buttons">
-            <button class="btn btn-primary btn-large">
-                <i class="fa-solid fa-magnifying-glass"></i> Tìm phòng ngay
-            </button>
+            <button class="btn btn-primary btn-large"><i class="fa-solid fa-magnifying-glass"></i> Tìm phòng
+                ngay</button>
             <button class="btn btn-outline btn-large">Quản lý tin của bạn</button>
         </div>
     </div>
@@ -15,29 +14,41 @@
 <section class="search-section container">
     <div class="search-box">
         <h3>Tìm kiếm phòng trọ phù hợp</h3>
-        <form class="search-form">
+        <form class="search-form" (submit)="onSearch()">
             <div class="form-group">
                 <label for="area">Khu vực</label>
-                <select id="area">
-                    <option>Chọn khu vực</option>
+                <select id="area" [(ngModel)]="selectedArea" name="area">
+                    <option value="">Chọn khu vực</option>
+                    <option value="An Nhơn">An Nhơn</option>
+                    <option value="Quy Nhơn">Quy Nhơn</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="type">Loại phòng</label>
-                <select id="type">
-                    <option>Chọn loại phòng</option>
+                <select id="type" [(ngModel)]="selectedType" name="type">
+                    <option value="">Chọn loại phòng</option>
+                    <option value="Phòng trọ">Phòng trọ</option>
+                    <option value="Chung cư mini">Chung cư mini</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="price">Chọn giá</label>
-                <select id="price">
-                    <option>Chọn mức giá</option>
+                <select id="price" [(ngModel)]="selectedPrice" name="price">
+                    <option value="">Chọn mức giá</option>
+                    <option value="0-1500000">Dưới 1.5 triệu</option>
+                    <option value="1500000-3000000">1.5 - 3 triệu</option>
+                    <option value="3000000-5000000">3 - 5 triệu</option>
+                    <option value="5000000-9999999">Trên 5 triệu</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="acreage">Diện tích</label>
-                <select id="acreage">
-                    <option>Chọn diện tích</option>
+                <select id="acreage" [(ngModel)]="selectedAcreage" name="acreage">
+                    <option value="">Chọn diện tích</option>
+                    <option value="0-15">Dưới 15 m²</option>
+                    <option value="15-25">15 - 25 m²</option>
+                    <option value="25-40">25 - 40 m²</option>
+                    <option value="40-999">Trên 40 m²</option>
                 </select>
             </div>
             <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm</button>
@@ -47,79 +58,72 @@
 
 <section class="main-content container">
     <aside class="filter-sidebar">
-        <h4><i class="fa-solid fa-filter"></i> Bộ lọc</h4>
-        <div class="filter-group">
-            <label>Khoảng giá (triệu VNĐ)</label>
-            <input type="text" placeholder="Từ 0 - 30">
-        </div>
-        <div class="filter-group">
-            <label>Loại phòng</label>
-            <div class="checkbox-list">
-                <label><input type="checkbox"> Tất cả</label>
-                <label><input type="checkbox"> Phòng trọ</label>
-                <label><input type="checkbox"> Chung cư mini</label>
-            </div>
-        </div>
-        <button class="btn btn-primary btn-full-width">Áp dụng bộ lọc</button>
-    </aside>
+  <div class="filter-header">
+    <h4><i class="fa-solid fa-filter"></i> Bộ lọc</h4>
+    <a href="#" class="clear-filter">Xóa tất cả</a>
+  </div>
+
+  <form (ngSubmit)="applyFilters()" class="filter-form">
+    <div class="filter-group">
+      <label>Khoảng giá (triệu VNĐ)</label>
+      <div class="price-range">
+        <input type="number" [(ngModel)]="minPrice" name="minPrice" placeholder="Từ" />
+        <input type="number" [(ngModel)]="maxPrice" name="maxPrice" placeholder="Đến" />
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <label>Diện tích</label>
+      <select [(ngModel)]="selectedAcreage" name="selectedAcreage">
+        <option value="">Chọn diện tích</option>
+        <option *ngFor="let size of areaOptions" [value]="size">{{ size }} m²</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Loại phòng</label>
+      <select [(ngModel)]="selectedType" name="selectedType">
+        <option value="">Chọn loại phòng</option>
+        <option *ngFor="let type of roomTypes" [value]="type">{{ type }}</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Tiện nghi</label>
+      <div class="checkbox-list">
+        <label *ngFor="let amenity of amenities">
+          <input type="checkbox" [(ngModel)]="amenity.selected" name="amenities" [value]="amenity.id" />
+          <span class="checkmark"></span>
+          <span class="label-text">{{ amenity.name }}</span>
+        </label>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full-width" type="submit">
+      <i class="fa-solid fa-magnifying-glass"></i> Áp dụng bộ lọc
+    </button>
+  </form>
+</aside>
+
+
 
     <div class="room-list-container">
         <div class="list-header">
             <h3>Phòng trọ nổi bật</h3>
-            <select>
-                <option>Sắp xếp: Mặc định</option>
+            <select [(ngModel)]="sortOption" (change)="onSortChange($event)">
+                <option>Mặc định</option>
                 <option>Giá tăng dần</option>
                 <option>Giá giảm dần</option>
             </select>
         </div>
+
         <div class="room-list">
-            <app-room-card *ngFor="let room of rooms; let i = index" [roomId]="i + 1"></app-room-card>
+            <app-room-card *ngFor="let room of rooms" [room]="room"></app-room-card>
         </div>
+
+
         <div class="view-more">
             <button class="btn btn-outline">Xem thêm phòng trọ</button>
-        </div>
-    </div>
-</section>
-
-<section class="features-section">
-    <div class="container">
-        <h2>TechRoom - Giải pháp quản lý phòng trọ thông minh</h2>
-        <p>Kết nối chủ trọ và người thuê một cách tin cậy, hiệu quả. Tạo ra một hệ sinh thái cho thuê phòng trọ chuyên
-            nghiệp và minh bạch.</p>
-        <div class="features-grid">
-            <div class="feature-item">
-                <div class="icon-circle"><i class="fa-solid fa-shield-halved"></i></div>
-                <h4>An toàn & Tin cậy</h4>
-                <p>Tất cả thông tin được xác minh và bảo mật tuyệt đối.</p>
-            </div>
-            <div class="feature-item">
-                <div class="icon-circle"><i class="fa-solid fa-sitemap"></i></div>
-                <h4>Quản lý thông minh</h4>
-                <p>Ứng dụng nền tảng quản lý mọi lúc mọi nơi.</p>
-            </div>
-            <div class="feature-item">
-                <div class="icon-circle"><i class="fa-solid fa-headset"></i></div>
-                <h4>Hỗ trợ 24/7</h4>
-                <p>Mọi phản hồi và thắc mắc luôn được sẵn sàng hỗ trợ.</p>
-            </div>
-            <div class="feature-item">
-                <div class="icon-circle"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                <h4>Minh bạch chi phí</h4>
-                <p>Không có chi phí ẩn, mọi chi phí được công khai rõ ràng.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<app-stats-section></app-stats-section>
-
-<section class="cta-section">
-    <div class="container">
-        <h2>Bắt đầu hành trình của bạn ngay hôm nay</h2>
-        <p>Tham gia cộng đồng TechRoom để trải nghiệm dịch vụ tốt nhất</p>
-        <div class="cta-form">
-            <input type="text" placeholder="Nhập email đăng ký tư vấn">
-            <button class="btn btn-light"><i class="fa-solid fa-magnifying-glass"></i> Tìm phòng trọ</button>
         </div>
     </div>
 </section>
