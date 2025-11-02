@@ -16,11 +16,11 @@ export class HomeComponent implements OnInit {
   amenities: any[] = [];
 
   // Bộ lọc
-  selectedArea: string = '';
-  selectedType: string = '';
-  selectedPrice: string = '';
-  selectedAcreage: string = '';
-  sortOption: string = '';
+  selectedArea = '';
+  selectedType = '';
+  selectedPrice = '';
+  selectedAcreage = '';
+  sortOption = '';
   minPrice?: number;
   maxPrice?: number;
 
@@ -34,25 +34,33 @@ export class HomeComponent implements OnInit {
     this.loadAmenities();
   }
 
+  private normalizeRoomImages(rooms: any[]): any[] {
+    return rooms.map(r => ({
+      ...r,
+      // mainImage “vớt” từ các field backend trả về
+      mainImage:
+        r.imageUrl ||
+        r.mainImage ||
+        (r.images?.[0]?.imageUrl ?? ''),
+    }));
+  }
+
   loadAllRooms(): void {
     this.roomService.getAllRooms().subscribe({
-      next: (data) => {
-        this.rooms = data;
-      },
+      next: (data) => { this.rooms = this.normalizeRoomImages(data); },
       error: (err) => console.error('Lỗi khi tải danh sách phòng:', err)
     });
   }
 
   loadAmenities(): void {
     this.roomService.getAmenities().subscribe({
-      next: (data) => {
-        this.amenities = data.map((a: any) => ({ ...a, selected: false }));
-      },
+      next: (data) => { this.amenities = data.map((a: any) => ({ ...a, selected: false })); },
       error: (err) => console.error('Lỗi khi tải tiện nghi:', err)
     });
   }
 
-  onSearch(): void {
+  onSearch(evt?: Event): void {
+    evt?.preventDefault();
     const filters = {
       area: this.selectedArea,
       type: this.selectedType,
@@ -60,34 +68,30 @@ export class HomeComponent implements OnInit {
       acreage: this.selectedAcreage
     };
     this.roomService.searchRooms(filters).subscribe({
-      next: (data) => (this.rooms = data),
+      next: (data) => { this.rooms = this.normalizeRoomImages(data); },
       error: (err) => console.error('Lỗi tìm kiếm phòng:', err)
     });
   }
 
   applyFilters(): void {
     const filters = {
+      area: this.selectedArea,
+      type: this.selectedType,
       minPrice: this.minPrice,
       maxPrice: this.maxPrice,
-      type: this.selectedType,
-      area: this.selectedArea,
-      amenities: this.amenities
-        .filter(a => a.selected)
-        .map(a => a.id)
+      amenities: this.amenities.filter(a => a.selected).map(a => a.id)
     };
-
     this.roomService.filterRooms(filters).subscribe({
-      next: (data) => (this.rooms = data),
+      next: (data) => { this.rooms = this.normalizeRoomImages(data); },
       error: (err) => console.error('Lỗi khi áp dụng bộ lọc:', err)
     });
   }
 
   onSortChange(event: any): void {
-    const value = event.target.value;
-    if (value.includes('tăng')) {
-      this.rooms.sort((a, b) => a.price - b.price);
-    } else if (value.includes('giảm')) {
-      this.rooms.sort((a, b) => b.price - a.price);
-    }
+    const value = event.target.value || '';
+    const toNum = (v: any) => Number(v ?? 0);
+
+    if (value.includes('tăng'))      this.rooms = [...this.rooms].sort((a, b) => toNum(a.price) - toNum(b.price));
+    else if (value.includes('giảm')) this.rooms = [...this.rooms].sort((a, b) => toNum(b.price) - toNum(a.price));
   }
 }

@@ -14,17 +14,14 @@ export class RoomCardComponent {
 
   get mainImage(): string {
     const raw =
-      this.room?.imageUrl ||
       this.room?.mainImage ||
-      this.room?.images?.[0]?.imageUrl ||
-      '';
+      this.room?.imageUrl ||
+      this.room?.images?.[0]?.imageUrl || '';
 
     if (!raw) return 'assets/images/default-room.jpg';
-
     if (/^https?:\/\//i.test(raw)) return raw;
-
+    
     if (raw.startsWith('/images/')) return raw;
-
     return `/images/${raw.replace(/^\/+/, '')}`;
   }
 }

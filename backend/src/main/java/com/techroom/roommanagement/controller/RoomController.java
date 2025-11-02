@@ -1,38 +1,52 @@
 package com.techroom.roommanagement.controller;
 
 import com.techroom.roommanagement.model.Room;
-import com.techroom.roommanagement.repository.RoomRepository;
-import com.techroom.roommanagement.repository.RoomImageRepository;
+import com.techroom.roommanagement.service.RoomService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/rooms")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:4200")
 public class RoomController {
 
-    private final RoomRepository roomRepository;
-    private final RoomImageRepository roomImageRepository;
-
-    public RoomController(RoomRepository roomRepository, RoomImageRepository roomImageRepository) {
-        this.roomRepository = roomRepository;
-        this.roomImageRepository = roomImageRepository;
-    }
+    @Autowired
+    private RoomService roomService;
 
     @GetMapping
     public List<Room> getAllRooms() {
-        List<Room> rooms = roomRepository.findAll();
-        for (Room room : rooms) {
-            room.setImages(roomImageRepository.findByRoomId(room.getId()));
-        }
-        return rooms;
+        return roomService.getAllRooms();
+    }
+
+    // Ví dụ: /api/rooms/search?keyword=Quy%20Nhơn
+    @GetMapping("/search")
+    public ResponseEntity<List<Room>> searchRooms(@RequestParam String keyword) {
+        List<Room> rooms = roomService.searchRooms(keyword);
+        return ResponseEntity.ok(rooms);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<Room>> filterRooms(
+            @RequestParam(required = false) String area,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) Integer minArea,
+            @RequestParam(required = false) Integer maxArea,
+            @RequestParam(required = false) List<Integer> amenities
+    ) {
+        List<Room> rooms = roomService.filterRooms(area, minPrice, maxPrice, type, minArea, maxArea, amenities);
+        return ResponseEntity.ok(rooms);
     }
 
     @GetMapping("/{id}")
-    public Room getRoomById(@PathVariable int id) {
-        Room room = roomRepository.findById(id).orElseThrow();
-        room.setImages(roomImageRepository.findByRoomId(id));
-        return room;
+    public ResponseEntity<Room> getRoomById(@PathVariable int id) {
+        return roomService.getRoomById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
+
 }

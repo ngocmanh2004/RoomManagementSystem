@@ -7,6 +7,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
+import com.techroom.roommanagement.model.Building;
 
 @Entity
 @Table(name = "rooms")
@@ -18,8 +21,12 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "building_id", nullable = false)
-    private int buildingId;
+    @ManyToOne
+    @JoinColumn(name = "building_id")
+    @JsonIgnoreProperties({"rooms"})
+    private Building building;
+
+
 
     @Column(nullable = false, length = 120)
     private String name;

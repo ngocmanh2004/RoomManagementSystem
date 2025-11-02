@@ -10,9 +10,15 @@
   <div class="container main-section">
     <div class="filter-bar">
       <div class="filter-options">
-        <select><option>Tất cả quận</option></select>
-        <select><option>Tất cả loại phòng</option></select>
-        <select><option>Tất cả mức giá</option></select>
+        <select>
+          <option>Tất cả quận</option>
+        </select>
+        <select>
+          <option>Tất cả loại phòng</option>
+        </select>
+        <select>
+          <option>Tất cả mức giá</option>
+        </select>
         <input type="text" placeholder="Tìm thấy 8 phòng trọ">
       </div>
       <div class="sort-options">
@@ -27,7 +33,7 @@
     </div>
 
     <div class="room-grid">
-      <app-room-card *ngFor="let room of rooms"></app-room-card>
+      <app-room-card *ngFor="let room of rooms" [room]="room"></app-room-card>
     </div>
 
     <div class="load-more">

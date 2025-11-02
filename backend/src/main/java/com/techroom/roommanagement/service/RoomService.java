@@ -27,11 +27,13 @@ public class RoomService {
     }
 
     public List<Room> searchRooms(String keyword) {
-        return roomRepository.findByNameContainingIgnoreCase(keyword);
+        return roomRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword);
     }
 
-    public List<Room> filterByPrice(double min, double max) {
-        return roomRepository.findByPriceBetween(min, max);
+    public List<Room> filterRooms(String area, Double minPrice, Double maxPrice,
+                                  String type, Integer minArea, Integer maxArea,
+                                  List<Integer> amenities) {
+        return roomRepository.filterRooms(area, minPrice, maxPrice, type, minArea, maxArea, amenities);
     }
 
     public Room saveRoom(Room room) {
