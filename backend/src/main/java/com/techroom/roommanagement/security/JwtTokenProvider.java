@@ -23,12 +23,12 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
-    // 🔑 Tạo signing key từ secret cố định
+    // Tạo signing key từ secret cố định
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    // 🎫 Tạo Access Token
+    // Tạo Access Token
     public String generateAccessToken(UserDetails userDetails) {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
@@ -38,7 +38,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // 🔄 Tạo Refresh Token
+    // Tạo Refresh Token
     public String generateRefreshToken() {
         return Jwts.builder()
                 .setId(UUID.randomUUID().toString())
@@ -48,7 +48,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // 🧠 Giải mã username từ token
+    // Giải mã username từ token
     public String extractUsername(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -58,7 +58,7 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
-    // 🧠 Kiểm tra token hợp lệ
+    // Kiểm tra token hợp lệ
     public boolean validateToken(String token, UserDetails userDetails) {
         try {
             String username = extractUsername(token);
@@ -68,7 +68,7 @@ public class JwtTokenProvider {
         }
     }
 
-    // 🧠 Kiểm tra token có hết hạn không
+    // Kiểm tra token có hết hạn không
     public boolean isTokenExpired(String token) {
         try {
             Date expiration = Jwts.parserBuilder()
@@ -83,7 +83,7 @@ public class JwtTokenProvider {
         }
     }
 
-    // 🧠 Validate refresh token (không cần UserDetails)
+    // Validate refresh token (không cần UserDetails)
     public boolean validateRefreshToken(String token) {
         try {
             Jwts.parserBuilder()
