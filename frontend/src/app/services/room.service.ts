@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class RoomService {
-
   private readonly api = '/api';
 
   constructor(private http: HttpClient) {}
@@ -18,15 +17,15 @@ export class RoomService {
   }
 
   searchRooms(filters: {
-    area?: string;           
-    type?: string;           
-    priceRange?: string;    
-    acreage?: string;       
+    area?: string;
+    type?: string;
+    priceRange?: string;
+    acreage?: string;
   }): Observable<any[]> {
     let params = new HttpParams();
 
-    if (filters.area)       params = params.set('area', filters.area);
-    if (filters.type)       params = params.set('type', filters.type);
+    if (filters.area) params = params.set('area', filters.area);
+    if (filters.type) params = params.set('type', filters.type);
 
     if (filters.priceRange) {
       const [min, max] = filters.priceRange.split('-');
@@ -47,16 +46,20 @@ export class RoomService {
     maxPrice?: number;
     minArea?: number;
     maxArea?: number;
-    amenities?: number[]; 
+    amenities?: number[];
   }): Observable<any[]> {
     let params = new HttpParams();
 
-    if (filters.area)      params = params.set('area', filters.area);
-    if (filters.type)      params = params.set('type', filters.type);
-    if (filters.minPrice != null) params = params.set('minPrice', filters.minPrice);
-    if (filters.maxPrice != null) params = params.set('maxPrice', filters.maxPrice);
-    if (filters.minArea  != null) params = params.set('minArea',  filters.minArea);
-    if (filters.maxArea  != null) params = params.set('maxArea',  filters.maxArea);
+    if (filters.area) params = params.set('area', filters.area);
+    if (filters.type) params = params.set('type', filters.type);
+    if (filters.minPrice != null)
+      params = params.set('minPrice', filters.minPrice);
+    if (filters.maxPrice != null)
+      params = params.set('maxPrice', filters.maxPrice);
+    if (filters.minArea != null)
+      params = params.set('minArea', filters.minArea);
+    if (filters.maxArea != null)
+      params = params.set('maxArea', filters.maxArea);
     if (filters.amenities?.length) {
       params = params.set('amenities', filters.amenities.join(','));
     }
@@ -66,5 +69,9 @@ export class RoomService {
 
   getRoomById(id: number): Observable<any> {
     return this.http.get<any>(`${this.api}/rooms/${id}`);
+  }
+
+  getAmenitiesByRoomId(roomId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.api}/amenities/room/${roomId}`);
   }
 }

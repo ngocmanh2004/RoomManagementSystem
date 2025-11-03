@@ -4,7 +4,6 @@ import com.techroom.roommanagement.model.Amenity;
 import com.techroom.roommanagement.repository.AmenityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -18,5 +17,10 @@ public class AmenityController {
     @GetMapping
     public List<Amenity> getAllAmenities() {
         return amenityRepository.findAll();
+    }
+
+    @GetMapping("/room/{roomId}")
+    public List<Amenity> getAmenitiesByRoom(@PathVariable int roomId) {
+        return amenityRepository.findByRoomId(roomId);
     }
 }
