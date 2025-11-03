@@ -8,33 +8,67 @@
       <p>Tham gia cộng đồng TechRoom ngay hôm nay</p>
     </div>
 
-    <form class="register-form">
+    <form [formGroup]="registerForm" (ngSubmit)="register()" class="register-form">
       <fieldset>
-        <legend>Thông tin cơ bản</legend>
+        <legend>Thông tin tài khoản</legend>
         <div class="form-row">
           <div class="form-group">
+            <label for="username">Tên đăng nhập *</label>
+            <input 
+              type="text" 
+              id="username" 
+              formControlName="username"
+              placeholder="Nhập tên đăng nhập"
+              required>
+          </div>
+          <div class="form-group">
             <label for="fullName">Họ và tên *</label>
-            <input type="text" id="fullName" placeholder="Nhập họ và tên đầy đủ">
+            <input 
+              type="text" 
+              id="fullName" 
+              formControlName="fullName"
+              placeholder="Nhập họ và tên đầy đủ"
+              required>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label for="email">Email *</label>
-            <input type="email" id="email" placeholder="Nhập email">
+            <input 
+              type="email" 
+              id="email" 
+              formControlName="email"
+              placeholder="Nhập email"
+              required>
           </div>
           <div class="form-group">
             <label for="phone">Số điện thoại *</label>
-            <input type="tel" id="phone" placeholder="Nhập số điện thoại">
+            <input 
+              type="tel" 
+              id="phone" 
+              formControlName="phone"
+              placeholder="Nhập số điện thoại"
+              required>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label for="password">Mật khẩu *</label>
-            <input type="password" id="password" placeholder="Nhập mật khẩu">
+            <input 
+              type="password" 
+              id="password" 
+              formControlName="password"
+              placeholder="Nhập mật khẩu"
+              required>
           </div>
           <div class="form-group">
             <label for="confirmPassword">Xác nhận mật khẩu *</label>
-            <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu">
+            <input 
+              type="password" 
+              id="confirmPassword" 
+              formControlName="confirmPassword"
+              placeholder="Nhập lại mật khẩu"
+              required>
           </div>
         </div>
       </fieldset>
@@ -44,27 +78,45 @@
         <div class="form-row">
           <div class="form-group">
             <label for="address">Địa chỉ *</label>
-            <input type="text" id="address" placeholder="Nhập địa chỉ hiện tại">
+            <input 
+              type="text" 
+              id="address" 
+              formControlName="address"
+              placeholder="Nhập địa chỉ hiện tại"
+              required>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label for="idCard">CMND/CCCD</label>
-            <input type="text" id="idCard" placeholder="Nhập số CMND/CCCD">
+            <label for="cccd">CMND/CCCD</label>
+            <input 
+              type="text" 
+              id="cccd" 
+              formControlName="cccd"
+              placeholder="Nhập số CMND/CCCD">
           </div>
           <div class="form-group">
-            <label for="dob">Ngày sinh</label>
-            <input type="text" id="dob" placeholder="mm/dd/yyyy" onfocus="(this.type='date')">
+            <label for="dateOfBirth">Ngày sinh</label>
+            <input 
+              type="date" 
+              id="dateOfBirth" 
+              formControlName="dateOfBirth">
           </div>
         </div>
       </fieldset>
 
       <div class="terms-group">
         <label class="checkbox-label">
-          <input type="checkbox"> Tôi đồng ý với <a href="#">điều khoản sử dụng</a> và <a href="#">Chính sách bảo mật</a> của TechRoom *
+          <input 
+            type="checkbox" 
+            formControlName="agreeTerms"> 
+          Tôi đồng ý với <a href="#">điều khoản sử dụng</a> và <a href="#">Chính sách bảo mật</a> của TechRoom *
         </label>
         <label class="checkbox-label">
-          <input type="checkbox"> Tôi muốn nhận thông tin khuyến mãi và tin tức mới từ TechRoom
+          <input 
+            type="checkbox" 
+            formControlName="receiveNews"> 
+          Tôi muốn nhận thông tin khuyến mãi và tin tức mới từ TechRoom
         </label>
       </div>
 
