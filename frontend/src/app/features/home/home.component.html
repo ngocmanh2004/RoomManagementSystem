@@ -1,11 +1,9 @@
 <section class="hero-section">
     <div class="hero-content">
         <h1>Tìm phòng trọ lý tưởng cho cuộc sống của bạn</h1>
-        <p>Hệ thống quản lý phòng trọ thông minh - Một nơi cho chủ trọ và người thuê kết nối cách tin cậy, hiệu quả và
-            chuyên nghiệp</p>
+        <p>Hệ thống quản lý phòng trọ thông minh - Một nơi cho chủ trọ và người thuê kết nối cách tin cậy, hiệu quả và chuyên nghiệp</p>
         <div class="hero-buttons">
-            <button class="btn btn-primary btn-large"><i class="fa-solid fa-magnifying-glass"></i> Tìm phòng
-                ngay</button>
+            <button class="btn btn-primary btn-large"><i class="fa-solid fa-magnifying-glass"></i> Tìm phòng ngay</button>
             <button class="btn btn-outline btn-large">Quản lý tin của bạn</button>
         </div>
     </div>
@@ -14,13 +12,15 @@
 <section class="search-section container">
     <div class="search-box">
         <h3>Tìm kiếm phòng trọ phù hợp</h3>
-        <form class="search-form" (submit)="onSearch()">
+        <form class="search-form" (submit)="onSearch($event)">
             <div class="form-group">
                 <label for="area">Khu vực</label>
                 <select id="area" [(ngModel)]="selectedArea" name="area">
                     <option value="">Chọn khu vực</option>
                     <option value="An Nhơn">An Nhơn</option>
                     <option value="Quy Nhơn">Quy Nhơn</option>
+                    <option value="TP.HCM">TP.HCM</option>
+                    <option value="Tuy Hòa">Tuy Hòa</option>
                 </select>
             </div>
             <div class="form-group">
@@ -51,65 +51,69 @@
                     <option value="40-999">Trên 40 m²</option>
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm</button>
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm
+            </button>
         </form>
     </div>
 </section>
 
 <section class="main-content container">
     <aside class="filter-sidebar">
-  <div class="filter-header">
-    <h4><i class="fa-solid fa-filter"></i> Bộ lọc</h4>
-    <a href="#" class="clear-filter">Xóa tất cả</a>
-  </div>
+        <div class="filter-header">
+            <h4><i class="fa-solid fa-filter"></i> Bộ lọc</h4>
+            <a href="#" class="clear-filter" (click)="clearFilters(); $event.preventDefault()">Xóa tất cả</a>
+        </div>
 
-  <form (ngSubmit)="applyFilters()" class="filter-form">
-    <div class="filter-group">
-      <label>Khoảng giá (triệu VNĐ)</label>
-      <div class="price-range">
-        <input type="number" [(ngModel)]="minPrice" name="minPrice" placeholder="Từ" />
-        <input type="number" [(ngModel)]="maxPrice" name="maxPrice" placeholder="Đến" />
-      </div>
-    </div>
+        <form (ngSubmit)="applyFilters()" class="filter-form">
+            <div class="filter-group">
+                <label>Khoảng giá (triệu VNĐ)</label>
+                <div class="price-range">
+                    <input type="number" [(ngModel)]="minPrice" name="minPrice" placeholder="Từ" min="0" />
+                    <input type="number" [(ngModel)]="maxPrice" name="maxPrice" placeholder="Đến" min="0" />
+                </div>
+            </div>
 
-    <div class="filter-group">
-      <label>Diện tích</label>
-      <select [(ngModel)]="selectedAcreage" name="selectedAcreage">
-        <option value="">Chọn diện tích</option>
-        <option *ngFor="let size of areaOptions" [value]="size">{{ size }} m²</option>
-      </select>
-    </div>
+            <div class="filter-group">
+                <label>Diện tích</label>
+                <select [(ngModel)]="selectedAcreage" name="selectedAcreage">
+                    <option value="">Chọn diện tích</option>
+                    <option *ngFor="let size of areaOptions" [value]="size">{{ size }} m²</option>
+                </select>
+            </div>
 
-    <div class="filter-group">
-      <label>Loại phòng</label>
-      <select [(ngModel)]="selectedType" name="selectedType">
-        <option value="">Chọn loại phòng</option>
-        <option *ngFor="let type of roomTypes" [value]="type">{{ type }}</option>
-      </select>
-    </div>
+            <div class="filter-group">
+                <label>Loại phòng</label>
+                <select [(ngModel)]="selectedType" name="selectedType">
+                    <option value="">Chọn loại phòng</option>
+                    <option *ngFor="let type of roomTypes" [value]="type">{{ type }}</option>
+                </select>
+            </div>
 
-    <div class="filter-group">
-      <label>Tiện nghi</label>
-      <div class="checkbox-list">
-        <label *ngFor="let amenity of amenities">
-          <input type="checkbox" [(ngModel)]="amenity.selected" name="amenities" [value]="amenity.id" />
-          <span class="checkmark"></span>
-          <span class="label-text">{{ amenity.name }}</span>
-        </label>
-      </div>
-    </div>
+            <div class="filter-group">
+                <label>Tiện nghi</label>
+                <div class="checkbox-list">
+                    <label *ngFor="let amenity of amenities">
+                        <input 
+                            type="checkbox" 
+                            [(ngModel)]="amenity.selected" 
+                            [name]="'amenity_' + amenity.id" 
+                        />
+                        <span class="checkmark"></span>
+                        <span class="label-text">{{ amenity.name }}</span>
+                    </label>
+                </div>
+            </div>
 
-    <button class="btn btn-primary btn-full-width" type="submit">
-      <i class="fa-solid fa-magnifying-glass"></i> Áp dụng bộ lọc
-    </button>
-  </form>
-</aside>
-
-
+            <button class="btn btn-primary btn-full-width" type="submit">
+                <i class="fa-solid fa-magnifying-glass"></i> Áp dụng bộ lọc
+            </button>
+        </form>
+    </aside>
 
     <div class="room-list-container">
         <div class="list-header">
-            <h3>Phòng trọ nổi bật</h3>
+            <h3>Phòng trọ nổi bật ({{ rooms.length }})</h3>
             <select [(ngModel)]="sortOption" (change)="onSortChange($event)">
                 <option>Mặc định</option>
                 <option>Giá tăng dần</option>
@@ -117,12 +121,21 @@
             </select>
         </div>
 
-        <div class="room-list">
+        <!-- ✅ Hiển thị khi có phòng -->
+        <div class="room-list" *ngIf="rooms.length > 0">
             <app-room-card *ngFor="let room of rooms" [room]="room"></app-room-card>
         </div>
 
+        <!-- ✅ Hiển thị khi không có phòng -->
+        <div class="no-rooms" *ngIf="rooms.length === 0">
+            <i class="fa-solid fa-house-circle-xmark"></i>
+            <p>Không tìm thấy phòng trọ phù hợp</p>
+            <button class="btn btn-outline" (click)="clearFilters()">
+                Xóa bộ lọc
+            </button>
+        </div>
 
-        <div class="view-more">
+        <div class="view-more" *ngIf="rooms.length > 0">
             <button class="btn btn-outline">Xem thêm phòng trọ</button>
         </div>
     </div>

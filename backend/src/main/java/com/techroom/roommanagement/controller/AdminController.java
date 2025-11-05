@@ -41,7 +41,7 @@ public class AdminController {
     @PutMapping("/users/{userId}/role")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateUserRole(
-            @PathVariable Long userId,
+            @PathVariable int userId,
             @RequestParam int newRole) {
         try {
             User user = userRepository.findById(userId)

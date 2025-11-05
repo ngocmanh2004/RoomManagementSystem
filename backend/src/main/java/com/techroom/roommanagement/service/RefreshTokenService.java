@@ -58,7 +58,7 @@ public class RefreshTokenService {
      * Xóa refresh token của user (dùng khi logout)
      */
     @Transactional
-    public void deleteByUserId(Long userId) {
+    public void deleteByUserId(Integer userId) {
         refreshTokenRepository.deleteByUserId(userId);
     }
 

@@ -11,10 +11,10 @@ public class Tenant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private int userId;
 
     @Column(unique = true, length = 20)
     private String cccd;
