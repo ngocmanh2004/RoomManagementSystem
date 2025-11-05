@@ -10,26 +10,37 @@
   <div class="container main-section">
     <div class="filter-bar">
       <div class="filter-options">
-        <select>
-          <option>Tất cả quận</option>
+        <select [(ngModel)]="selectedArea" (change)="applyFilter()">
+          <option value="">Tất cả khu vực</option>
+          <option *ngFor="let area of areas" [value]="area">{{ area }}</option>
         </select>
-        <select>
-          <option>Tất cả loại phòng</option>
+        <select [(ngModel)]="selectedType" (change)="applyFilter()">
+          <option value="">Tất cả loại phòng</option>
+          <option *ngFor="let type of types" [value]="type">{{ type }}</option>
         </select>
-        <select>
-          <option>Tất cả mức giá</option>
+        <select [(ngModel)]="priceRange" (change)="applyFilter()">
+          <option value="">Tất cả mức giá</option>
+          <option value="0-2000000">Dưới 2 triệu</option>
+          <option value="2000000-4000000">2 - 4 triệu</option>
+          <option value="4000000-6000000">4 - 6 triệu</option>
+          <option value="6000000-10000000">6 - 10 triệu</option>
         </select>
-        <input type="text" placeholder="Tìm thấy 8 phòng trọ">
+        <div class="search-box">
+          <input type="text" placeholder="Tìm kiếm phòng..." [(ngModel)]="searchKeyword"
+            (keyup.enter)="searchRooms()" />
+          <button (click)="searchRooms()">Tìm</button>
+        </div>
       </div>
       <div class="sort-options">
         <span>Sắp xếp:</span>
-        <select>
+        <select [(ngModel)]="sortOption" (change)="onSortChange($event)">
           <option>Mới nhất</option>
           <option>Cũ nhất</option>
           <option>Giá thấp đến cao</option>
           <option>Giá cao đến thấp</option>
         </select>
       </div>
+
     </div>
 
     <div class="room-grid">

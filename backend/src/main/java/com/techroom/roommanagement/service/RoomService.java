@@ -43,4 +43,9 @@ public class RoomService {
     public void deleteRoom(int id) {
         roomRepository.deleteById(id);
     }
+
+    public List<String> getDistinctAreas() {
+        return roomRepository.findDistinctAreas();
+    }
+
 }
