@@ -429,3 +429,19 @@
 .btn-full-width:hover {
   background-color: #0056b3;
 }
+.no-rooms {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+}
+
+.no-rooms i {
+  font-size: 80px;
+  color: #ddd;
+  margin-bottom: 20px;
+}
+
+.no-rooms p {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
