@@ -11,28 +11,7 @@ import { AuthService } from '../../services/auth.service';
     <div class="dashboard">
       <header>
         <h1>Admin Dashboard</h1>
-        <div class="user-info">
-          <span>{{ currentUser?.fullName }}</span>
-          <button (click)="logout()">Đăng xuất</button>
-        </div>
-      </header>
-      
-      <div class="content">
-        <div class="card">
-          <i class="fa-solid fa-users"></i>
-          <h3>Quản lý người dùng</h3>
-        </div>
-        
-        <div class="card">
-          <i class="fa-solid fa-building"></i>
-          <h3>Quản lý phòng trọ</h3>
-        </div>
-        
-        <div class="card">
-          <i class="fa-solid fa-chart-line"></i>
-          <h3>Thống kê</h3>
-        </div>
-      </div>
+      </header> 
     </div>
   `,
   styles: [`

@@ -8,23 +8,28 @@ import { LoginComponent } from './features/login/login.component';
 import { RegisterComponent } from './features/register/register.component';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
-
+import { AdminLayoutComponent } from './shared/layout-admin/admin-layout/admin-layout.component';
+import { PublicLayoutComponent } from './shared/layout/public-layout/public-layout.component';
 // Import Dashboard Components
 import { AdminDashboardComponent } from './features/admin/dashboard.component';
 
 export const routes: Routes = [
-  // PUBLIC ROUTES
-  { path: '', component: HomeComponent },
-  { path: 'rooms', component: RoomsComponent },
-  { path: 'rooms/:id', component: RoomDetailComponent },
-  { path: 'about', component: AboutComponent },
-  { path: 'contact', component: ContactComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-
+  {
+    path: '', component: PublicLayoutComponent,
+    children: [
+      { path: '', component: HomeComponent },
+      { path: 'rooms', component: RoomsComponent },
+      { path: 'rooms/:id', component: RoomDetailComponent },
+      { path: 'about', component: AboutComponent },
+      { path: 'contact', component: ContactComponent },
+      { path: 'login', component: LoginComponent },
+      { path: 'register', component: RegisterComponent },
+    ]
+  },
   // ADMIN ROUTES (role = 0)
   {
     path: 'admin',
+    component: AdminLayoutComponent,
     canActivate: [authGuard, roleGuard([0])],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
