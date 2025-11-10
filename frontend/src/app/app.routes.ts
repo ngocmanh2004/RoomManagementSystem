@@ -8,20 +8,20 @@ import { LoginComponent } from './features/login/login.component';
 import { RegisterComponent } from './features/register/register.component';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
-
+import { TenantManagementComponent } from './features/admin/tenant-management/tenant-management.component';
 // Import Dashboard Components
 import { AdminDashboardComponent } from './features/admin/dashboard.component';
 
 export const routes: Routes = [
   // PUBLIC ROUTES
   { path: '', component: HomeComponent },
-  { path: 'rooms', component: RoomsComponent },
+  { path: 'admin/rooms', component: RoomsComponent },
   { path: 'rooms/:id', component: RoomDetailComponent },
   { path: 'about', component: AboutComponent },
   { path: 'contact', component: ContactComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-
+  { path: 'admin/tenant-management', component: TenantManagementComponent },
   // ADMIN ROUTES (role = 0)
   {
     path: 'admin',

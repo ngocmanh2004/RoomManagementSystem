@@ -43,7 +43,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/admin/create-user").permitAll()
+                        .requestMatchers("/api/admin/users").permitAll()
                         .requestMatchers("/api/users/**").permitAll()
                         .requestMatchers("/api/rooms/**").permitAll()
                         .requestMatchers("/api/amenities/**").permitAll()
