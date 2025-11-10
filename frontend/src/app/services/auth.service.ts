@@ -6,7 +6,7 @@ import { AuthResponse, UserInfo, RefreshTokenRequest } from '../models/users';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/api/auth';
+  private apiUrl = 'http://localhost:8081/api/auth';
   
   private currentUserSubject = new BehaviorSubject<UserInfo | null>(this.getCurrentUser());
   public currentUser$ = this.currentUserSubject.asObservable();

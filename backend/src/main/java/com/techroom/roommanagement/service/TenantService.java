@@ -1,18 +1,15 @@
-﻿package com.techroom.roommanagement.service;
-
 import com.techroom.roommanagement.model.Tenant;
 import com.techroom.roommanagement.model.User;
 import com.techroom.roommanagement.repository.TenantRepository;
 import com.techroom.roommanagement.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 public class TenantService {
@@ -36,7 +33,7 @@ public class TenantService {
         User user = tenant.getUser();
         if (user != null) {
             if (user.getCreatedAt() == null) {
-                user.setCreatedAt(new Date());
+                user.setCreatedAt(LocalDateTime.now());
             }
             userRepository.save(user);
         }
@@ -78,10 +75,9 @@ public class TenantService {
 
         return tenantRepository.findAll().stream()
                 .filter(t -> {
-                    Date createdAt = t.getUser().getCreatedAt();
+                    LocalDateTime createdAt = t.getUser().getCreatedAt();
                     if (createdAt == null) return false;
-                    LocalDate createdDate = createdAt.toInstant()
-                            .atZone(ZoneId.systemDefault()).toLocalDate();
+                    LocalDate createdDate = createdAt.toLocalDate();
                     return createdDate.getMonthValue() == currentMonth && createdDate.getYear() == currentYear;
                 })
                 .count();
