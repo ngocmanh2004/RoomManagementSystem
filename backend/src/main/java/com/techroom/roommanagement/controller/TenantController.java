@@ -35,7 +35,7 @@ public class TenantController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Tenant> getTenantById(@PathVariable Long id) {
+    public ResponseEntity<Tenant> getTenantById(@PathVariable int id) {
         Optional<Tenant> tenant = tenantRepository.findById(id);
         return tenant.map(ResponseEntity::ok)
                      .orElse(ResponseEntity.notFound().build());
@@ -99,7 +99,7 @@ user.setFullName(fullName);
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Tenant> updateTenant(@PathVariable Long id, @RequestBody Tenant tenantDetails) {
+    public ResponseEntity<Tenant> updateTenant(@PathVariable int id, @RequestBody Tenant tenantDetails) {
         Optional<Tenant> tenantOptional = tenantRepository.findById(id);
         if (tenantOptional.isPresent()) {
             Tenant tenant = tenantOptional.get();
@@ -113,7 +113,7 @@ user.setFullName(fullName);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTenant(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTenant(@PathVariable int id) {
         if (tenantRepository.existsById(id)) {
             tenantRepository.deleteById(id);
             return ResponseEntity.noContent().build();

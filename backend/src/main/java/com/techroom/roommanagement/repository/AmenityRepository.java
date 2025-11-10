@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface AmenityRepository extends JpaRepository<Amenity, Long> {
+public interface AmenityRepository extends JpaRepository<Amenity, Integer> {
 
     @Query(value = """
         SELECT a.* FROM amenities a

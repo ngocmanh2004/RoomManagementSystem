@@ -1,0 +1,35 @@
+<div class="sidebar-container" [class.collapsed]="isCollapsed">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <i class="fa-solid fa-building"></i>
+    </div>
+    <span class="logo-text">Quản Lý Trọ</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <ul>
+      <li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <a routerLink="/admin/dashboard">
+          <i class="fa-solid fa-chart-line"></i>
+          <span class="nav-text">Dashboard</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active">
+        <a routerLink="/admin/rooms">
+          <i class="fa-solid fa-door-open"></i>
+          <span class="nav-text">Quản lý Phòng</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active">
+        <a routerLink="/admin/tenants">
+          <i class="fa-solid fa-users"></i>
+          <span class="nav-text">Quản lý Khách thuê</span>
+        </a>
+      </li>
+
+      
+    </ul>
+  </nav>
+</div>

@@ -1,3 +1,5 @@
+package com.techroom.roommanagement.service;
+
 import com.techroom.roommanagement.model.Tenant;
 import com.techroom.roommanagement.model.User;
 import com.techroom.roommanagement.repository.TenantRepository;
@@ -24,7 +26,7 @@ public class TenantService {
         return tenantRepository.findAll();
     }
 
-    public Optional<Tenant> getTenantById(Long id) {
+    public Optional<Tenant> getTenantById(int id) {
         return tenantRepository.findById(id);
     }
 
@@ -42,7 +44,7 @@ public class TenantService {
     }
 
     @Transactional
-    public Tenant updateTenant(Long tenantId, Tenant updatedTenant) {
+    public Tenant updateTenant(int tenantId, Tenant updatedTenant) {
         Tenant existing = tenantRepository.findById(tenantId)
                 .orElseThrow(() -> new RuntimeException("Tenant not found"));
 
@@ -64,7 +66,7 @@ public class TenantService {
     }
 
     @Transactional
-    public void deleteTenant(Long tenantId) {
+    public void deleteTenant(int tenantId) {
         tenantRepository.deleteById(tenantId);
     }
 
