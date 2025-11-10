@@ -16,28 +16,12 @@ export class RoomService {
     return this.http.get<any[]>(`${this.api}/amenities`);
   }
 
-  searchRooms(filters: {
-    area?: string;
-    type?: string;
-    priceRange?: string;
-    acreage?: string;
-  }): Observable<any[]> {
-    let params = new HttpParams();
+  searchRooms(keyword: string): Observable<any[]> {
+  return this.http.get<any[]>(`${this.api}/rooms/search`, {
+    params: { keyword }
+  });
+}
 
-    if (filters.area) params = params.set('area', filters.area);
-    if (filters.type) params = params.set('type', filters.type);
-
-    if (filters.priceRange) {
-      const [min, max] = filters.priceRange.split('-');
-      params = params.set('minPrice', min).set('maxPrice', max);
-    }
-    if (filters.acreage) {
-      const [minA, maxA] = filters.acreage.split('-');
-      params = params.set('minArea', minA).set('maxArea', maxA);
-    }
-
-    return this.http.get<any[]>(`${this.api}/rooms/filter`, { params });
-  }
 
   filterRooms(filters: {
     area?: string;
@@ -74,4 +58,9 @@ export class RoomService {
   getAmenitiesByRoomId(roomId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.api}/amenities/room/${roomId}`);
   }
+
+  getAreas(): Observable<string[]> {
+  return this.http.get<string[]>(`${this.api}/rooms/areas`);
+}
+
 }

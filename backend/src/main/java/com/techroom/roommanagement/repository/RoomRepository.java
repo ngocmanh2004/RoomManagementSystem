@@ -32,4 +32,9 @@ public interface RoomRepository extends JpaRepository<Room, Integer> {
             @Param("maxArea") Integer maxArea,
             @Param("amenities") List<Integer> amenities
     );
+
+    @Query("SELECT DISTINCT SUBSTRING_INDEX(r.building.address, ',', -2) FROM Room r")
+    List<String> findDistinctAreas();
+
+
 }

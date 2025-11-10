@@ -15,7 +15,7 @@ import { AdminDashboardComponent } from './features/admin/dashboard.component';
 export const routes: Routes = [
   // PUBLIC ROUTES
   { path: '', component: HomeComponent },
-  { path: 'admin/rooms', component: RoomsComponent },
+  { path: 'rooms', component: RoomsComponent },
   { path: 'rooms/:id', component: RoomDetailComponent },
   { path: 'about', component: AboutComponent },
   { path: 'contact', component: ContactComponent },
