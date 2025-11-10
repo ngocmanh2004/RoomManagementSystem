@@ -12,4 +12,8 @@ import { Router, RouterOutlet } from '@angular/router';
 })
 export class PublicLayoutComponent {
 
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> features-add-tenant

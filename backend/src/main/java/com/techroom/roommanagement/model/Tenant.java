@@ -13,8 +13,8 @@ public class Tenant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "user_id", nullable = false)
-    private int userId;
+    //@Column(name = "user_id")
+    //private int userId;
 
     @Column(unique = true, length = 20)
     private String cccd;
@@ -26,6 +26,7 @@ public class Tenant {
     private String address;
 
     @OneToOne
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
 }

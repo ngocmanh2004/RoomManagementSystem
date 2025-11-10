@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
-  selector: 'app-admin-dashboard',
+  selector: 'app-dashboard-admin',
   standalone: true,
   imports: [CommonModule],
   template: `
@@ -22,7 +22,7 @@ import { AuthService } from '../../services/auth.service';
     button { padding: 0.5rem 1rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; }
   `]
 })
-export class AdminDashboardComponent implements OnInit {
+export class DashboardAdminComponent implements OnInit {
   currentUser: any;
 
   constructor(private authService: AuthService, private router: Router) {}

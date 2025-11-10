@@ -1,9 +1,12 @@
 package com.techroom.roommanagement.dto;
-
+import lombok.Getter;
+import lombok.Setter;
 import lombok.Data;
 import java.time.LocalDate;
 
 @Data
+@Getter
+@Setter
 public class RegisterRequest {
     // Thông tin Users
     private String username;

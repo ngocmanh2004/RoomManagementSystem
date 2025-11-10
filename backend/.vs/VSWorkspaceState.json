@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\main",
+    "\\src\\main\\java",
+    "\\src\\main\\java\\com",
+    "\\src\\main\\java\\com\\techroom",
+    "\\src\\main\\java\\com\\techroom\\roommanagement",
+    "\\src\\main\\java\\com\\techroom\\roommanagement\\repository",
+    "\\src\\main\\java\\com\\techroom\\roommanagement\\service",
+    "\\src\\main\\java\\com\\techroom\\roommanagement\\service\\DTO"
+  ],
+  "SelectedNode": "\\src\\main\\java\\com\\techroom\\roommanagement\\dto\\RegisterRequest.java",
+  "PreviewInSolutionExplorer": false
+}

@@ -49,7 +49,7 @@ public class UserService {
         User savedUser = userRepository.save(user);
 
         Tenant tenant = new Tenant();
-        tenant.setUserId(savedUser.getId());
+        tenant.setUser(savedUser);
         tenant.setAddress(request.getAddress());
         tenant.setCccd(request.getCccd());
         tenant.setDateOfBirth(request.getDateOfBirth());
@@ -85,7 +85,7 @@ public class UserService {
         // ✅ Chỉ tạo Tenant record nếu role = 2
         if (savedUser.getRole() == 2) {
             Tenant tenant = new Tenant();
-            tenant.setUserId(savedUser.getId());
+            tenant.setUser(savedUser);
             tenant.setAddress(request.getAddress());
             tenant.setCccd(request.getCccd());
             tenant.setDateOfBirth(request.getDateOfBirth());

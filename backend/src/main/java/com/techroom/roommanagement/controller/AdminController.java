@@ -22,7 +22,7 @@ public class AdminController {
     private UserService userService;
 
     @GetMapping("/users")
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userRepository.findAll());
     }
