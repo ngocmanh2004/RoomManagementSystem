@@ -48,6 +48,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/rooms/**").permitAll()
                         .requestMatchers("/api/amenities/**").permitAll()
                         .requestMatchers("/images/**").permitAll()
+                        .requestMatchers("/api/districts/by-province/**").permitAll()
+
+                        .requestMatchers("/api/provinces/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())

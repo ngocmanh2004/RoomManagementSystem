@@ -29,4 +29,9 @@ public class Building {
     @JsonIgnoreProperties({"building"})
     private List<Room> rooms;
 
+    @Column(name = "province_code")
+    private Integer provinceCode;
+
+    @Column(name = "district_code")
+    private Integer districtCode;
 }

@@ -1,4 +1,4 @@
-/* Tổng thể */
+/* === TỔNG THỂ (Giữ nguyên) === */
 .rooms-page {
   background-color: #f8f9fa;
   min-height: 100vh;
@@ -19,13 +19,12 @@
   font-weight: 700;
 }
 
-/* === Thanh lọc === */
+/* =======================================
+  === BẮT ĐẦU CSS MỚI CHO FILTER BAR ===
+  =======================================
+*/
 .filter-bar {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-  align-items: center;
+  display: block; /* Chuyển sang block để form bên trong tự xử lý */
   background: #fff;
   padding: 20px 25px;
   border-radius: 10px;
@@ -33,239 +32,187 @@
   margin-bottom: 30px;
 }
 
-.filter-options {
+.filter-form-grid {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
+  flex-direction: column;
+  gap: 16px; /* Khoảng cách giữa 2 hàng */
 }
 
-.filter-bar select,
-.filter-bar input {
+/* Hàng 1: Các dropdown lọc */
+.filter-options {
+  display: grid;
+  /* 4 cột bằng nhau */
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 12px;
+}
+
+.filter-bar select {
+  width: 100%; /* Cho select vừa khít cột grid */
   padding: 8px 14px;
   border: 1px solid #dee2e6;
   border-radius: 8px;
   font-size: 14px;
   background-color: #fff;
   transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23777' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 12px;
 }
 
 .filter-bar select:hover,
-.filter-bar input:focus {
+.filter-bar input:hover {
   border-color: #0d6efd;
   outline: none;
 }
 
-.search-box {
-  display: flex;
+.filter-bar select:focus,
+.filter-bar input:focus {
+  border-color: #0d6efd;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+
+/* Hàng 2: Tìm kiếm, Nút, Sắp xếp */
+.filter-actions {
+  display: grid;
+  /* Chia layout hàng 2 (Search | Nút | Sort) */
+  grid-template-columns: 3fr 2fr 1.5fr; 
+  gap: 12px;
   align-items: center;
 }
 
-.search-box input {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  width: 200px;
+/* Ô tìm kiếm */
+.search-box {
+  display: flex;
+  width: 100%;
 }
-
-.search-box button {
-  background-color: #0d6efd;
-  border: none;
-  color: white;
-  padding: 8px 16px;
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
-  cursor: pointer;
+.search-box input {
+  width: 100%; /* Cho input chiếm hết 3fr */
+  padding: 8px 14px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 14px;
   transition: all 0.2s ease;
 }
 
-.search-box button:hover {
+/* Nhóm nút */
+.form-group-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 nút */
+  gap: 10px;
+}
+
+/* Nút bấm (Lọc, Làm mới) */
+.form-group-buttons .btn {
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap; /* không vỡ chữ */
+}
+
+/* Nút "Lọc" (nền xanh) */
+.btn.btn-primary {
+  background-color: #0d6efd;
+  border: 1px solid #0d6efd;
+  color: white;
+}
+.btn.btn-primary:hover {
   background-color: #0b5ed7;
 }
 
+/* Nút "Làm mới" (viền xanh) */
+.btn.btn-outline {
+  border: 1px solid #0d6efd;
+  background: white;
+  color: #0d6efd;
+}
+.btn.btn-outline:hover {
+  background-color: #0d6efd;
+  color: white;
+}
+
+/* Sắp xếp */
 .sort-options {
   display: flex;
   align-items: center;
   gap: 8px;
+  justify-self: flex-end; /* Đẩy Sắp xếp về bên phải */
 }
 
-.sort-options select {
-  min-width: 130px;
-}
-
-/* === Danh sách phòng === */
-.room-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 30px;
-}
-
-@media (max-width: 900px) {
-  .room-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* === Card phòng (app-room-card) === */
-app-room-card {
-  display: block;
-  background: #fff;
-  border: 1px solid #e9ecef;
-  border-radius: 12px;
-  overflow: hidden;
-  transition: all 0.25s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-}
-
-app-room-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-}
-
-/* === Hình ảnh trong card === */
-app-room-card img {
-  width: 100%;
-  height: 200px; /* cố định chiều cao */
-  object-fit: cover; /* crop ảnh cho đều */
-  display: block;
-}
-
-/* === Nút "Xem thêm" === */
-.load-more {
-  display: flex;
-  justify-content: center;
-  margin-top: 40px;
-}
-
-.btn.btn-outline {
-  border: 1px solid #0d6efd;
-  background: white;
-  color: #0d6efd;
-  padding: 10px 22px;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn.btn-outline:hover {
-  background-color: #0d6efd;
-  color: white;
-}
-/* === Grid 2 cột đều nhau === */
-.room-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 30px;
-}
-
-@media (max-width: 900px) {
-  .room-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* === Card phòng trọ === */
-app-room-card {
-  display: block;
-  background: #fff;
-  border: 1px solid #e9ecef;
-  border-radius: 12px;
-  overflow: hidden;
-  transition: all 0.25s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  height: 370px; /* ✅ cố định chiều cao toàn card */
-}
-
-app-room-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-}
-
-/* === Hình ảnh phòng trọ === */
-app-room-card img {
-  width: 100%;
-  height: 180px; /* ✅ cố định chiều cao ảnh */
-  object-fit: cover;
-  display: block;
-}
-
-/* === Nút "Xem thêm" === */
-.load-more {
-  display: flex;
-  justify-content: center;
-  margin-top: 40px;
-}
-
-.btn.btn-outline {
-  border: 1px solid #0d6efd;
-  background: white;
-  color: #0d6efd;
-  padding: 10px 22px;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn.btn-outline:hover {
-  background-color: #0d6efd;
-  color: white;
-}
-.filter-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  background: #fff;
-  padding: 16px 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin-bottom: 25px;
-}
-
-.filter-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.filter-bar select,
-.filter-bar input {
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  padding: 8px 12px;
+.sort-options span {
   font-size: 14px;
-  min-width: 160px;
-  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.filter-bar select:hover,
-.filter-bar input:focus {
-  border-color: #0d6efd;
-  box-shadow: 0 0 4px rgba(13, 110, 253, 0.2);
+/* =====================================
+  === KẾT THÚC CSS MỚI CHO FILTER BAR ===
+  =====================================
+*/
+
+
+/* === DANH SÁCH PHÒNG (Giữ nguyên) === */
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
 }
 
-.search-box {
+/* === Card phòng (Giữ nguyên) === */
+app-room-card {
+  display: block;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+app-room-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Nút "Xem thêm" (Giữ nguyên) */
+.load-more {
   display: flex;
+  justify-content: center;
+  margin-top: 40px;
 }
 
-.search-box input {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+/* Nút "Xem thêm" ở .load-more dùng chung class .btn.btn-outline */
+.load-more .btn.btn-outline {
+  padding: 10px 22px;
+  font-size: 15px;
+  font-weight: 500;
 }
 
-.search-box button {
-  background-color: #0d6efd;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  cursor: pointer;
+
+/* === RESPONSIVE (Giữ nguyên và Bổ sung) === */
+@media (max-width: 992px) {
+  .filter-options {
+    grid-template-columns: repeat(2, 1fr); /* Hàng 1 -> 2 cột */
+  }
+  .filter-actions {
+    grid-template-columns: 1fr; /* Hàng 2 -> 1 cột */
+  }
+  .sort-options {
+    justify-self: flex-start; /* Sắp xếp đẩy về bên trái */
+  }
 }
 
-.search-box button:hover {
-  background-color: #0b5ed7;
+@media (max-width: 900px) {
+  .room-grid {
+    grid-template-columns: 1fr; /* Danh sách phòng -> 1 cột */
+  }
+}
+
+@media (max-width: 768px) {
+  .filter-options {
+    grid-template-columns: 1fr; /* Hàng 1 -> 1 cột */
+  }
 }

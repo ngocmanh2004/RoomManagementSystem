@@ -445,3 +445,27 @@
   font-size: 18px;
   margin-bottom: 20px;
 }
+/* CĂN CHỈNH NHÓM NÚT TRÊN THANH TÌM KIẾM */
+.form-group-buttons {
+  display: flex;
+  gap: 10px; /* Khoảng cách giữa 2 nút */
+  align-items: center; /* Căn 2 nút thẳng hàng */
+  
+  /* Quan trọng: Thêm dòng này để nhóm nút 
+    tự động căn về cuối (theo .search-form)
+  */
+  align-self: flex-end; 
+}
+
+/* Nếu nút "Làm mới" của bạn vẫn bị ẩn (màu trắng), 
+  thêm đoạn CSS này để sửa nó 
+*/
+.search-form .btn-outline {
+  border-color: #007bff; /* Viền xanh */
+  color: #007bff; /* Chữ xanh */
+}
+
+.search-form .btn-outline:hover {
+  background-color: #007bff;
+  color: white;
+}

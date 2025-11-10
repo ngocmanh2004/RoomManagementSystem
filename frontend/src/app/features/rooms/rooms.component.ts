@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RoomService } from '../../services/room.service';
 import { RoomCardComponent } from '../../shared/components/room-card/room-card.component';
+import { ProvinceService } from '../../services/province.service'; // THÊM MỚI
+import { Province, District } from '../../models/province.model'; // THÊM MỚI
 
 @Component({
   selector: 'app-rooms',
@@ -13,112 +15,151 @@ import { RoomCardComponent } from '../../shared/components/room-card/room-card.c
 })
 export class RoomsComponent implements OnInit {
   rooms: any[] = [];
-  allRooms: any[] = []; // lưu để lọc/tìm kiếm lại
-  areas: string[] = [];
-  types: string[] = ['Phòng trọ', 'Chung cư mini', 'Nhà nguyên căn'];
+  
+  // Biến cho Tỉnh/Huyện (MỚI)
+  provinces: Province[] = [];
+  districts: District[] = [];
 
-  selectedArea = '';
-  selectedType = '';
-  priceRange = '';
-  searchKeyword = '';
-  sortOption = 'Mới nhất';
+  // Biến cho bộ lọc (MỚI)
+  selectedProvinceCode: string = '';
+  selectedDistrictCode: string = '';
+  selectedPrice: string = '';
+  selectedAcreage: string = '';
+  searchKeyword: string = '';
+  sortOption: string = 'Mới nhất'; // Giữ nguyên
 
-  constructor(private roomService: RoomService) {}
+  constructor(
+    private roomService: RoomService,
+    private provinceService: ProvinceService // THÊM MỚI
+  ) {}
 
   ngOnInit(): void {
-    this.loadRooms();
-    this.loadAreas();
+    this.loadAllRooms(); // Tải tất cả phòng khi vào trang
+    this.loadProvinces(); // Tải danh sách tỉnh
   }
 
-  /** Lấy danh sách phòng từ DB */
-  loadRooms(): void {
+  /** (SỬA) Tải tất cả phòng */
+  loadAllRooms(): void {
     this.roomService.getAllRooms().subscribe({
       next: (data) => {
         this.rooms = this.normalizeRoomData(data);
-        this.allRooms = [...this.rooms];
-        this.sortRooms(); // sắp xếp mặc định
+        this.sortRooms(); // Sắp xếp sau khi tải
       },
       error: (err) => console.error('Lỗi tải phòng:', err),
     });
   }
 
-  /** Lấy danh sách khu vực từ DB */
-  loadAreas(): void {
-    this.roomService.getAreas().subscribe({
-      next: (data) => (this.areas = data || []),
-      error: (err) => console.error('Lỗi tải khu vực:', err),
+  /** (MỚI) Tải tất cả Tỉnh/Thành */
+  loadProvinces(): void {
+    this.provinceService.getAllProvinces().subscribe({
+      next: (data) => (this.provinces = data),
+      error: (err) => console.error('Lỗi tải tỉnh thành:', err),
     });
   }
 
-  /** Tìm kiếm phòng */
-  searchRooms(): void {
-    const keyword = this.searchKeyword.trim();
-    if (!keyword) {
-      this.loadRooms();
-      return;
+  /** (MỚI) Tải Quận/Huyện khi Tỉnh thay đổi */
+  onProvinceChange(): void {
+    this.districts = [];
+    this.selectedDistrictCode = '';
+    const provinceCode = parseInt(this.selectedProvinceCode);
+    if (provinceCode) {
+      this.provinceService.getDistrictsByProvince(provinceCode).subscribe({
+        next: (data) => (this.districts = data),
+        error: (err) => console.error('Lỗi tải quận huyện:', err),
+      });
     }
-
-    this.roomService.searchRooms(keyword).subscribe({
-      next: (data) => {
-        this.rooms = (data || []).map((r) => ({
-          ...r,
-          imageUrl: this.normalizeImage(r.imageUrl || r.images?.[0]?.imageUrl),
-        }));
-        this.sortRooms(); // tự động sắp xếp nếu cần
-      },
-      error: (err) => console.error('Lỗi tìm kiếm phòng:', err),
-    });
-  }
-  normalizeImage(raw: string): string {
-    if (!raw) return 'assets/images/default-room.jpg';
-    if (/^https?:\/\//i.test(raw)) return raw;
-    if (raw.startsWith('/images/')) return raw;
-    return `/images/${raw.replace(/^\/+/, '')}`;
   }
 
-  /** Lọc phòng theo khu vực, loại, giá */
+  /** (MỚI) Xóa tất cả bộ lọc */
+  clearFilters(): void {
+    this.selectedProvinceCode = '';
+    this.selectedDistrictCode = '';
+    this.selectedPrice = '';
+    this.selectedAcreage = '';
+    this.searchKeyword = '';
+    this.districts = [];
+    this.loadAllRooms(); // Tải lại tất cả phòng
+  }
+
+  /** (VIẾT LẠI HOÀN TOÀN) Áp dụng bộ lọc và gọi API */
   applyFilter(): void {
-    let filtered = [...this.allRooms];
-
-    if (this.selectedArea) {
-      filtered = filtered.filter((r) => r.address.includes(this.selectedArea));
+    // 4. Lấy từ khóa tìm kiếm
+    // Ưu tiên tìm kiếm trước
+    if (this.searchKeyword.trim()) {
+      this.roomService.searchRooms(this.searchKeyword.trim()).subscribe({
+        next: (data) => {
+          this.rooms = this.normalizeRoomData(data);
+          this.sortRooms();
+        },
+        error: (err) => console.error('Lỗi tìm kiếm:', err)
+      });
+      return; // Dừng lại sau khi gọi API search
     }
 
-    if (this.selectedType) {
-      filtered = filtered.filter((r) =>
-        r.building?.name?.includes(this.selectedType)
-      );
+    // Nếu không tìm kiếm, thì bắt đầu lọc
+    const filters: any = {};
+
+    // 1. Lấy Tỉnh/Huyện
+    if (this.selectedProvinceCode) {
+      filters.provinceCode = parseInt(this.selectedProvinceCode);
+    }
+    if (this.selectedDistrictCode) {
+      filters.districtCode = parseInt(this.selectedDistrictCode);
     }
 
-    if (this.priceRange) {
-      const [min, max] = this.priceRange.split('-').map(Number);
-      filtered = filtered.filter((r) => r.price >= min && r.price <= max);
+    // 2. Lấy Khoảng giá
+    if (this.selectedPrice) {
+      const [min, max] = this.selectedPrice.split('-').map(Number);
+      filters.minPrice = min;
+      filters.maxPrice = max;
     }
 
-    this.rooms = filtered;
-    this.sortRooms();
+    // 3. Lấy Diện tích
+    if (this.selectedAcreage) {
+      const [minArea, maxArea] = this.selectedAcreage.split('-').map(Number);
+      filters.minArea = minArea;
+      filters.maxArea = maxArea;
+    }
+    
+    // 5. Gọi API filterRooms
+    this.roomService.filterRooms(filters).subscribe({
+      next: (data) => {
+        this.rooms = this.normalizeRoomData(data);
+        this.sortRooms(); // Sắp xếp lại
+      },
+      error: (err) => console.error('Lỗi lọc phòng:', err),
+    });
   }
 
-  /** Sắp xếp phòng */
+  // --- CÁC HÀM GIỮ NGUYÊN HOẶC ÍT THAY ĐỔI ---
+
+  /** (GIỮ NGUYÊN) Sắp xếp phòng (Sắp xếp ở frontend) */
   sortRooms(): void {
+    const toDate = (dateStr: string | number | Date): Date => {
+      if (!dateStr) return new Date(0); // Coi như ngày cổ nhất (01/01/1970)
+      return new Date(dateStr);
+    };
+
     if (this.sortOption.includes('Giá thấp')) {
       this.rooms.sort((a, b) => a.price - b.price);
     } else if (this.sortOption.includes('Giá cao')) {
       this.rooms.sort((a, b) => b.price - a.price);
     } else if (this.sortOption.includes('Mới nhất')) {
-      this.rooms.sort((a, b) => (b.createdAt || b.id) - (a.createdAt || a.id));
+      // So sánh bằng .getTime() để sort theo ngày tháng
+      this.rooms.sort((a, b) => toDate(b.createdAt).getTime() - toDate(a.createdAt).getTime());
     } else if (this.sortOption.includes('Cũ nhất')) {
-      this.rooms.sort((a, b) => (a.createdAt || a.id) - (b.createdAt || b.id));
+      // So sánh bằng .getTime()
+      this.rooms.sort((a, b) => toDate(a.createdAt).getTime() - toDate(b.createdAt).getTime());
     }
   }
 
-  /** Khi người dùng thay đổi sắp xếp */
+  /** (GIỮ NGUYÊN) Khi người dùng thay đổi sắp xếp */
   onSortChange(event: any): void {
     this.sortOption = event.target.value;
     this.sortRooms();
   }
 
-  /** Chuẩn hóa dữ liệu phòng */
+  /** (GIỮ NGUYÊN) Chuẩn hóa dữ liệu phòng */
   normalizeRoomData(rooms: any[]): any[] {
     return rooms.map((room) => ({
       id: room.id,
@@ -130,7 +171,7 @@ export class RoomsComponent implements OnInit {
       address: room.building?.address || 'Chưa có địa chỉ',
       mainImage:
         room.images?.[0]?.imageUrl || '/assets/images/default-room.jpg',
-      createdAt: room.createdAt,
+      createdAt: room.createdAt, // Quan trọng để sắp xếp
       building: room.building,
     }));
   }

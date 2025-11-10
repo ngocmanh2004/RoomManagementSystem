@@ -44,7 +44,9 @@ public class Room {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "created_at")
+    // ✅ SỬA DÒNG NÀY:
+    // Thêm (insertable = false, updatable = false)
+    @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
     // Liên kết 1-n với bảng room_images

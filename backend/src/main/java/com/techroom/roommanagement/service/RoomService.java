@@ -14,6 +14,7 @@ public class RoomService {
     @Autowired
     private RoomRepository roomRepository;
 
+
     public List<Room> getAllRooms() {
         return roomRepository.findAll();
     }
@@ -30,10 +31,12 @@ public class RoomService {
         return roomRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword);
     }
 
-    public List<Room> filterRooms(String area, Double minPrice, Double maxPrice,
+    // SỬA LẠI THAM SỐ
+    public List<Room> filterRooms(Integer provinceCode, Integer districtCode,
+                                  Double minPrice, Double maxPrice,
                                   String type, Integer minArea, Integer maxArea,
                                   List<Integer> amenities) {
-        return roomRepository.filterRooms(area, minPrice, maxPrice, type, minArea, maxArea, amenities);
+        return roomRepository.filterRooms(provinceCode, districtCode, minPrice, maxPrice, type, minArea, maxArea, amenities);
     }
 
     public Room saveRoom(Room room) {
@@ -44,8 +47,8 @@ public class RoomService {
         roomRepository.deleteById(id);
     }
 
-    public List<String> getDistinctAreas() {
-        return roomRepository.findDistinctAreas();
-    }
-
+    // Bạn có thể xóa hàm này vì 'distinct areas' không còn dùng nữa
+    // public List<String> getDistinctAreas() {
+    //     return roomRepository.findDistinctAreas();
+    // }
 }
