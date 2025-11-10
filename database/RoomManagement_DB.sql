@@ -1,6 +1,3 @@
--- ============================================================
--- Reset database
--- ============================================================
 DROP DATABASE IF EXISTS roommanagement_db;
 CREATE DATABASE roommanagement_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE roommanagement_db;
@@ -21,46 +18,75 @@ CREATE TABLE users (
 );
 
 -- ============================================================
--- 2. LANDLORDS
+-- 2. PROVINCES & DISTRICTS
+-- ============================================================
+CREATE TABLE provinces (
+  code INT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  division_type VARCHAR(50)
+);
+
+CREATE TABLE districts (
+  code INT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  province_code INT NOT NULL,
+  division_type VARCHAR(50),
+  FOREIGN KEY (province_code) REFERENCES provinces(code)
+);
+
+-- ============================================================
+-- 3. LANDLORDS
 -- ============================================================
 CREATE TABLE landlords (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   user_id BIGINT NOT NULL,
   business_license VARCHAR(255),
+  province_code INT,
+  district_code INT,
   address VARCHAR(255),
   approved ENUM('PENDING','APPROVED','REJECTED') DEFAULT 'PENDING',
   rejection_reason TEXT,
   utility_mode ENUM('LANDLORD_INPUT','TENANT_SUBMIT') DEFAULT 'LANDLORD_INPUT',
-  FOREIGN KEY (user_id) REFERENCES users(id)
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (province_code) REFERENCES provinces(code),
+  FOREIGN KEY (district_code) REFERENCES districts(code)
 );
 
 -- ============================================================
--- 3. TENANTS
+-- 4. TENANTS
 -- ============================================================
 CREATE TABLE tenants (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   user_id BIGINT NOT NULL,
   cccd VARCHAR(20) UNIQUE,
   date_of_birth DATE,
+  province_code INT,
+  district_code INT,
   address VARCHAR(255),
-  FOREIGN KEY (user_id) REFERENCES users(id)
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (province_code) REFERENCES provinces(code),
+  FOREIGN KEY (district_code) REFERENCES districts(code)
 );
 
 -- ============================================================
--- 4. BUILDINGS
+-- 5. BUILDINGS
 -- ============================================================
 CREATE TABLE buildings (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   landlord_id BIGINT NOT NULL,
   name VARCHAR(100) NOT NULL,
-  address VARCHAR(255) NOT NULL,
+  province_code INT,
+  district_code INT,
+  address VARCHAR(255),
   description TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (landlord_id) REFERENCES landlords(id)
+  FOREIGN KEY (landlord_id) REFERENCES landlords(id),
+  FOREIGN KEY (province_code) REFERENCES provinces(code),
+  FOREIGN KEY (district_code) REFERENCES districts(code)
 );
 
 -- ============================================================
--- 5. ROOMS
+-- 6. ROOMS
 -- ============================================================
 CREATE TABLE rooms (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -75,7 +101,7 @@ CREATE TABLE rooms (
 );
 
 -- ============================================================
--- 6. ROOM_IMAGES
+-- 7. ROOM_IMAGES
 -- ============================================================
 CREATE TABLE room_images (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -86,7 +112,7 @@ CREATE TABLE room_images (
 );
 
 -- ============================================================
--- 7. AMENITIES
+-- 8. AMENITIES & ROOM_AMENITIES
 -- ============================================================
 CREATE TABLE amenities (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -95,9 +121,6 @@ CREATE TABLE amenities (
   description VARCHAR(255)
 );
 
--- ============================================================
--- 8. ROOM_AMENITIES
--- ============================================================
 CREATE TABLE room_amenities (
   room_id BIGINT NOT NULL,
   amenity_id BIGINT NOT NULL,
@@ -123,7 +146,7 @@ CREATE TABLE contracts (
 );
 
 -- ============================================================
--- 10. INVOICES
+-- 10. INVOICES & INVOICE_ITEMS
 -- ============================================================
 CREATE TABLE invoices (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -136,9 +159,6 @@ CREATE TABLE invoices (
   FOREIGN KEY (contract_id) REFERENCES contracts(id)
 );
 
--- ============================================================
--- 11. INVOICE_ITEMS
--- ============================================================
 CREATE TABLE invoice_items (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   invoice_id BIGINT NOT NULL,
@@ -149,7 +169,7 @@ CREATE TABLE invoice_items (
 );
 
 -- ============================================================
--- 12. PAYMENTS
+-- 11. PAYMENTS
 -- ============================================================
 CREATE TABLE payments (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -163,7 +183,7 @@ CREATE TABLE payments (
 );
 
 -- ============================================================
--- 13. UTILITIES (ELECTRIC & WATER)
+-- 12. UTILITIES (ELECTRIC & WATER)
 -- ============================================================
 CREATE TABLE utilities_electric (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -196,7 +216,7 @@ CREATE TABLE utilities_water (
 );
 
 -- ============================================================
--- 14. UTILITY_SUBMISSIONS
+-- 13. UTILITY_SUBMISSIONS
 -- ============================================================
 CREATE TABLE utility_submissions (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -216,7 +236,7 @@ CREATE TABLE utility_submissions (
 );
 
 -- ============================================================
--- 15. EXTRA_COSTS
+-- 14. EXTRA_COSTS
 -- ============================================================
 CREATE TABLE extra_costs (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -230,7 +250,7 @@ CREATE TABLE extra_costs (
 );
 
 -- ============================================================
--- 16. REVIEWS & REPORTS
+-- 15. REVIEWS & REPORTS
 -- ============================================================
 CREATE TABLE reviews (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -254,7 +274,7 @@ CREATE TABLE review_reports (
 );
 
 -- ============================================================
--- 17. NOTIFICATIONS
+-- 16. NOTIFICATIONS
 -- ============================================================
 CREATE TABLE notifications (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -268,7 +288,7 @@ CREATE TABLE notifications (
 );
 
 -- ============================================================
--- 18. FEEDBACKS
+-- 17. FEEDBACKS
 -- ============================================================
 CREATE TABLE feedbacks (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -284,13 +304,13 @@ CREATE TABLE feedbacks (
 );
 
 -- ============================================================
--- 19. REFRESH_TOKENS
+-- 18. REFRESH_TOKENS
 -- ============================================================
 CREATE TABLE refresh_tokens (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    token VARCHAR(500) NOT NULL UNIQUE,
-    user_id BIGINT NOT NULL,
-    expiry_date DATETIME NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  token VARCHAR(500) NOT NULL UNIQUE,
+  user_id BIGINT NOT NULL,
+  expiry_date DATETIME NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
