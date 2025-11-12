@@ -47,8 +47,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/create-user").permitAll()
                         .requestMatchers("/api/users/**").permitAll()
                         .requestMatchers("/api/rooms/**").permitAll()
+                        .requestMatchers("/api/buildings/**").permitAll()
                         .requestMatchers("/api/amenities/**").permitAll()
                         .requestMatchers("/images/**").permitAll()
+                        .requestMatchers("/api/images/**").permitAll()
                         .requestMatchers("/api/districts/by-province/**").permitAll()
 
                         .requestMatchers("/api/provinces/**").permitAll()
