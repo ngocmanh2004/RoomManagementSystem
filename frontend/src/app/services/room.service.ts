@@ -1,36 +1,54 @@
-// src/app/services/room.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+// THÊM CÁC INTERFACE MỚI (ĐỂ CODE SẠCH HƠN)
+export type RoomStatus = 'AVAILABLE' | 'OCCUPIED' | 'REPAIRING';
+
+export interface Room {
+  id?: number;
+  name: string;
+  price: number;
+  area: number;
+  status: RoomStatus;
+  description?: string;
+  building?: any; 
+  images?: any[];
+  tenantName?: string; // Dùng cho UI
+}
+
+export interface RoomImage {
+  id: number;
+  imageUrl: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class RoomService {
-  private readonly api = '/api';
+  // Sửa private readonly api = '/api'; thành base path
+  private readonly apiBase = '/api'; 
 
   constructor(private http: HttpClient) {}
 
-  // ... (các hàm getAllRooms, getAmenities, searchRooms vẫn giữ nguyên) ...
-
-  getAllRooms(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.api}/rooms`);
+  // ===========================================
+  // CÁC HÀM CŨ (GIỮ NGUYÊN)
+  // ===========================================
+  getAllRooms(): Observable<Room[]> { // Sửa lại kiểu trả về
+    return this.http.get<Room[]>(`${this.apiBase}/rooms`);
   }
 
   getAmenities(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.api}/amenities`);
+    return this.http.get<any[]>(`${this.apiBase}/amenities`);
   }
 
   searchRooms(keyword: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.api}/rooms/search`, {
+    return this.http.get<any[]>(`${this.apiBase}/rooms/search`, {
       params: { keyword }
     });
   }
 
-  /**
-   * SỬA LẠI HÀM NÀY
-   */
   filterRooms(filters: {
-    provinceCode?: number; // Sửa từ area
-    districtCode?: number; // Thêm mới
+    provinceCode?: number;
+    districtCode?: number;
     type?: string;
     minPrice?: number;
     maxPrice?: number;
@@ -40,11 +58,8 @@ export class RoomService {
   }): Observable<any[]> {
     let params = new HttpParams();
 
-    // Sửa logic params
     if (filters.provinceCode) params = params.set('provinceCode', filters.provinceCode);
     if (filters.districtCode) params = params.set('districtCode', filters.districtCode);
-    
-    // Các filter cũ giữ nguyên
     if (filters.type) params = params.set('type', filters.type);
     if (filters.minPrice != null)
       params = params.set('minPrice', filters.minPrice);
@@ -55,24 +70,72 @@ export class RoomService {
     if (filters.maxArea != null)
       params = params.set('maxArea', filters.maxArea);
     if (filters.amenities?.length) {
-      params = params.set('amenities', filters.amenities.join(','));
+     params = params.set('amenities', filters.amenities.join(','));
     }
 
-    return this.http.get<any[]>(`${this.api}/rooms/filter`, { params });
+    return this.http.get<any[]>(`${this.apiBase}/rooms/filter`, { params });
   }
 
-  getRoomById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.api}/rooms/${id}`);
+  getRoomById(id: number): Observable<any> { // Giữ nguyên kiểu 'any'
+    return this.http.get<any>(`${this.apiBase}/rooms/${id}`);
   }
-
-  // ... (các hàm còn lại giữ nguyên) ...
   getAmenitiesByRoomId(roomId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.api}/amenities/room/${roomId}`);
+    return this.http.get<any[]>(`${this.apiBase}/amenities/room/${roomId}`);
   }
 
-  // API này đã bị xóa ở backend, nhưng nếu bạn vẫn cần thì
-  // hãy báo tôi, chúng ta sẽ tạo lại
   getAreas(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.api}/rooms/areas`);
+    return this.http.get<string[]>(`${this.apiBase}/rooms/areas`);
+  }
+
+  // ===========================================
+  // THÊM CÁC HÀM MỚI CHO SPRINT 1
+  // ===========================================
+  
+  /**
+   * US 1.1: Thêm phòng trọ
+   */
+  addRoom(room: Omit<Room, 'id'>): Observable<Room> {
+    return this.http.post<Room>(`${this.apiBase}/rooms`, room);
+  }
+
+  /**
+   * US 1.2: Chỉnh sửa phòng trọ
+   */
+  updateRoom(id: number, room: Room): Observable<Room> {
+    return this.http.put<Room>(`${this.apiBase}/rooms/${id}`, room);
+  }
+
+  /**
+   * US 1.4: Cập nhật trạng thái
+   */
+  updateRoomStatus(id: number, status: RoomStatus): Observable<Room> {
+    return this.http.patch<Room>(`${this.apiBase}/rooms/${id}/status`, { status });
+  }
+
+  /**
+   * US 1.3: Xóa phòng trọ
+   */
+  deleteRoom(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiBase}/rooms/${id}`);
+  }
+
+  /**
+   * Tải lên danh sách file ảnh cho một phòng
+   */
+  uploadImages(roomId: number, files: File[]): Observable<RoomImage[]> {
+    const formData = new FormData();
+    for (const file of files) {
+      formData.append('files', file); // 'files' phải khớp với @RequestParam("files")
+    }
+
+    // Gửi dưới dạng multipart/form-data
+    return this.http.post<RoomImage[]>(`${this.apiBase}/images/room/${roomId}`, formData);
+  }
+
+  /**
+   * Xóa một ảnh
+   */
+  deleteImage(imageId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiBase}/images/${imageId}`);
   }
 }

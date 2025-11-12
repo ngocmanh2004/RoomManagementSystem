@@ -12,6 +12,7 @@ import { AdminLayoutComponent } from './shared/layout-admin/admin-layout/admin-l
 import { PublicLayoutComponent } from './shared/layout/public-layout/public-layout.component';
 import { DashboardAdminComponent } from './features/admin/dasboard-admin/dasboard-admin.component';
 import { TenantManagementComponent } from './features/admin/tenant-management/tenant-management.component';
+import { RoomManagementComponent } from './features/admin/room-management/room-management.component';
 
 export const routes: Routes = [
   {
@@ -34,7 +35,8 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardAdminComponent },
-      { path: 'tenants', component: TenantManagementComponent }
+      { path: 'tenants', component: TenantManagementComponent },
+      { path: 'rooms', component: RoomManagementComponent }
     ]
   },
 
