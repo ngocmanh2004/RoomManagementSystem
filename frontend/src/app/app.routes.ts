@@ -13,6 +13,7 @@ import { PublicLayoutComponent } from './shared/layout/public-layout/public-layo
 import { DashboardAdminComponent } from './features/admin/dasboard-admin/dasboard-admin.component';
 import { TenantManagementComponent } from './features/admin/tenant-management/tenant-management.component';
 import { RoomManagementComponent } from './features/admin/room-management/room-management.component';
+import { TenantProfileComponent } from './features/tenant-profile/tenant-profile.component';
 
 export const routes: Routes = [
   {
@@ -25,6 +26,7 @@ export const routes: Routes = [
       { path: 'contact', component: ContactComponent },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
+      { path: 'tenant-profile', component: TenantProfileComponent }
     ]
   },
   // ADMIN ROUTES (role = 0)

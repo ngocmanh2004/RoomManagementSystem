@@ -13,6 +13,24 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
+  private convertRoleToNumber(role: string | number): number {
+    if (typeof role === 'number') return role;
+    
+    const roleMap: { [key: string]: number } = {
+      'ADMIN': 0,
+      'LANDLORD': 1,
+      'TENANT': 2
+    };
+    return roleMap[role] ?? 2; 
+  }
+
+  private normalizeUser(user: any): UserInfo {
+    return {
+      ...user,
+      role: this.convertRoleToNumber(user.role)
+    };
+  }
+
   register(user: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, user);
   }
@@ -22,8 +40,9 @@ export class AuthService {
       .pipe(
         tap(response => {
           this.saveTokens(response.accessToken, response.refreshToken);
-          this.saveUser(response.user);
-          this.currentUserSubject.next(response.user); // ✅ Cập nhật user
+          const normalizedUser = this.normalizeUser(response.user); // ✅ Convert role
+          this.saveUser(normalizedUser);
+          this.currentUserSubject.next(normalizedUser);
         })
       );
   }
@@ -53,6 +72,14 @@ export class AuthService {
     this.currentUserSubject.next(user); 
   }
 
+  updateUserInfo(partialUser: Partial<UserInfo>) {
+    const current = this.currentUserSubject.value;
+    if (!current) return;
+    
+    const updated = { ...current, ...partialUser };
+    this.saveUser(updated);
+  }
+
   getAccessToken(): string | null {
     return localStorage.getItem('accessToken');
   }
@@ -63,7 +90,10 @@ export class AuthService {
 
   getCurrentUser(): UserInfo | null {
     const userStr = localStorage.getItem('currentUser');
-    return userStr ? JSON.parse(userStr) : null;
+    if (!userStr) return null;
+    
+    const user = JSON.parse(userStr);
+    return this.normalizeUser(user);
   }
 
   getUserRole(): number | null {

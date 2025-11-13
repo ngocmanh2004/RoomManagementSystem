@@ -11,13 +11,13 @@ public class RefreshToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
-    @Column(nullable = false, unique = true, length = 500)
+    @Column(nullable = false, unique = true)
     private String token;
 
     @Column(name = "user_id", nullable = false)
-    private int userId;
+    private Integer userId;
 
     @Column(name = "expiry_date", nullable = false)
     private LocalDateTime expiryDate;
@@ -25,7 +25,4 @@ public class RefreshToken {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    private User user;
 }
