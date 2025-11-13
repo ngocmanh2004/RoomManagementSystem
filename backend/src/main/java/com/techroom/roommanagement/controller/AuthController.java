@@ -1,24 +1,28 @@
 package com.techroom.roommanagement.controller;
 
+import com.techroom.roommanagement.dto.*;
 import com.techroom.roommanagement.model.RefreshToken;
 import com.techroom.roommanagement.model.User;
 import com.techroom.roommanagement.security.JwtTokenProvider;
 import com.techroom.roommanagement.service.RefreshTokenService;
 import com.techroom.roommanagement.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import com.techroom.roommanagement.dto.AuthResponse;
-import com.techroom.roommanagement.dto.LoginRequest;
-import com.techroom.roommanagement.dto.RefreshTokenRequest;
-import com.techroom.roommanagement.dto.RegisterRequest;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class AuthController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private UserService userService;
@@ -33,18 +37,28 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         try {
             User user = userService.register(request);
-            return ResponseEntity.ok(user);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Đăng ký thành công");
+            response.put("userId", user.getId());
+            response.put("username", user.getUsername());
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            logger.error("Registration error: ", e);
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         }
     }
-
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
+            // Xác thực user
             User user = userService.authenticate(request.getUsername(), request.getPassword());
 
+            // Tạo UserDetails
             UserDetails userDetails = org.springframework.security.core.userdetails.User
                     .withUsername(user.getUsername())
                     .password(user.getPassword())
@@ -57,84 +71,108 @@ public class AuthController {
             // Tạo refresh token
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
 
-            // Tạo thông tin user
-            AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo(
+            // Tạo user info
+            UserInfo userInfo = new UserInfo(
                     user.getId(),
                     user.getUsername(),
                     user.getFullName(),
                     user.getEmail(),
-                    user.getRole(),
                     getRoleName(user.getRole())
             );
 
-            return ResponseEntity.ok(new AuthResponse(
+            // Tạo response
+            AuthResponse response = new AuthResponse(
                     accessToken,
                     refreshToken.getToken(),
-                    "Bearer",
                     userInfo
-            ));
+            );
+
+            logger.info("User {} logged in successfully", user.getUsername());
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            logger.error("Login error: ", e);
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "Tên đăng nhập hoặc mật khẩu không đúng");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest request) {
         try {
-            String requestRefreshToken = request.getRefreshToken();
+            String refreshTokenStr = request.getRefreshToken();
 
-            // Validate refresh token
-            if (!jwtTokenProvider.validateRefreshToken(requestRefreshToken)) {
-                return ResponseEntity.badRequest().body("Invalid refresh token");
+            if (refreshTokenStr == null || refreshTokenStr.trim().isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("message", "Refresh token không được để trống");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
             }
 
             // Tìm refresh token trong DB
-            RefreshToken refreshToken = refreshTokenService.findByToken(requestRefreshToken);
+            RefreshToken refreshToken = refreshTokenService.findByToken(refreshTokenStr);
 
             // Kiểm tra expiry
             refreshTokenService.verifyExpiration(refreshToken);
 
-            // Lấy user và tạo access token mới
-            User user = refreshToken.getUser();
+            // Lấy user từ userId
+            User user = userService.findById(refreshToken.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+
+            // Tạo lại UserDetails để sinh access token mới
             UserDetails userDetails = org.springframework.security.core.userdetails.User
                     .withUsername(user.getUsername())
                     .password(user.getPassword())
                     .roles(getRoleName(user.getRole()))
                     .build();
 
+            // Tạo access token mới
             String newAccessToken = jwtTokenProvider.generateAccessToken(userDetails);
 
-            AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo(
-                    user.getId(),
-                    user.getUsername(),
-                    user.getFullName(),
-                    user.getEmail(),
-                    user.getRole(),
-                    getRoleName(user.getRole())
-            );
+            // Tạo response
+            RefreshTokenResponse response = new RefreshTokenResponse(newAccessToken);
 
-            return ResponseEntity.ok(new AuthResponse(
-                    newAccessToken,
-                    requestRefreshToken, // Giữ nguyên refresh token
-                    "Bearer",
-                    userInfo
-            ));
+            logger.info("Token refreshed for user: {}", user.getUsername());
+            return ResponseEntity.ok(response);
+
+        } catch (RuntimeException e) {
+            logger.error("Refresh token error: ", e);
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            logger.error("Unexpected error during token refresh: ", e);
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "Có lỗi xảy ra, vui lòng đăng nhập lại");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
+
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestBody RefreshTokenRequest request) {
         try {
-            RefreshToken refreshToken = refreshTokenService.findByToken(request.getRefreshToken());
-            refreshTokenService.deleteByUserId(refreshToken.getUserId());
-            return ResponseEntity.ok("Logged out successfully");
+            if (request.getRefreshToken() != null && !request.getRefreshToken().trim().isEmpty()) {
+                refreshTokenService.deleteByToken(request.getRefreshToken());
+            }
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Đăng xuất thành công");
+
+            logger.info("User logged out successfully");
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            logger.error("Logout error: ", e);
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "Đăng xuất thất bại");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         }
     }
 
+    /**
+     * Chuyển đổi role number sang role name
+     */
     private String getRoleName(int role) {
         return switch (role) {
             case 0 -> "ADMIN";

@@ -1,0 +1,212 @@
+<div class="tenant-profile-container">
+  
+  <div class="grid">
+    <div class="left-column">
+      <div class="card">
+        <div class="profile-header">
+          <div class="profile-avatar">
+            {{ user?.fullName?.charAt(0) || '?' }}
+          </div>
+          <div class="profile-name">{{ user?.fullName }}</div>
+          <div class="profile-role">Khách thuê</div>
+        </div>
+
+        <div *ngIf="!editMode" class="profile-view">
+          <div class="info-row">
+            <div class="info-label">Name</div>
+            <div class="info-value">{{ user?.fullName || 'Chưa cập nhật' }}</div>
+          </div>
+          
+          <div class="info-row">
+            <div class="info-label">Email</div>
+            <div class="info-value">{{ user?.email || 'Chưa cập nhật' }}</div>
+          </div>
+
+          <button class="btn-edit" (click)="toggleEditMode()">
+            Edit profile
+          </button>
+        </div>
+
+        <form *ngIf="editMode" [formGroup]="profileForm" (ngSubmit)="onSave()" class="profile-form">
+          <div class="form-group">
+            <label>Họ và tên</label>
+            <input 
+              type="text" 
+              formControlName="fullName"
+              class="form-control"
+              placeholder="Nhập họ và tên"
+            />
+            <span *ngIf="profileForm.get('fullName')?.invalid && profileForm.get('fullName')?.touched" 
+                  class="error-text">
+              Vui lòng nhập họ và tên
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <input 
+              type="email" 
+              formControlName="email"
+              class="form-control"
+              placeholder="Nhập email"
+            />
+            <span *ngIf="profileForm.get('email')?.invalid && profileForm.get('email')?.touched" 
+                  class="error-text">
+              Email không hợp lệ
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label>Số điện thoại</label>
+            <input 
+              type="text" 
+              formControlName="phone"
+              class="form-control"
+              placeholder="Nhập số điện thoại"
+            />
+            <span *ngIf="profileForm.get('phone')?.invalid && profileForm.get('phone')?.touched" 
+                  class="error-text">
+              Vui lòng nhập số điện thoại
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label>CCCD/CMND</label>
+            <input 
+              type="text" 
+              formControlName="cccd"
+              class="form-control"
+              placeholder="Nhập số CCCD/CMND"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Ngày sinh</label>
+            <input 
+              type="date" 
+              formControlName="dateOfBirth"
+              class="form-control"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Tỉnh/Thành phố</label>
+            <select 
+              formControlName="provinceCode"
+              class="form-control"
+              (change)="onProvinceChange($event)">
+              <option [ngValue]="null">-- Chọn Tỉnh/Thành --</option>
+              <option *ngFor="let province of provinces" [value]="province.code">
+                {{ province.name }}
+              </option>
+            </select>
+          </div>
+        
+          <div class="form-group">
+            <label>Quận/Huyện</label>
+            <select 
+              formControlName="districtCode"
+              class="form-control"
+              [disabled]="!districts.length">
+              <option [ngValue]="null">-- Chọn Quận/Huyện --</option>
+              <option *ngFor="let district of districts" [value]="district.code">
+                {{ district.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Địa chỉ chi tiết</label>
+            <textarea 
+              formControlName="address"
+              class="form-control"
+              rows="2"
+              placeholder="Nhập số nhà, tên đường, phường/xã"
+            ></textarea>
+          </div>
+          
+          <div class="form-actions">
+            <button 
+              type="submit" 
+              class="btn-save"
+              [disabled]="profileForm.invalid || saving"
+            >
+              {{ saving ? 'Đang lưu...' : 'Lưu' }}
+            </button>
+            
+            <button 
+              type="button" 
+              class="btn-cancel"
+              (click)="toggleEditMode()"
+              [disabled]="saving"
+            >
+              Hủy
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="middle-column">
+      <div class="card">
+        <h2 class="card-title">Hoạt động gần đây</h2>
+        
+        <div *ngIf="contract" class="activities">
+          <div class="activity-item">
+            <div class="activity-header">
+              <div class="activity-left">
+                <span class="activity-icon">📄</span>
+                <div>
+                  <div class="activity-title">Hóa đơn mới nhất</div>
+                  <div class="activity-time">
+                    {{ formatDate(invoice?.issueDate) }} • 
+                    {{ invoice?.status === 'PAID' ? 'Đã thanh toán' : 'Chưa thanh toán' }}
+                  </div>
+                </div>
+              </div>
+              <div class="activity-amount">
+                {{ formatCurrency(invoice?.totalAmount || 0) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!contract" class="no-data">
+          <div class="no-data-icon">🏠</div>
+          <p class="no-data-text">Bạn chưa có hợp đồng thuê phòng nào</p>
+          <p class="no-data-subtext">Liên hệ chủ trọ để thuê phòng</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div class="card">
+        <h2 class="card-title">Thông tin phòng</h2>
+        
+        <div *ngIf="room" class="room-info">
+          <div class="room-badge">{{ room.name }}</div>
+          
+          <div class="stat-item">
+            <div class="stat-label">💰 Giá thuê</div>
+            <div class="stat-value">{{ formatCurrency(room.price) }}</div>
+          </div>
+        </div>
+
+        <div *ngIf="!room" class="no-data">
+          <div class="no-data-icon">🏠</div>
+          <p class="no-data-text">Chưa có thông tin phòng</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Thao tác nhanh</h2>
+        <div class="quick-actions">
+          <button class="quick-action-btn">
+            <div class="action-icon">📄</div>
+            <div class="action-label">Xem hóa đơn</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

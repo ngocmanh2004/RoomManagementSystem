@@ -51,6 +51,8 @@ public class TenantService {
         existing.setCccd(updatedTenant.getCccd());
         existing.setAddress(updatedTenant.getAddress());
         existing.setDateOfBirth(updatedTenant.getDateOfBirth());
+        existing.setProvinceCode(updatedTenant.getProvinceCode());
+        existing.setDistrictCode(updatedTenant.getDistrictCode());
 
         User existingUser = existing.getUser();
         User updatedUser = updatedTenant.getUser();

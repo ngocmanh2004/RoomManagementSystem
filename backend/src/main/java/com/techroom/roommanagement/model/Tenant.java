@@ -22,6 +22,13 @@ public class Tenant {
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
+    // ✅ THÊM 2 TRƯỜNG MỚI (từ DB)
+    @Column(name = "province_code")
+    private Integer provinceCode;
+
+    @Column(name = "district_code")
+    private Integer districtCode;
+
     @Column(length = 255)
     private String address;
 

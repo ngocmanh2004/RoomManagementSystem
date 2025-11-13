@@ -19,9 +19,6 @@ public class RoomService {
     // @Autowired
     // private ContractRepository contractRepository; // <-- Sẽ cần cho US 1.3 (cách nâng cao)
 
-    // ===========================================
-    // CÁC HÀM CŨ (GIỮ NGUYÊN)
-    // ===========================================
     public List<Room> getAllRooms() {
         return roomRepository.findAll();
     }
