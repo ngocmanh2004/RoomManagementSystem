@@ -65,26 +65,26 @@ VALUES
 -- ============================================================
 INSERT INTO room_images (room_id, image_url)
 VALUES
-(1, '/images/rooms/room1.jpg'),
-(1, '/images/rooms/room1-detail1.jpg'),
-(1, '/images/rooms/room1-detail2.jpg'),
-(1, '/images/rooms/room1-detail3.jpg'),
-(1, '/images/rooms/room1-detail4.jpg'),
-(2, '/images/rooms/room1-detail1.jpg'),
-(2, '/images/rooms/room1-detail2.jpg'),
-(2, '/images/rooms/room1-detail3.jpg'),
-(2, '/images/rooms/room1-detail4.jpg'),
-(2, '/images/rooms/room1-detail5.jpg'),
-(3, '/images/rooms/room1-detail3.jpg'),
-(3, '/images/rooms/room1-detail4.jpg'),
-(3, '/images/rooms/room1-detail5.jpg'),
-(3, '/images/rooms/room1-detail1.jpg'),
-(4, '/images/rooms/room1-detail5.jpg'),
-(4, '/images/rooms/room1-detail3.jpg'),
-(4, '/images/rooms/room1-detail2.jpg'),
-(5, '/images/rooms/room1-detail2.jpg'),
-(5, '/images/rooms/room1-detail3.jpg'),
-(5, '/images/rooms/room1-detail4.jpg');
+(1, '/images/1/room1.jpg'),
+(1, '/images/1/room1-detail1.jpg'),
+(1, '/images/1/room1-detail2.jpg'),
+(1, '/images/1/room1-detail3.jpg'),
+(1, '/images/1/room1-detail4.jpg'),
+(2, '/images/2/room1-detail1.jpg'),
+(2, '/images/2/room1-detail2.jpg'),
+(2, '/images/2/room1-detail3.jpg'),
+(2, '/images/2/room1-detail4.jpg'),
+(2, '/images/2/room1-detail5.jpg'),
+(3, '/images/3/room1-detail3.jpg'),
+(3, '/images/3/room1-detail4.jpg'),
+(3, '/images/3/room1-detail5.jpg'),
+(3, '/images/3/room1-detail1.jpg'),
+(4, '/images/4/room1-detail5.jpg'),
+(4, '/images/4/room1-detail3.jpg'),
+(4, '/images/4/room1-detail2.jpg'),
+(5, '/images/5/room1-detail2.jpg'),
+(5, '/images/5/room1-detail3.jpg'),
+(5, '/images/5/room1-detail4.jpg');
 
 -- ============================================================
 -- AMENITIES
@@ -118,3 +118,4 @@ VALUES
 (5, '079123456789', '2000-04-12', 1, 2),  -- Bình Định / An Nhơn
 (6, '079987654321', '1999-10-22', 2, 3),  -- TP.HCM / Quận 7
 (7, '080123456789', '2001-05-15', 3, 4);  -- Phú Yên / Tuy Hòa
+
