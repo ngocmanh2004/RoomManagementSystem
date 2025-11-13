@@ -5,6 +5,7 @@ import com.techroom.roommanagement.model.Tenant;
 import com.techroom.roommanagement.model.User;
 import com.techroom.roommanagement.repository.TenantRepository;
 import com.techroom.roommanagement.repository.UserRepository;
+import com.techroom.roommanagement.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +30,9 @@ public class TenantController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private TenantService tenantService;
+
     @GetMapping
     public List<Tenant> getAllTenants() {
         return tenantRepository.findAll();
@@ -36,13 +40,21 @@ public class TenantController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Tenant> getTenantById(@PathVariable int id) {
-        Optional<Tenant> tenant = tenantRepository.findById(id);
+        Optional<Tenant> tenant = tenantService.getTenantById(id);
         return tenant.map(ResponseEntity::ok)
-                     .orElse(ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.notFound().build());
     }
 
-   @PostMapping
-public ResponseEntity<?> createTenant(@RequestBody RegisterRequest request) {
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Tenant> getTenantByUserId(@PathVariable int userId) {
+        Optional<Tenant> tenant = tenantRepository.findByUserId(userId);
+        return tenant.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
+    @PostMapping
+    public ResponseEntity<?> createTenant(@RequestBody RegisterRequest request) {
     try {
         // 🔹 Kiểm tra trùng username (số điện thoại)
         if (userRepository.findByUsername(request.getPhone()).isPresent()) {
@@ -58,11 +70,11 @@ public ResponseEntity<?> createTenant(@RequestBody RegisterRequest request) {
         user.setUsername(request.getPhone());           // username là số điện thoại
         user.setPassword(encodedPassword);              // mật khẩu mã hóa
       // gán tên mặc định nếu fullName null hoặc rỗng
-String fullName = request.getFullName();
-if ((fullName == null || fullName.isBlank()) && request.getPhone() != null) {
-    fullName = "Khách thuê " + request.getPhone(); // mặc định
-}
-user.setFullName(fullName);
+        String fullName = request.getFullName();
+        if ((fullName == null || fullName.isBlank()) && request.getPhone() != null) {
+            fullName = "Khách thuê " + request.getPhone(); // mặc định
+        }
+        user.setFullName(fullName);
 
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
@@ -100,22 +112,20 @@ user.setFullName(fullName);
 
     @PutMapping("/{id}")
     public ResponseEntity<Tenant> updateTenant(@PathVariable int id, @RequestBody Tenant tenantDetails) {
-        Optional<Tenant> tenantOptional = tenantRepository.findById(id);
-        if (tenantOptional.isPresent()) {
-            Tenant tenant = tenantOptional.get();
-            tenant.setCccd(tenantDetails.getCccd());
-            tenant.setDateOfBirth(tenantDetails.getDateOfBirth());
-            tenant.setAddress(tenantDetails.getAddress());
-            Tenant updated = tenantRepository.save(tenant);
-            return ResponseEntity.ok(updated);
+        try {
+            // Gọi service để cập nhật (service sẽ tự cập nhật cả User và Tenant)
+            Tenant updatedTenant = tenantService.updateTenant(id, tenantDetails);
+            return ResponseEntity.ok(updatedTenant);
+        } catch (RuntimeException e) {
+            // Ví dụ: RuntimeException("Tenant not found") từ service
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTenant(@PathVariable int id) {
         if (tenantRepository.existsById(id)) {
-            tenantRepository.deleteById(id);
+            tenantService.deleteTenant(id);
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();

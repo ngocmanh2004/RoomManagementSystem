@@ -18,9 +18,6 @@ public class RoomController {
     @Autowired
     private RoomService roomService;
 
-    // ===========================================
-    // CÁC ENDPOINT GET CŨ (GIỮ NGUYÊN)
-    // ===========================================
     @GetMapping
     public List<Room> getAllRooms() {
         return roomService.getAllRooms();

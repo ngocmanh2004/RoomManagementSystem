@@ -34,4 +34,8 @@ public class Building {
 
     @Column(name = "district_code")
     private Integer districtCode;
+
+    //Timestamp (nếu DB có)
+    @Column(name = "created_at", insertable = false, updatable = false)
+    private java.time.LocalDateTime createdAt;
 }
