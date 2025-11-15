@@ -187,3 +187,164 @@
   border-color: #007bff;
   outline: none;
 }
+
+/* ===== MODAL - NHỎ GỌN, KHÔNG CHIẾM HẾT MÀN HÌNH ===== */
+.modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  z-index: 1000;
+  overflow-y: none;  /*Cho phép cuộn nếu màn nhỏ */
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 380px;     /* Giới hạn chiều rộng */
+  max-height: 90vh;     /* Không vượt quá 90% chiều cao màn hình */
+  overflow-y: auto;     /* Cuộn nội dung nếu dài */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+/* ===== MODAL - KHÔNG CUỘN, VỪA KHUNG ===== */
+.modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 380px;
+  max-height: 90vh;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  /* Nội dung tự co giãn, không vượt khung */
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== VIEW MODE - KHÔNG CUỘN, TỰ ĐỘNG CO GIÃN ===== */
+.view-mode {
+  background-color: #fdfdfd;
+  border: 1px solid #eaeaea;
+  border-radius: 10px;
+  padding: 16px;
+  flex: 1;
+  /* BỎ overflow → không cuộn */
+}
+
+.view-mode .tenant-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: #007bff;
+  color: white;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 123, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.view-mode .tenant-name {
+  text-align: center;
+  font-size: 16.5px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 6px 0 14px;
+  flex-shrink: 0;
+}
+
+.view-mode p {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 0 9px 0;
+  padding: 5px 0;
+  font-size: 14px;
+  color: #2d3748;
+  border-bottom: 1px dashed #e8e8e8;
+  flex-shrink: 0;
+}
+
+.view-mode p:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.view-mode p strong {
+  min-width: 92px;
+  font-weight: 600;
+  color: #1a202c;
+  font-size: 14px;
+}
+
+.view-mode p span {
+  flex: 1;
+  text-align: right;
+  color: #4a5568;
+  font-weight: 500;
+  word-break: break-all; /* Đảm bảo SĐT, email dài không tràn */
+}
+
+/* ===== NÚT ĐÓNG ===== */
+.modal-buttons {
+  margin-top: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.modal-buttons button.cancel {
+  background-color: #007bff;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 9px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 123, 255, 0.2);
+}
+
+.modal-buttons button.cancel:hover {
+  background-color: #0056b3;
+}
+/* tenant.component.css */
+.icon {
+  cursor: pointer;
+  margin: 0 1px;
+  font-size: 18px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.icon:hover {
+  transform: scale(1.2);
+  opacity: 0.8;
+}
+
+/* Tùy chọn: màu sắc riêng cho từng hành động */
+.icon.view { color: #007bff; }
+.icon.edit { color: #28a745; }
+.icon.delete { color: #dc3545; }
