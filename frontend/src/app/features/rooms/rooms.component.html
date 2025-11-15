@@ -9,41 +9,71 @@
 
   <div class="container main-section">
     <div class="filter-bar">
-      <div class="filter-options">
-        <select [(ngModel)]="selectedArea" (change)="applyFilter()">
-          <option value="">Tất cả khu vực</option>
-          <option *ngFor="let area of areas" [value]="area">{{ area }}</option>
-        </select>
-        <select [(ngModel)]="selectedType" (change)="applyFilter()">
-          <option value="">Tất cả loại phòng</option>
-          <option *ngFor="let type of types" [value]="type">{{ type }}</option>
-        </select>
-        <select [(ngModel)]="priceRange" (change)="applyFilter()">
-          <option value="">Tất cả mức giá</option>
-          <option value="0-2000000">Dưới 2 triệu</option>
-          <option value="2000000-4000000">2 - 4 triệu</option>
-          <option value="4000000-6000000">4 - 6 triệu</option>
-          <option value="6000000-10000000">6 - 10 triệu</option>
-        </select>
-        <div class="search-box">
-          <input type="text" placeholder="Tìm kiếm phòng..." [(ngModel)]="searchKeyword"
-            (keyup.enter)="searchRooms()" />
-          <button (click)="searchRooms()">Tìm</button>
+      <form class="filter-form-grid" (ngSubmit)="applyFilter()">
+        
+        <div class="filter-options">
+          
+          <select [(ngModel)]="selectedProvinceCode" (change)="onProvinceChange()" name="province">
+            <option value="">Tất cả Tỉnh/Thành</option>
+            <option *ngFor="let province of provinces" [value]="province.code">
+              {{ province.name }}
+            </option>
+          </select>
+
+          <select [(ngModel)]="selectedDistrictCode" name="district" [disabled]="districts.length === 0">
+            <option value="">Tất cả Quận/Huyện</option>
+            <option *ngFor="let district of districts" [value]="district.code">
+              {{ district.name }}
+            </option>
+          </select>
+          
+          <select [(ngModel)]="selectedPrice" name="price">
+            <option value="">Tất cả mức giá</option>
+            <option value="0-2000000">Dưới 2 triệu</option>
+            <option value="2000000-4000000">2 - 4 triệu</option>
+            <option value="4000000-6000000">4 - 6 triệu</option>
+            <option value="6000000-10000000">6 - 10 triệu</option>
+          </select>
+
+          <select [(ngModel)]="selectedAcreage" name="acreage">
+            <option value="">Tất cả diện tích</option>
+            <option value="0-15">Dưới 15 m²</option>
+            <option value="15-25">15 - 25 m²</option>
+            <option value="25-40">25 - 40 m²</option>
+            <option value="40-999">Trên 40 m²</option>
+          </select>
         </div>
-      </div>
-      <div class="sort-options">
-        <span>Sắp xếp:</span>
-        <select [(ngModel)]="sortOption" (change)="onSortChange($event)">
-          <option>Mới nhất</option>
-          <option>Cũ nhất</option>
-          <option>Giá thấp đến cao</option>
-          <option>Giá cao đến thấp</option>
-        </select>
-      </div>
 
-    </div>
+        <div class="filter-actions">
+          
+          <div class="search-box">
+            <input type="text" placeholder="Tìm kiếm theo tên phòng..." 
+                   [(ngModel)]="searchKeyword" 
+                   name="keyword"
+                   (keyup.enter)="applyFilter()" />
+          </div>
 
-    <div class="room-grid">
+          <div class="form-group-buttons">
+            <button type="submit" class="btn btn-primary">
+              <i class="fa-solid fa-magnifying-glass"></i> Lọc
+            </button>
+            <button type="button" class="btn btn-outline" (click)="clearFilters()">
+              <i class="fa-solid fa-rotate-right"></i> Làm mới
+            </button>
+          </div>
+
+          <div class="sort-options">
+            <span>Sắp xếp:</span>
+            <select [(ngModel)]="sortOption" (change)="onSortChange($event)" name="sort">
+              <option>Mới nhất</option>
+              <option>Cũ nhất</option>
+              <option>Giá thấp đến cao</option>
+              <option>Giá cao đến thấp</option>
+            </select>
+          </div>
+        </div>
+      </form>
+    </div> <div class="room-grid">
       <app-room-card *ngFor="let room of rooms" [room]="room"></app-room-card>
     </div>
 

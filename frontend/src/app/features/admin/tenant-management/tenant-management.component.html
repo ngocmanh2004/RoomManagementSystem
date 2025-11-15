@@ -143,19 +143,22 @@
       <!-- Chế độ xem -->
       <ng-template #viewMode>
   <div class="view-mode">
-    <!-- Avatar + Tên -->
-    <div class="tenant-avatar">
-      {{ currentTenant.user?.fullName?.charAt(0) }}
+    <!-- Avatar + Tên (trên cùng) -->
+    <div class="tenant-header">
+      <div class="avatar-large">
+        {{ currentTenant.user?.fullName?.charAt(0)?.toUpperCase() }}
+      </div>
+      <h3 class="tenant-name">{{ currentTenant.user?.fullName }}</h3>
     </div>
-    <div class="tenant-name">{{ currentTenant.user?.fullName }}</div>
 
     <!-- Thông tin chi tiết -->
-    <p><strong>Họ tên:</strong> <span>{{ currentTenant.user?.fullName }}</span></p>
-    <p><strong>SĐT:</strong> <span>{{ currentTenant.user?.phone }}</span></p>
-    <p><strong>Email:</strong> <span>{{ currentTenant.user?.email || '—' }}</span></p>
-    <p><strong>CCCD:</strong> <span>{{ currentTenant.cccd }}</span></p>
-    <p><strong>Ngày sinh:</strong> <span>{{ currentTenant.dateOfBirth | date:'dd/MM/yyyy' }}</span></p>
-    <p><strong>Địa chỉ:</strong> <span>{{ currentTenant.address || '—' }}</span></p>
+    <div class="info-list">
+      <p><strong>SĐT:</strong> <span>{{ currentTenant.user?.phone }}</span></p>
+      <p><strong>Email:</strong> <span>{{ currentTenant.user?.email || '—' }}</span></p>
+      <p><strong>CCCD:</strong> <span>{{ currentTenant.cccd }}</span></p>
+      <p><strong>Ngày sinh:</strong> <span>{{ currentTenant.dateOfBirth | date:'dd/MM/yyyy' }}</span></p>
+      <p><strong>Địa chỉ:</strong> <span>{{ currentTenant.address || '—' }}</span></p>
+    </div>
 
     <!-- Nút đóng -->
     <div class="modal-buttons">

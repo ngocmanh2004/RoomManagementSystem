@@ -29,4 +29,13 @@ public class Building {
     @JsonIgnoreProperties({"building"})
     private List<Room> rooms;
 
+    @Column(name = "province_code")
+    private Integer provinceCode;
+
+    @Column(name = "district_code")
+    private Integer districtCode;
+
+    //Timestamp (nếu DB có)
+    @Column(name = "created_at", insertable = false, updatable = false)
+    private java.time.LocalDateTime createdAt;
 }

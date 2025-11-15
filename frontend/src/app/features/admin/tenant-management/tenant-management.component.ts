@@ -166,120 +166,56 @@ export class TenantManagementComponent implements OnInit {
     }
   }
 
-
- /*saveTenant() {
-  if (!this.currentTenant.user.fullName || !this.currentTenant.user.phone || !this.currentTenant.cccd) {
-    alert('Vui lòng nhập đầy đủ thông tin!');
-    return;
-  }
-
-  if (this.mode === 'edit') {
-    // Chỉ cập nhật tenant, giữ user nguyên
-    this.tenantService.update(this.currentTenant.id, this.currentTenant).subscribe({
-      next: () => {
-        alert('Cập nhật thành công!');
-        this.loadTenants();
-        this.closeForm();
-      },
-      error: (err) => {
-        console.error('Lỗi khi cập nhật:', err);
-        alert('Không thể cập nhật!');
-      }
-    });
-  } else {
-    // THÊM MỚI → map sang DTO RegisterRequest
-    const registerRequest = {
-      username: this.currentTenant.user.phone,    // username = phone
-      fullName: this.currentTenant.user.fullName,
-      email: this.currentTenant.user.email,
-      phone: this.currentTenant.user.phone,
-      address: this.currentTenant.address,
-      cccd: this.currentTenant.cccd,
-      dateOfBirth: this.currentTenant.dateOfBirth
-    };
-
-    this.tenantService.add(registerRequest).subscribe({
-      next: (response: any) => {
-        const msg = `
-          Thêm khách thuê thành công!
-
-          Tài khoản: ${response.username}
-          Mật khẩu: ${response.password}
-
-          (Vui lòng lưu lại hoặc gửi cho khách!)
-        `;
-        alert(msg);
-        this.loadTenants();
-        this.closeForm();
-      },
-      error: (err) => {
-        console.error('Lỗi khi thêm:', err);
-        // HIỂN THỊ LỖI CỤ THỂ TỪ BACKEND
-        let errorMsg = 'Không thể thêm khách thuê!';
-
-        if (err.error) {
-          if (typeof err.error === 'string') {
-            errorMsg = err.error; // "Số điện thoại đã được sử dụng!"
-          } else if (err.error.message) {
-            errorMsg = err.error.message;
-          }
-        }
-
-        alert(errorMsg);
-      }
-    });
-  }
-}*/
   saveTenant() {
 
-  const validationError = this.validateTenant();
-  if (validationError) {
-    alert(validationError);
-    return;
-  }
+    const validationError = this.validateTenant();
+    if (validationError) {
+      alert(validationError);
+      return;
+    }
 
-  if (this.mode === 'edit') {
-    // update
-    this.tenantService.update(this.currentTenant.id, this.currentTenant).subscribe({
-      next: () => {
-        alert('Cập nhật thành công!');
-        this.loadTenants();
-        this.closeForm();
-      },
-      error: () => alert('Không thể cập nhật!')
-    });
-  } 
-  else {
-    // add
-    const registerRequest = {
-      username: this.currentTenant.user.phone,
-      fullName: this.currentTenant.user.fullName,
-      email: this.currentTenant.user.email,
-      phone: this.currentTenant.user.phone,
-      address: this.currentTenant.address,
-      cccd: this.currentTenant.cccd,
-      dateOfBirth: this.currentTenant.dateOfBirth
-    };
+    if (this.mode === 'edit') {
+      // update
+      this.tenantService.update(this.currentTenant.id, this.currentTenant).subscribe({
+        next: () => {
+          alert('Cập nhật thành công!');
+          this.loadTenants();
+          this.closeForm();
+        },
+        error: () => alert('Không thể cập nhật!')
+      });
+    } 
+    else {
+      // add
+      const registerRequest = {
+        username: this.currentTenant.user.phone,
+        fullName: this.currentTenant.user.fullName,
+        email: this.currentTenant.user.email,
+        phone: this.currentTenant.user.phone,
+        address: this.currentTenant.address,
+        cccd: this.currentTenant.cccd,
+        dateOfBirth: this.currentTenant.dateOfBirth
+      };
 
-    this.tenantService.add(registerRequest).subscribe({
-      next: (response: any) => {
-        alert(`
-Thêm khách thuê thành công!
-Tài khoản: ${response.username}
-Mật khẩu: ${response.password}
-        `);
-        this.loadTenants();
-        this.closeForm();
-      },
-      error: (err) => {
-        let errorMsg = 'Không thể thêm khách thuê!';
-        if (typeof err.error === 'string') errorMsg = err.error;
-        if (err.error?.message) errorMsg = err.error.message;
-        alert(errorMsg);
-      }
-    });
+      this.tenantService.add(registerRequest).subscribe({
+        next: (response: any) => {
+          alert(`
+  Thêm khách thuê thành công!
+  Tài khoản: ${response.username}
+  Mật khẩu: ${response.password}
+          `);
+          this.loadTenants();
+          this.closeForm();
+        },
+        error: (err) => {
+          let errorMsg = 'Không thể thêm khách thuê!';
+          if (typeof err.error === 'string') errorMsg = err.error;
+          if (err.error?.message) errorMsg = err.error.message;
+          alert(errorMsg);
+        }
+      });
+    }
   }
-}
 
 
  // ----- CẬP NHẬT TRẠNG THÁI TRỰC TIẾP -----
@@ -295,19 +231,17 @@ Mật khẩu: ${response.password}
     });
   }
   updateCounts() {
-  const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
 
-  this.countDangThue = this.filteredTenants.filter(t => t.user?.status === 'ACTIVE').length;
-  this.countDaNghi = this.filteredTenants.filter(t => t.user?.status === 'PENDING').length;
+    this.countDangThue = this.filteredTenants.filter(t => t.user?.status === 'ACTIVE').length;
+    this.countDaNghi = this.filteredTenants.filter(t => t.user?.status === 'PENDING').length;
 
-  // Tính khách mới trong tháng
-  this.countKhachMoi = this.filteredTenants.filter(t => {
-    const created = new Date(t.user?.createdAt);
-    return created.getMonth() === currentMonth && created.getFullYear() === currentYear;
-  }).length;
-}
-
-
+    // Tính khách mới trong tháng
+    this.countKhachMoi = this.filteredTenants.filter(t => {
+      const created = new Date(t.user?.createdAt);
+      return created.getMonth() === currentMonth && created.getFullYear() === currentYear;
+    }).length;
+  }
 }
