@@ -47,7 +47,7 @@ public class TenantController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Lấy tenant theo userId (code mới từ develop)
+    // Lấy tenant theo userId 
     @GetMapping("/user/{userId}")
     public ResponseEntity<Tenant> getTenantByUserId(@PathVariable int userId) {
         Optional<Tenant> tenant = tenantRepository.findByUserId(userId);
@@ -123,7 +123,7 @@ public class TenantController {
         }
     }
 
-    // Xóa tenant — GIỮ NGUYÊN LOGIC CỦA BẠN
+    // Xóa tenant 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTenant(@PathVariable int id) {
         Optional<Tenant> tenantOpt = tenantRepository.findById(id);
