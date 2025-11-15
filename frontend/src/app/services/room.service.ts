@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Amenity } from './amenity.service';
 
 // THÊM CÁC INTERFACE MỚI (ĐỂ CODE SẠCH HƠN)
 export type RoomStatus = 'AVAILABLE' | 'OCCUPIED' | 'REPAIRING';
@@ -14,7 +15,8 @@ export interface Room {
   description?: string;
   building?: any; 
   images?: any[];
-  tenantName?: string; // Dùng cho UI
+  tenantName?: string;
+  amenities?: Amenity[]; // Dùng cho UI
 }
 
 export interface RoomImage {

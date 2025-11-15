@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import com.techroom.roommanagement.model.Building;
+import java.util.Set; // <-- THÊM
+import java.util.HashSet; // <-- THÊM
 
 @Entity
 @Table(name = "rooms")
@@ -53,6 +55,15 @@ public class Room {
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnoreProperties("room")
     private List<RoomImage> images;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
+    @JoinTable(name = "room_amenities",
+            joinColumns = { @JoinColumn(name = "room_id") },
+            inverseJoinColumns = { @JoinColumn(name = "amenity_id") })
+    private Set<Amenity> amenities = new HashSet<>();
 
     public enum RoomStatus {
         AVAILABLE,
