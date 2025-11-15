@@ -24,7 +24,7 @@
   <div class="stats-row">
     <div class="stat-card total">
       <h4>Tổng khách thuê</h4>
-      <p>{{ tenants.length }}</p>
+      <p>{{ filteredTenants.length }}</p>
     </div>
     <div class="stat-card active">
       <h4>Đang thuê</h4>
@@ -42,7 +42,7 @@
 
   <!-- Bảng danh sách khách thuê -->
   <div class="table-section">
-    <h5>Danh sách khách thuê ({{ tenants.length }})</h5>
+    <h5>Danh sách khách thuê ({{ filteredTenants.length }})</h5>
     <table class="tenant-table">
       <thead>
         <tr>
@@ -139,18 +139,30 @@
 
       <!-- Chế độ xem -->
       <ng-template #viewMode>
-        <div class="view-mode">
-          <p><strong>Họ tên:</strong> {{ currentTenant.user?.fullName }}</p>
-          <p><strong>SĐT:</strong> {{ currentTenant.user?.phone }}</p>
-          <p><strong>Email:</strong> {{ currentTenant.user?.email }}</p>
-          <p><strong>CCCD:</strong> {{ currentTenant.cccd }}</p>
-          <p><strong>Ngày sinh:</strong> {{ currentTenant.dateOfBirth | date:'dd/MM/yyyy' }}</p>
-          <p><strong>Địa chỉ:</strong> {{ currentTenant.address }}</p>
-          <div class="modal-buttons">
-            <button class="cancel" (click)="closeForm()">Đóng</button>
-          </div>
-        </div>
-      </ng-template>
+  <div class="view-mode">
+    <!-- Avatar + Tên (trên cùng) -->
+    <div class="tenant-header">
+      <div class="avatar-large">
+        {{ currentTenant.user?.fullName?.charAt(0)?.toUpperCase() }}
+      </div>
+      <h3 class="tenant-name">{{ currentTenant.user?.fullName }}</h3>
+    </div>
+
+    <!-- Thông tin chi tiết -->
+    <div class="info-list">
+      <p><strong>SĐT:</strong> <span>{{ currentTenant.user?.phone }}</span></p>
+      <p><strong>Email:</strong> <span>{{ currentTenant.user?.email || '—' }}</span></p>
+      <p><strong>CCCD:</strong> <span>{{ currentTenant.cccd }}</span></p>
+      <p><strong>Ngày sinh:</strong> <span>{{ currentTenant.dateOfBirth | date:'dd/MM/yyyy' }}</span></p>
+      <p><strong>Địa chỉ:</strong> <span>{{ currentTenant.address || '—' }}</span></p>
+    </div>
+
+    <!-- Nút đóng -->
+    <div class="modal-buttons">
+      <button class="cancel" (click)="closeForm()">Đóng</button>
+    </div>
+  </div>
+</ng-template>
 
     </div>
   </div>
