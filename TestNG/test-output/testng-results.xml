@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results ignored="0" total="5" passed="5" failed="0" skipped="0">
+  <reporter-output>
+  </reporter-output>
+  <suite started-at="2025-11-16T16:01:59 ICT" name="Default suite" finished-at="2025-11-16T16:02:25 ICT" duration-ms="26005">
+    <groups>
+    </groups>
+    <test started-at="2025-11-16T16:01:59 ICT" name="Default test" finished-at="2025-11-16T16:02:25 ICT" duration-ms="26005">
+      <class name="Epic1.US11">
+        <test-method is-config="true" signature="beforeClass()[pri:0, instance:Epic1.US11@4116aac9]" started-at="2025-11-16T16:01:59 ICT" name="beforeClass" finished-at="2025-11-16T16:02:02 ICT" duration-ms="3098" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeClass -->
+        <test-method is-config="true" signature="beforeMethod()[pri:0, instance:Epic1.US11@4116aac9]" started-at="2025-11-16T16:02:02 ICT" name="beforeMethod" finished-at="2025-11-16T16:02:02 ICT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeMethod -->
+        <test-method signature="TC111()[pri:1, instance:Epic1.US11@4116aac9]" started-at="2025-11-16T16:02:02 ICT" name="TC111" finished-at="2025-11-16T16:02:07 ICT" duration-ms="4272" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC111 -->
+        <test-method is-config="true" signature="afterMethod()[pri:0, instance:Epic1.US11@4116aac9]" started-at="2025-11-16T16:02:07 ICT" name="afterMethod" finished-at="2025-11-16T16:02:07 ICT" duration-ms="14" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterMethod -->
+        <test-method signature="TC112()[pri:2, instance:Epic1.US11@4116aac9]" started-at="2025-11-16T16:02:07 ICT" name="TC112" finished-at="2025-11-16T16:02:18 ICT" duration-ms="10978" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC112 -->
+        <test-method is-config="true" signature="beforeMethod()[pri:0, instance:Epic1.US11@4116aac9]" started-at="2025-11-16T16:02:07 ICT" name="beforeMethod" finished-at="2025-11-16T16:02:07 ICT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeMethod -->
+        <test-method signature="TC113()[pri:3, instance:Epic1.US11@4116aac9]" started-at="2025-11-16T16:02:18 ICT" name="TC113" finished-at="2025-11-16T16:02:20 ICT" duration-ms="2480" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC113 -->
+        <test-method is-config="true" signature="beforeMethod()[pri:0, instance:Epic1.US11@4116aac9]" started-at="2025-11-16T16:02:18 ICT" name="beforeMethod" finished-at="2025-11-16T16:02:18 ICT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeMethod -->
+        <test-method is-config="true" signature="afterMethod()[pri:0, instance:Epic1.US11@4116aac9]" started-at="2025-11-16T16:02:18 ICT" name="afterMethod" finished-at="2025-11-16T16:02:18 ICT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterMethod -->
+        <test-method signature="TC114()[pri:4, instance:Epic1.US11@4116aac9]" started-at="2025-11-16T16:02:20 ICT" name="TC114" finished-at="2025-11-16T16:02:23 ICT" duration-ms="2322" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC114 -->
+        <test-method is-config="true" signature="afterMethod()[pri:0, instance:Epic1.US11@4116aac9]" started-at="2025-11-16T16:02:20 ICT" name="afterMethod" finished-at="2025-11-16T16:02:20 ICT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterMethod -->
+        <test-method is-config="true" signature="beforeMethod()[pri:0, instance:Epic1.US11@4116aac9]" started-at="2025-11-16T16:02:20 ICT" name="beforeMethod" finished-at="2025-11-16T16:02:20 ICT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeMethod -->
+        <test-method is-config="true" signature="afterMethod()[pri:0, instance:Epic1.US11@4116aac9]" started-at="2025-11-16T16:02:23 ICT" name="afterMethod" finished-at="2025-11-16T16:02:23 ICT" duration-ms="4" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterMethod -->
+        <test-method signature="TC115()[pri:5, instance:Epic1.US11@4116aac9]" started-at="2025-11-16T16:02:23 ICT" name="TC115" finished-at="2025-11-16T16:02:25 ICT" duration-ms="2601" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC115 -->
+        <test-method is-config="true" signature="beforeMethod()[pri:0, instance:Epic1.US11@4116aac9]" started-at="2025-11-16T16:02:23 ICT" name="beforeMethod" finished-at="2025-11-16T16:02:23 ICT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeMethod -->
+        <test-method is-config="true" signature="afterMethod()[pri:0, instance:Epic1.US11@4116aac9]" started-at="2025-11-16T16:02:25 ICT" name="afterMethod" finished-at="2025-11-16T16:02:25 ICT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterMethod -->
+        <test-method is-config="true" signature="afterClass()[pri:0, instance:Epic1.US11@4116aac9]" started-at="2025-11-16T16:02:25 ICT" name="afterClass" finished-at="2025-11-16T16:02:25 ICT" duration-ms="193" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterClass -->
+      </class> <!-- Epic1.US11 -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>
