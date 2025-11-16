@@ -1,11 +1,11 @@
-/* GENERAL LAYOUT */
+/* ===== GENERAL LAYOUT ===== */
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
 }
 
-/* 1️⃣ HERO SECTION */
+/* ===== 1️⃣ HERO SECTION ===== */
 .hero-section {
   height: 500px;
   background-image: url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2070&auto=format&fit=crop');
@@ -23,6 +23,18 @@
   padding: 40px;
   border-radius: 12px;
   max-width: 700px;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hero-content h1 {
@@ -37,31 +49,43 @@
   opacity: 0.9;
 }
 
+.hero-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 .hero-buttons .btn {
-  margin: 0 10px;
+  margin: 0;
 }
 
 .btn-large {
   padding: 14px 30px;
   font-size: 16px;
   border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .btn-outline {
   background-color: transparent;
   border: 2px solid white;
   color: white;
-  transition: all 0.3s;
 }
 
 .btn-outline:hover {
   background-color: white;
   color: #007bff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
 }
 
-/* 2️⃣ SEARCH BOX */
+/* ===== 2️⃣ SEARCH BOX ===== */
 .search-section {
   transform: translateY(-50%);
+  z-index: 10;
+  position: relative;
 }
 
 .search-box {
@@ -69,6 +93,16 @@
   padding: 30px;
   border-radius: 10px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease;
+}
+
+.search-box:hover {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+.search-box h3 {
+  margin-bottom: 20px;
+  color: #333;
 }
 
 .search-form {
@@ -80,7 +114,7 @@
 
 .form-group {
   flex: 1;
-  min-width: 200px;
+  min-width: 180px;
 }
 
 .form-group label {
@@ -96,14 +130,55 @@
   border-radius: 6px;
   border: 1px solid #ddd;
   background-color: #fdfdfd;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
+}
+
+.form-group select:hover {
+  border-color: #007bff;
 }
 
 .form-group select:focus {
   border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
-/* 3️⃣ MAIN CONTENT */
+.search-form .btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-form .btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.search-form .btn-primary:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.search-form .btn-outline-primary {
+  background-color: transparent;
+  border: 2px solid #007bff;
+  color: #007bff;
+}
+
+.search-form .btn-outline-primary:hover {
+  background-color: #007bff;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* ===== 3️⃣ MAIN CONTENT ===== */
 .main-content {
   display: flex;
   gap: 30px;
@@ -111,142 +186,7 @@
   padding-bottom: 50px;
 }
 
-.filter-sidebar {
-  width: 25%;
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
-  height: fit-content;
-}
-
-.filter-sidebar h4 {
-  font-size: 18px;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #007bff;
-}
-
-.filter-form {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.filter-group label {
-  font-weight: 600;
-  color: #444;
-}
-
-.price-range {
-  display: flex;
-  gap: 10px;
-}
-
-.price-range input {
-  width: 100%;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  font-size: 14px;
-}
-
-/* 🎯 TIỆN NGHI SECTION */
-.checkbox-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.checkbox-list label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  font-size: 15px;
-  color: #333;
-}
-
-.checkbox-list label:hover {
-  background-color: #f1f7ff;
-}
-
-.checkbox-list input[type="checkbox"] {
-  display: none;
-}
-
-/* 🎨 ICON XANH DƯƠNG KHI CHECKED */
-.checkbox-list i {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid #007bff;
-  color: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.25s ease;
-  font-size: 12px;
-}
-
-.checkbox-list input[type="checkbox"]:checked + i {
-  background-color: #007bff;
-  color: white;
-}
-
-/* 4️⃣ ROOM LIST */
-.room-list-container {
-  width: 75%;
-}
-
-.list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.list-header select {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  font-size: 14px;
-}
-
-.room-list {
-  display: grid;
-  gap: 20px;
-}
-
-.view-more {
-  text-align: center;
-  margin-top: 30px;
-}
-
-.btn-full-width {
-  width: 100%;
-  text-align: center;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 18px;
-  font-weight: 500;
-  transition: background-color 0.3s;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-}
-/* === SIDEBAR BỘ LỌC === */
+/* ===== FILTER SIDEBAR ===== */
 .filter-sidebar {
   background: #fff;
   padding: 24px;
@@ -256,23 +196,32 @@
   width: 25%;
   min-width: 250px;
   max-width: 300px;
+  position: sticky;
+  top: 20px;
+  transition: box-shadow 0.3s ease;
 }
 
+.filter-sidebar:hover {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
 
 .filter-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 22px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f0f0f0;
 }
 
 .filter-header h4 {
   font-size: 18px;
   font-weight: 700;
-  color: #000; /* chữ đen như Figma */
+  color: #000;
   display: flex;
   align-items: center;
   gap: 8px;
+  margin: 0;
 }
 
 .filter-header i {
@@ -285,13 +234,14 @@
   color: #007bff;
   text-decoration: none;
   font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .clear-filter:hover {
   text-decoration: underline;
+  transform: scale(1.05);
 }
 
-/* === NHÓM FILTER === */
 .filter-form {
   display: flex;
   flex-direction: column;
@@ -305,7 +255,6 @@
   color: #333;
 }
 
-/* === INPUT KHOẢNG GIÁ === */
 .price-range {
   display: flex;
   gap: 10px;
@@ -320,13 +269,16 @@
   transition: all 0.2s ease;
 }
 
+.price-range input:hover {
+  border-color: #007bff;
+}
+
 .price-range input:focus {
   outline: none;
   border-color: #007bff;
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
 }
 
-/* === SELECT BOX (Diện tích, Loại phòng) === */
 .filter-group select {
   width: 100%;
   padding: 9px 12px;
@@ -335,7 +287,7 @@
   font-size: 14px;
   background-color: #fff;
   color: #333;
-  appearance: none; /* ẩn mũi tên mặc định */
+  appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23777' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
@@ -353,7 +305,7 @@
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
 }
 
-/* === CHECKBOX LIST === */
+/* ===== CHECKBOX LIST ===== */
 .checkbox-list {
   display: flex;
   flex-direction: column;
@@ -369,9 +321,14 @@
   font-size: 15px;
   color: #333;
   font-weight: 500;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
   padding: 4px 4px;
   border-radius: 6px;
+}
+
+.checkbox-list label:hover {
+  background-color: #f1f7ff;
+  transform: translateX(3px);
 }
 
 .checkbox-list input[type='checkbox'] {
@@ -386,6 +343,7 @@
   display: inline-block;
   position: relative;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .checkbox-list label:hover .checkmark {
@@ -395,6 +353,12 @@
 .checkbox-list input[type='checkbox']:checked + .checkmark {
   background-color: #007bff;
   border-color: #007bff;
+  animation: checkBounce 0.3s ease;
+}
+
+@keyframes checkBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
 }
 
 .checkbox-list input[type='checkbox']:checked + .checkmark::after {
@@ -414,7 +378,6 @@
   color: #333;
 }
 
-/* === BUTTON === */
 .btn-full-width {
   width: 100%;
   background-color: #007bff;
@@ -423,49 +386,454 @@
   border-radius: 6px;
   padding: 10px 0;
   font-weight: 500;
-  transition: background 0.3s ease;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .btn-full-width:hover {
   background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
+
+/* ===== 4️⃣ ROOM LIST ===== */
+.room-list-container {
+  width: 75%;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.list-header h3 {
+  margin: 0;
+  font-size: 22px;
+  color: #333;
+}
+
+.list-header select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.list-header select:hover {
+  border-color: #007bff;
+}
+
+.list-header select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.room-list {
+  display: grid;
+  gap: 20px;
+}
+
+/* ===== ROOM CARD ===== */
+.room-card {
+  display: flex;
+  gap: 20px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.room-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+  border-color: #ccc;
+}
+
+.card-image {
+  position: relative;
+  width: 250px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.room-card:hover .card-image img {
+  transform: scale(1.1);
+}
+
+.status-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #28a745;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.card-content {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.title {
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 5px;
+  color: #333;
+  transition: color 0.2s ease;
+}
+
+.room-card:hover .title {
+  color: #007bff;
+}
+
+.address {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.meta span:hover {
+  transform: scale(1.05);
+  color: #007bff;
+}
+
+.meta span i {
+  color: #007bff;
+}
+
+.card-footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 10px;
+}
+
+.price {
+  font-size: 20px;
+  font-weight: bold;
+  color: #dc3545;
+  margin: 0;
+}
+
+.price small {
+  font-size: 14px;
+  color: #666;
+  font-weight: normal;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-icon {
+  background: none;
+  border: 1px solid #ddd;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  color: #666;
+}
+
+.btn-icon:hover {
+  border-color: #dc3545;
+  color: #dc3545;
+  background-color: #fff5f5;
+  transform: scale(1.15);
+}
+
+.btn-sm {
+  padding: 8px 15px;
+  font-size: 14px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-sm:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+/* ===== NO ROOMS ===== */
 .no-rooms {
   text-align: center;
   padding: 60px 20px;
   color: #666;
+  background: white;
+  border-radius: 8px;
 }
 
 .no-rooms i {
   font-size: 80px;
   color: #ddd;
   margin-bottom: 20px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 .no-rooms p {
   font-size: 18px;
   margin-bottom: 20px;
 }
-/* CĂN CHỈNH NHÓM NÚT TRÊN THANH TÌM KIẾM */
-.form-group-buttons {
-  display: flex;
-  gap: 10px; /* Khoảng cách giữa 2 nút */
-  align-items: center; /* Căn 2 nút thẳng hàng */
-  
-  /* Quan trọng: Thêm dòng này để nhóm nút 
-    tự động căn về cuối (theo .search-form)
-  */
-  align-self: flex-end; 
+
+.view-more {
+  text-align: center;
+  margin-top: 30px;
 }
 
-/* Nếu nút "Làm mới" của bạn vẫn bị ẩn (màu trắng), 
-  thêm đoạn CSS này để sửa nó 
-*/
-.search-form .btn-outline {
-  border-color: #007bff; /* Viền xanh */
-  color: #007bff; /* Chữ xanh */
+.view-more .btn-outline {
+  padding: 10px 24px;
+  background-color: transparent;
+  border: 2px solid #007bff;
+  color: #007bff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.search-form .btn-outline:hover {
+.view-more .btn-outline:hover {
   background-color: #007bff;
   color: white;
+  transform: translateY(-2px);
+}
+
+/* ===== 📱 RESPONSIVE ===== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .main-content {
+    flex-direction: column;
+  }
+
+  .filter-sidebar {
+    width: 100%;
+    max-width: 100%;
+    position: static;
+  }
+
+  .room-list-container {
+    width: 100%;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  /* Hero */
+  .hero-section {
+    height: auto;
+    min-height: 400px;
+    padding: 40px 20px;
+  }
+
+  .hero-content {
+    padding: 30px 24px;
+  }
+
+  .hero-content h1 {
+    font-size: 32px;
+  }
+
+  .hero-content p {
+    font-size: 16px;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .btn-large {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Search */
+  .search-section {
+    transform: translateY(-40px);
+    margin-bottom: -20px;
+  }
+
+  .search-box {
+    padding: 20px;
+  }
+
+  .search-form {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .form-group {
+    min-width: 100%;
+  }
+
+  .search-form .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Filter sidebar */
+  .filter-sidebar {
+    padding: 20px;
+  }
+
+  /* Room card - Stack vertically */
+  .room-card {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .card-image {
+    width: 100%;
+    height: 200px;
+  }
+
+  .card-content {
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 17px;
+  }
+
+  .meta {
+    gap: 12px;
+  }
+
+  .meta span {
+    font-size: 12px;
+  }
+
+  .card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .btn-sm {
+    flex: 1;
+    text-align: center;
+  }
+
+  /* List header */
+  .list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .list-header select {
+    width: 100%;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 16px;
+  }
+
+  .hero-content h1 {
+    font-size: 26px;
+  }
+
+  .hero-content p {
+    font-size: 14px;
+  }
+
+  .search-box h3 {
+    font-size: 18px;
+  }
+
+  .room-card {
+    border-radius: 8px;
+  }
+
+  .card-image {
+    height: 180px;
+  }
+
+  .title {
+    font-size: 16px;
+  }
+
+  .price {
+    font-size: 18px;
+  }
+
+  .meta {
+    gap: 10px;
+  }
+
+  .meta span {
+    font-size: 11px;
+  }
+
+  .filter-sidebar {
+    padding: 16px;
+  }
 }
