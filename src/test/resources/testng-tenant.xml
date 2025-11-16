@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="TenantSuite" parallel="none">
+    <test name="TenantTests">
+     <parameter name="startUrl" value="http://localhost:4200/login"/>
+        <classes>
+            <class name="tests.tenants.AddTenantTests"/>
+            <class name="tests.tenants.DeleteTenantTests"/>
+             <class name="tests.tenants.ViewTenantTests"/>
+            <class name="tests.tenants.EditTenantTests"/>
+             <class name="tests.tenants.TenantValidationTests"/>
+            
+           
+              </classes>
+    </test>
+</suite>
