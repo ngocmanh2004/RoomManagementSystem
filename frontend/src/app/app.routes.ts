@@ -10,7 +10,7 @@ import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
 import { AdminLayoutComponent } from './shared/layout-admin/admin-layout/admin-layout.component';
 import { PublicLayoutComponent } from './shared/layout/public-layout/public-layout.component';
-import { DashboardAdminComponent } from './features/admin/dasboard-admin/dasboard-admin.component';
+import { DashboardAdminComponent } from './features/admin/dashboard-admin/dasboard-admin.component';
 import { TenantManagementComponent } from './features/admin/tenant-management/tenant-management.component';
 import { RoomManagementComponent } from './features/admin/room-management/room-management.component';
 import { TenantProfileComponent } from './features/tenant-profile/tenant-profile.component';
