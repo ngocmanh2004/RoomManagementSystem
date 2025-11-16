@@ -5,12 +5,14 @@ import { registerLocaleData } from '@angular/common';
 import localeVi from '@angular/common/locales/vi';
 import {
   ReactiveFormsModule,
+  FormsModule,
   FormBuilder,
   FormGroup,
   Validators,
 } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Building, BuildingService } from '../../../services/building.service';
+import { Amenity, AmenityService } from '../../../services/amenity.service';
 import { Observable, of } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
@@ -20,6 +22,7 @@ import { concatMap } from 'rxjs/operators';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     CurrencyPipe,
     DecimalPipe,
   ],
@@ -63,11 +66,18 @@ export class RoomManagementComponent implements OnInit {
     { value: 'REPAIRING', text: 'Đang sửa chữa' },
   ];
 
+  //Tiện ích
+  allAmenities: Amenity[] = []; // Tất cả tiện ích từ CSDL
+  selectedAmenities: Amenity[] = []; // Tiện ích đã chọn cho phòng này
+  isAddingNewAmenity = false; // Cờ bật/tắt ô input thêm mới
+  newAmenityName = ''; // Tên tiện ích mới (cho nút "+")
+  
+  // Ảnh
   selectedFiles: File[] = [];
   imagePreviews: string[] = []; // Xem trước ảnh mới chọn
   currentRoomForEdit: Room | null = null; // Giữ ảnh cũ khi sửa
 
-  constructor(private roomService: RoomService,private buildingService: BuildingService, private fb: FormBuilder) {
+  constructor(private roomService: RoomService,private buildingService: BuildingService, private amenityService: AmenityService, private fb: FormBuilder) {
     registerLocaleData(localeVi, 'vi-VN');
     // Khởi tạo form
     this.roomForm = this.fb.group({
@@ -84,11 +94,18 @@ export class RoomManagementComponent implements OnInit {
   ngOnInit(): void {
     this.loadRooms();
     this.loadBuildings();
+    this.loadAmenities();
   }
 
   loadBuildings(): void {
     this.buildingService.getAllBuildings().subscribe(data => {
       this.buildings = data;
+    });
+  }
+
+  loadAmenities(): void {
+    this.amenityService.getAmenities().subscribe(data => {
+      this.allAmenities = data;
     });
   }
 
@@ -151,6 +168,52 @@ export class RoomManagementComponent implements OnInit {
     this.applyFilters();
   }
 
+  // Tiện ích
+
+  /** Lấy danh sách tiện ích CHƯA ĐƯỢC CHỌN để hiển thị trong dropdown */
+  getAvailableAmenities(): Amenity[] {
+    const selectedIds = new Set(this.selectedAmenities.map(a => a.id));
+    return this.allAmenities.filter(a => !selectedIds.has(a.id));
+  }
+
+  /** Thêm tiện ích từ dropdown vào danh sách (pills) */
+  onAddAmenity(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const amenityId = parseInt(select.value, 10);
+    
+    if (amenityId) {
+      const amenity = this.allAmenities.find(a => a.id === amenityId);
+      if (amenity && !this.selectedAmenities.includes(amenity)) {
+        this.selectedAmenities.push(amenity);
+      }
+    }
+    // Reset dropdown về "Chọn tiện ích"
+    select.value = '';
+  }
+
+  /** Xóa tiện ích khỏi danh sách (pills) */
+  onRemoveAmenity(amenity: Amenity): void {
+    this.selectedAmenities = this.selectedAmenities.filter(a => a.id !== amenity.id);
+  }
+
+  /** Xử lý nút "+" (Thêm tiện ích mới) */
+  onAddNewAmenity(): void {
+    if (!this.newAmenityName.trim()) {
+      alert('Vui lòng nhập tên tiện ích.');
+      return;
+    }
+
+    this.amenityService.addAmenity(this.newAmenityName).subscribe(newAmenity => {
+      // 1. Thêm vào danh sách tổng
+      this.allAmenities.push(newAmenity);
+      // 2. Thêm luôn vào danh sách đã chọn
+      this.selectedAmenities.push(newAmenity);
+      // 3. Reset
+      this.newAmenityName = '';
+      this.isAddingNewAmenity = false;
+    });
+  }
+
   // ===========================================
   // Modal Thêm / Sửa (US 1.1 & 1.2)
   // ===========================================
@@ -160,7 +223,8 @@ export class RoomManagementComponent implements OnInit {
     this.formError = null;
     this.currentRoomForEdit = null; // Xóa ảnh cũ (nếu có)
     this.selectedFiles = [];       // Xóa file chờ
-    this.imagePreviews = [];     // Xóa preview
+    this.imagePreviews = [];
+    this.selectedAmenities = [];     // Xóa preview
     this.roomForm.reset({
       name: '',
       buildingId: null,
@@ -184,6 +248,8 @@ export class RoomManagementComponent implements OnInit {
       ...room,
       buildingId: room.building?.id 
     });
+    this.selectedAmenities = room.amenities ? [...room.amenities] : [];
+    
     this.isModalOpen = true;
   }
 
@@ -193,6 +259,8 @@ export class RoomManagementComponent implements OnInit {
     this.currentRoomForEdit = null;
     this.selectedFiles = [];
     this.imagePreviews = [];
+    this.selectedAmenities = []; // Thêm reset tiện ích
+    this.isAddingNewAmenity = false; // Thêm reset nút "+"
   }
 
   onSubmit(): void {
@@ -205,7 +273,8 @@ export class RoomManagementComponent implements OnInit {
     const { buildingId, ...otherData } = this.roomForm.value;
     const roomData: any = {
       ...otherData,
-      building: { id: buildingId }
+      building: { id: buildingId },
+      amenities: this.selectedAmenities
     };
 
     if (this.isEditMode && this.currentRoomId) {

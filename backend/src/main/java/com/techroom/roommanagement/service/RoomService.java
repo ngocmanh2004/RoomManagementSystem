@@ -1,6 +1,8 @@
 package com.techroom.roommanagement.service;
 
 import com.techroom.roommanagement.model.Room;
+import com.techroom.roommanagement.model.Amenity;
+import com.techroom.roommanagement.repository.AmenityRepository;
 import com.techroom.roommanagement.repository.RoomRepository;
 // import com.techroom.roommanagement.repository.ContractRepository; // Sẽ cần khi bạn có file này
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,12 +11,18 @@ import jakarta.transaction.Transactional; // <-- THÊM IMPORT NÀY
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.HashSet;
 
 @Service
 public class RoomService {
 
     @Autowired
     private RoomRepository roomRepository;
+
+    @Autowired
+    private AmenityRepository amenityRepository;
 
     // @Autowired
     // private ContractRepository contractRepository; // <-- Sẽ cần cho US 1.3 (cách nâng cao)
@@ -49,6 +57,12 @@ public class RoomService {
     @Transactional // <-- CẬP NHẬT (Thêm @Transactional)
     public Room saveRoom(Room room) {
         // Dùng cho US 1.1 (Thêm mới)
+        if (room.getAmenities() != null) {
+            Set<Amenity> managedAmenities = room.getAmenities().stream()
+                    .map(a -> amenityRepository.findById(a.getId()).orElse(a))
+                    .collect(Collectors.toSet());
+            room.setAmenities(managedAmenities);
+        }
         return roomRepository.save(room);
     }
 
@@ -63,6 +77,16 @@ public class RoomService {
         existingRoom.setArea(roomDetails.getArea());
         existingRoom.setStatus(roomDetails.getStatus());
         existingRoom.setDescription(roomDetails.getDescription());
+
+        existingRoom.getAmenities().clear(); // Xóa các tiện ích cũ
+        if (roomDetails.getAmenities() != null) {
+            // Thêm các tiện ích mới
+            roomDetails.getAmenities().forEach(amenity -> {
+                Amenity managedAmenity = amenityRepository.findById(amenity.getId())
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy tiện ích: " + amenity.getId()));
+                existingRoom.getAmenities().add(managedAmenity);
+            });
+        }
 
         return roomRepository.save(existingRoom);
     }
@@ -92,9 +116,4 @@ public class RoomService {
 
         roomRepository.deleteById(id);
     }
-
-    // Bạn có thể xóa hàm này vì 'distinct areas' không còn dùng nữa
-    // public List<String> getDistinctAreas() {
-    //     return roomRepository.findDistinctAreas();
-    // }
 }
