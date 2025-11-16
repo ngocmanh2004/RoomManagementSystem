@@ -1,0 +1,28 @@
+<div class="room-card">
+  <div class="card-image">
+    <img [src]="mainImage" alt="Room Image" />
+    <span class="status-tag">
+      {{ room?.status === 'AVAILABLE' ? 'Còn phòng' : 'Hết phòng' }}
+    </span>
+  </div>
+
+  <div class="card-content">
+    <h4 class="title">{{ room?.name }}</h4>
+    <p class="address">{{ room?.building?.address || 'Đang cập nhật' }}</p>
+
+    <div class="meta">
+      <span class="rating"><i class="fa-solid fa-star"></i> 4.5</span>
+      <span><i class="fa-solid fa-vector-square"></i> {{ room?.area }} m²</span>
+      <span><i class="fa-solid fa-bed"></i> 1 Giường</span>
+      <span><i class="fa-solid fa-person"></i> Tối đa 2 người</span>
+    </div>
+
+    <div class="card-footer">
+      <p class="price">{{ room?.price | number }}đ<small>/tháng</small></p>
+      <div class="actions">
+        <button class="btn-icon"><i class="fa-regular fa-heart"></i></button>
+        <a [routerLink]="['/rooms', room?.id]" class="btn btn-primary btn-sm">Xem chi tiết</a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,62 @@
+<div class="sidebar-container" [class.collapsed]="isCollapsed">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <i class="fa-solid fa-building"></i>
+    </div>
+    <span class="logo-text">Quản Lý Trọ</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <ul>
+      <li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <a routerLink="/admin/dashboard">
+          <i class="fa-solid fa-chart-line"></i>
+          <span class="nav-text">Dashboard</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active">
+        <a routerLink="/admin/rooms">
+          <i class="fa-solid fa-door-open"></i>
+          <span class="nav-text">Quản lý Phòng</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active">
+        <a routerLink="/admin/tenants">
+          <i class="fa-solid fa-users"></i>
+          <span class="nav-text">Quản lý Khách thuê</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active">
+        <a routerLink="/admin/contracts">
+          <i class="fa-solid fa-file-contract"></i>
+          <span class="nav-text">Quản lý Hợp đồng</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active">
+        <a routerLink="/admin/electricity">
+          <i class="fa-solid fa-bolt"></i>
+          <span class="nav-text">Quản lý Điện</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active">
+        <a routerLink="/admin/water">
+          <i class="fa-solid fa-tint"></i>
+          <span class="nav-text">Quản lý Nước</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active">
+        <a routerLink="/admin/extra-fees">
+          <i class="fa-solid fa-receipt"></i>
+          <span class="nav-text">Quản lý Phát sinh</span>
+        </a>
+      </li>
+      
+    </ul>
+  </nav>
+</div>
