@@ -1,14 +1,17 @@
 package com.techroom.roommanagement.service;
 
 import com.techroom.roommanagement.model.Room;
+import com.techroom.roommanagement.model.Amenity;
+import com.techroom.roommanagement.repository.AmenityRepository;
 import com.techroom.roommanagement.repository.RoomRepository;
-// import com.techroom.roommanagement.repository.ContractRepository; // Sẽ cần khi bạn có file này
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import jakarta.transaction.Transactional; // <-- THÊM IMPORT NÀY
+import org.springframework.transaction.annotation.Transactional; // ✅ SỬA IMPORT NÀY
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class RoomService {
@@ -16,45 +19,78 @@ public class RoomService {
     @Autowired
     private RoomRepository roomRepository;
 
-    // @Autowired
-    // private ContractRepository contractRepository; // <-- Sẽ cần cho US 1.3 (cách nâng cao)
+    @Autowired
+    private AmenityRepository amenityRepository;
 
+    @Transactional(readOnly = true)
     public List<Room> getAllRooms() {
-        return roomRepository.findAll();
+        List<Room> rooms = roomRepository.findAll();
+
+        // Force load tất cả lazy collections
+        rooms.forEach(room -> {
+            room.getImages().size();
+            room.getAmenities().size();
+        });
+
+        return rooms;
     }
 
+    @Transactional(readOnly = true)
     public Optional<Room> getRoomById(int id) {
-        return roomRepository.findById(id);
+        Optional<Room> room = roomRepository.findById(id);
+        room.ifPresent(r -> {
+            r.getImages().size();
+            r.getAmenities().size();
+        });
+        return room;
     }
 
+    @Transactional(readOnly = true)
     public List<Room> getRoomsByStatus(Room.RoomStatus status) {
-        return roomRepository.findByStatus(status);
+        List<Room> rooms = roomRepository.findByStatus(status);
+        rooms.forEach(room -> {
+            room.getImages().size();
+            room.getAmenities().size();
+        });
+        return rooms;
     }
 
+    @Transactional(readOnly = true)
     public List<Room> searchRooms(String keyword) {
-        return roomRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword);
+        List<Room> rooms = roomRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword);
+        rooms.forEach(room -> {
+            room.getImages().size();
+            room.getAmenities().size();
+        });
+        return rooms;
     }
 
+    @Transactional(readOnly = true)
     public List<Room> filterRooms(Integer provinceCode, Integer districtCode,
                                   Double minPrice, Double maxPrice,
                                   String type, Integer minArea, Integer maxArea,
                                   List<Integer> amenities) {
-        return roomRepository.filterRooms(provinceCode, districtCode, minPrice, maxPrice, type, minArea, maxArea, amenities);
+        List<Room> rooms = roomRepository.filterRooms(provinceCode, districtCode, minPrice, maxPrice, type, minArea, maxArea, amenities);
+        rooms.forEach(room -> {
+            room.getImages().size();
+            room.getAmenities().size();
+        });
+        return rooms;
     }
 
-    // ===========================================
-    // CÁC HÀM MỚI VÀ CẬP NHẬT CHO SPRINT 1
-    // ===========================================
-
-    @Transactional // <-- CẬP NHẬT (Thêm @Transactional)
+    @Transactional
     public Room saveRoom(Room room) {
-        // Dùng cho US 1.1 (Thêm mới)
+        if (room.getAmenities() != null) {
+            Set<Amenity> managedAmenities = room.getAmenities().stream()
+                    .map(a -> amenityRepository.findById(a.getId()).orElse(a))
+                    .collect(Collectors.toSet());
+            room.setAmenities(managedAmenities);
+        }
         return roomRepository.save(room);
     }
 
-    @Transactional // <-- THÊM MỚI
+    @Transactional
     public Room updateRoom(int id, Room roomDetails) {
-        // Dùng cho US 1.2 (Chỉnh sửa)
         Room existingRoom = roomRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy phòng với id: " + id));
 
@@ -64,12 +100,20 @@ public class RoomService {
         existingRoom.setStatus(roomDetails.getStatus());
         existingRoom.setDescription(roomDetails.getDescription());
 
+        existingRoom.getAmenities().clear();
+        if (roomDetails.getAmenities() != null) {
+            roomDetails.getAmenities().forEach(amenity -> {
+                Amenity managedAmenity = amenityRepository.findById(amenity.getId())
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy tiện ích: " + amenity.getId()));
+                existingRoom.getAmenities().add(managedAmenity);
+            });
+        }
+
         return roomRepository.save(existingRoom);
     }
 
-    @Transactional // <-- THÊM MỚI
+    @Transactional
     public Room updateRoomStatus(int id, Room.RoomStatus status) {
-        // Dùng cho US 1.4 (Cập nhật trạng thái)
         Room existingRoom = roomRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy phòng với id: " + id));
 
@@ -77,24 +121,15 @@ public class RoomService {
         return roomRepository.save(existingRoom);
     }
 
-    @Transactional // <-- CẬP NHẬT (Thêm @Transactional và logic)
+    @Transactional
     public void deleteRoom(int id) {
-        // Dùng cho US 1.3 (Xóa)
         Room existingRoom = roomRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy phòng với id: " + id));
 
-        // US 1.3: Kiểm tra điều kiện: nếu phòng đang có người thuê → không cho xóa.
         if (existingRoom.getStatus() == Room.RoomStatus.OCCUPIED) {
             throw new IllegalStateException("Không thể xóa phòng đang có người thuê.");
         }
 
-        // (Nếu bạn có ContractRepository, logic kiểm tra ở đây sẽ tốt hơn)
-
         roomRepository.deleteById(id);
     }
-
-    // Bạn có thể xóa hàm này vì 'distinct areas' không còn dùng nữa
-    // public List<String> getDistinctAreas() {
-    //     return roomRepository.findDistinctAreas();
-    // }
 }

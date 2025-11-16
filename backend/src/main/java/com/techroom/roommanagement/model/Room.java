@@ -7,7 +7,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
+import com.techroom.roommanagement.model.Building;
+import java.util.Set; // <-- THÊM
+import java.util.HashSet; // <-- THÊM
 
 @Entity
 @Table(name = "rooms")
@@ -23,6 +27,8 @@ public class Room {
     @JoinColumn(name = "building_id")
     @JsonIgnoreProperties({"rooms"})
     private Building building;
+
+
 
     @Column(nullable = false, length = 120)
     private String name;
@@ -40,23 +46,24 @@ public class Room {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    // ✅ SỬA DÒNG NÀY:
+    // Thêm (insertable = false, updatable = false)
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    // Liên kết 1-n với bảng room_images
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnoreProperties("room")
     private List<RoomImage> images;
 
-    // Trả về URL ảnh chính (ảnh đầu tiên)
-    @JsonProperty("mainImage")
-    @Transient
-    public String getMainImageUrl() {
-        if (images != null && !images.isEmpty()) {
-            RoomImage firstImage = images.get(0);
-            return "/images/" + id + "/" + firstImage.getImageUrl();
-        }
-        return "/assets/images/default-room.jpg";
-    }
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
+    @JoinTable(name = "room_amenities",
+            joinColumns = { @JoinColumn(name = "room_id") },
+            inverseJoinColumns = { @JoinColumn(name = "amenity_id") })
+    private Set<Amenity> amenities = new HashSet<>();
 
     public enum RoomStatus {
         AVAILABLE,

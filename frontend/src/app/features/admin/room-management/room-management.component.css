@@ -506,6 +506,87 @@ td.actions {
   text-align: center;
 }
 
+/* =========================================== */
+/* CSS MỚI: AMENITY (TIỆN ÍCH)
+/* =========================================== */
+
+/* Container cho các tag/pill đã chọn */
+.amenity-pills-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: #fcfcfd;
+  margin-top: 4px;
+}
+
+.amenity-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary-light);
+  color: var(--primary-color);
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.btn-remove-pill {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+.btn-remove-pill:hover {
+  color: var(--text-primary);
+}
+
+/* Container cho dropdown và nút "+" */
+.amenity-add-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
+}
+.amenity-add-controls .filter-select {
+  flex-grow: 1; /* Dropdown chiếm hết không gian */
+  margin: 0;
+}
+
+.btn-add-amenity {
+  flex-shrink: 0; /* Nút "+" không bị co lại */
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.btn-add-amenity:hover {
+  background: var(--primary-light);
+  color: var(--primary-color);
+}
+
+/* UI khi bấm nút "+" */
+.quick-add-amenity {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+}
+.quick-add-amenity input {
+  flex-grow: 1;
+}
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
 
 @keyframes modal-fade-in {
   from {

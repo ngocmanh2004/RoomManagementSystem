@@ -1,5 +1,6 @@
 package com.techroom.roommanagement.controller;
 
+import com.techroom.roommanagement.dto.RoomDTO;
 import com.techroom.roommanagement.model.Room;
 import com.techroom.roommanagement.service.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,10 @@ public class RoomController {
     private RoomService roomService;
 
     @GetMapping
-    public List<Room> getAllRooms() {
-        return roomService.getAllRooms();
+    public List<RoomDTO> getAllRooms() {
+        return roomService.getAllRooms().stream()
+                .map(RoomDTO::new)
+                .toList();
     }
 
     @GetMapping("/search")
