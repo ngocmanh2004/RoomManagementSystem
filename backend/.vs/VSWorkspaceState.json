@@ -7,10 +7,13 @@
     "\\src\\main\\java\\com",
     "\\src\\main\\java\\com\\techroom",
     "\\src\\main\\java\\com\\techroom\\roommanagement",
-    "\\src\\main\\java\\com\\techroom\\roommanagement\\repository",
-    "\\src\\main\\java\\com\\techroom\\roommanagement\\service",
-    "\\src\\main\\java\\com\\techroom\\roommanagement\\service\\DTO"
+    "\\src\\main\\java\\com\\techroom\\roommanagement\\model",
+    "\\src\\test",
+    "\\src\\test\\java",
+    "\\src\\test\\java\\com",
+    "\\src\\test\\java\\com\\techroom",
+    "\\src\\test\\java\\com\\techroom\\roommanagement"
   ],
-  "SelectedNode": "\\src\\main\\java\\com\\techroom\\roommanagement\\dto\\RegisterRequest.java",
+  "SelectedNode": "\\src\\main\\java\\com\\techroom\\roommanagement\\model\\Tenant.java",
   "PreviewInSolutionExplorer": false
 }

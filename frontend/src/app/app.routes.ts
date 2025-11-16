@@ -26,7 +26,11 @@ export const routes: Routes = [
       { path: 'contact', component: ContactComponent },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
+
+      { path: 'admin/tenant-managemant', component: TenantManagementComponent},
+
       { path: 'tenant-profile', component: TenantProfileComponent }
+
     ]
   },
   // ADMIN ROUTES (role = 0)
