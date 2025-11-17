@@ -14,7 +14,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Building, BuildingService } from '../../../services/building.service';
 import { Amenity, AmenityService } from '../../../services/amenity.service';
 import { Observable, of } from 'rxjs';
-import { concatMap } from 'rxjs/operators';
+import { concatMap, tap, catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-room-management',
@@ -56,7 +56,7 @@ export class RoomManagementComponent implements OnInit {
   roomToDelete: Room | null = null;
   deleteError: string | null = null;
 
-  //Thời gian thực
+  // Thời gian thực
   currentDate: Date = new Date();
 
   // Trạng thái
@@ -66,24 +66,27 @@ export class RoomManagementComponent implements OnInit {
     { value: 'REPAIRING', text: 'Đang sửa chữa' },
   ];
 
-  //Tiện ích
-  allAmenities: Amenity[] = []; // Tất cả tiện ích từ CSDL
-  selectedAmenities: Amenity[] = []; // Tiện ích đã chọn cho phòng này
-  isAddingNewAmenity = false; // Cờ bật/tắt ô input thêm mới
-  newAmenityName = ''; // Tên tiện ích mới (cho nút "+")
+  // Tiện ích
+  allAmenities: Amenity[] = [];
+  selectedAmenities: Amenity[] = [];
+  isAddingNewAmenity = false;
+  newAmenityName = '';
   
   // Ảnh
   selectedFiles: File[] = [];
-  imagePreviews: string[] = []; // Xem trước ảnh mới chọn
-  currentRoomForEdit: Room | null = null; // Giữ ảnh cũ khi sửa
+  imagePreviews: string[] = [];
+  currentRoomForEdit: Room | null = null;
 
-  constructor(private roomService: RoomService,private buildingService: BuildingService, private amenityService: AmenityService, private fb: FormBuilder) {
+  constructor(
+    private roomService: RoomService,
+    private buildingService: BuildingService,
+    private amenityService: AmenityService,
+    private fb: FormBuilder
+  ) {
     registerLocaleData(localeVi, 'vi-VN');
-    // Khởi tạo form
     this.roomForm = this.fb.group({
       name: ['', Validators.required],
       buildingId: [null, Validators.required],
-      // Không có "tầng" theo yêu cầu
       area: [0, [Validators.required, Validators.min(1), Validators.max(999.99)]],
       price: [0, [Validators.required, Validators.min(100000)]],
       status: ['AVAILABLE', Validators.required],
@@ -111,11 +114,9 @@ export class RoomManagementComponent implements OnInit {
 
   loadRooms(): void {
     this.roomService.getAllRooms().subscribe((data) => {
-      // Logic xử lý tên khách thuê (Tạm thời)
       this.allRooms = data.map(room => {
         let tenantName = '-';
         if (room.status === 'OCCUPIED') {
-          // VÍ DỤ GIẢ LẬP (dựa theo ảnh):
           if(room.name.includes('A101')) tenantName = 'Nguyễn Văn B';
           if(room.name.includes('B201')) tenantName = 'Trần Thị C';
           if(room.name.includes('B203')) tenantName = 'Lê Văn D';
@@ -139,12 +140,10 @@ export class RoomManagementComponent implements OnInit {
   applyFilters(): void {
     let rooms = [...this.allRooms];
 
-    // Lọc theo trạng thái
     if (this.currentStatusFilter !== 'all') {
       rooms = rooms.filter(r => r.status === this.currentStatusFilter);
     }
 
-    // Lọc theo tìm kiếm
     if (this.searchTerm) {
       const lowerTerm = this.searchTerm.toLowerCase();
       rooms = rooms.filter(
@@ -168,15 +167,11 @@ export class RoomManagementComponent implements OnInit {
     this.applyFilters();
   }
 
-  // Tiện ích
-
-  /** Lấy danh sách tiện ích CHƯA ĐƯỢC CHỌN để hiển thị trong dropdown */
   getAvailableAmenities(): Amenity[] {
     const selectedIds = new Set(this.selectedAmenities.map(a => a.id));
     return this.allAmenities.filter(a => !selectedIds.has(a.id));
   }
 
-  /** Thêm tiện ích từ dropdown vào danh sách (pills) */
   onAddAmenity(event: Event): void {
     const select = event.target as HTMLSelectElement;
     const amenityId = parseInt(select.value, 10);
@@ -187,16 +182,13 @@ export class RoomManagementComponent implements OnInit {
         this.selectedAmenities.push(amenity);
       }
     }
-    // Reset dropdown về "Chọn tiện ích"
     select.value = '';
   }
 
-  /** Xóa tiện ích khỏi danh sách (pills) */
   onRemoveAmenity(amenity: Amenity): void {
     this.selectedAmenities = this.selectedAmenities.filter(a => a.id !== amenity.id);
   }
 
-  /** Xử lý nút "+" (Thêm tiện ích mới) */
   onAddNewAmenity(): void {
     if (!this.newAmenityName.trim()) {
       alert('Vui lòng nhập tên tiện ích.');
@@ -204,27 +196,20 @@ export class RoomManagementComponent implements OnInit {
     }
 
     this.amenityService.addAmenity(this.newAmenityName).subscribe(newAmenity => {
-      // 1. Thêm vào danh sách tổng
       this.allAmenities.push(newAmenity);
-      // 2. Thêm luôn vào danh sách đã chọn
       this.selectedAmenities.push(newAmenity);
-      // 3. Reset
       this.newAmenityName = '';
       this.isAddingNewAmenity = false;
     });
   }
 
-  // ===========================================
-  // Modal Thêm / Sửa (US 1.1 & 1.2)
-  // ===========================================
-
   openAddModal(): void {
     this.isEditMode = false;
     this.formError = null;
-    this.currentRoomForEdit = null; // Xóa ảnh cũ (nếu có)
-    this.selectedFiles = [];       // Xóa file chờ
+    this.currentRoomForEdit = null;
+    this.selectedFiles = [];
     this.imagePreviews = [];
-    this.selectedAmenities = [];     // Xóa preview
+    this.selectedAmenities = [];
     this.roomForm.reset({
       name: '',
       buildingId: null,
@@ -240,16 +225,23 @@ export class RoomManagementComponent implements OnInit {
     this.isEditMode = true;
     this.formError = null;
     this.currentRoomId = room.id!;
-    // Lưu lại room để hiển thị ảnh cũ (cần deep copy)
-    this.currentRoomForEdit = JSON.parse(JSON.stringify(room)); 
-    this.selectedFiles = [];    // Xóa file chờ
-    this.imagePreviews = [];  // Xóa preview
-    this.roomForm.patchValue({
-      ...room,
-      buildingId: room.building?.id 
-    });
-    this.selectedAmenities = room.amenities ? [...room.amenities] : [];
+    this.currentRoomForEdit = JSON.parse(JSON.stringify(room));
+    this.selectedFiles = [];
+    this.imagePreviews = [];
     
+    // Đảm bảo buildingId được set đúng
+    const buildingId = room.building?.id || null;
+    
+    this.roomForm.patchValue({
+      name: room.name,
+      buildingId: buildingId,
+      area: room.area,
+      price: room.price,
+      status: room.status,
+      description: room.description || ''
+    });
+    
+    this.selectedAmenities = room.amenities ? [...room.amenities] : [];
     this.isModalOpen = true;
   }
 
@@ -259,8 +251,8 @@ export class RoomManagementComponent implements OnInit {
     this.currentRoomForEdit = null;
     this.selectedFiles = [];
     this.imagePreviews = [];
-    this.selectedAmenities = []; // Thêm reset tiện ích
-    this.isAddingNewAmenity = false; // Thêm reset nút "+"
+    this.selectedAmenities = [];
+    this.isAddingNewAmenity = false;
   }
 
   onSubmit(): void {
@@ -271,50 +263,80 @@ export class RoomManagementComponent implements OnInit {
 
     this.formError = null;
     const { buildingId, ...otherData } = this.roomForm.value;
+    
+    // ✅ CHỈ GỬI ID CỦA AMENITIES, KHÔNG GỬI TOÀN BỘ OBJECT
     const roomData: any = {
       ...otherData,
       building: { id: buildingId },
-      amenities: this.selectedAmenities
+      amenities: this.selectedAmenities.map(a => ({ id: a.id }))
     };
 
     if (this.isEditMode && this.currentRoomId) {
-      // === LOGIC SỬA ===
+      // SỬA PHÒNG
       this.roomService.updateRoom(this.currentRoomId, roomData).pipe(
-        // Sau khi sửa phòng, TIẾP TỤC upload ảnh
-        concatMap(updatedRoom => this.uploadImages(updatedRoom.id!))
+        concatMap(updatedRoom => {
+          // Upload ảnh mới (nếu có)
+          if (this.selectedFiles.length > 0) {
+            return this.uploadImages(updatedRoom.id!).pipe(
+              tap(() => {
+                this.showSuccessMessage('Cập nhật phòng thành công!');
+              })
+            );
+          } else {
+            this.showSuccessMessage('Cập nhật phòng thành công!');
+            return of(updatedRoom);
+          }
+        }),
+        catchError(err => {
+          console.error('Lỗi khi cập nhật phòng:', err);
+          this.formError = 'Lỗi khi cập nhật phòng: ' + (err.error?.message || err.message);
+          return of(null);
+        })
       ).subscribe({
-        next: () => {
-          this.loadRooms();
-          this.closeModal();
-        },
-        error: (err) => this.formError = 'Lỗi khi cập nhật phòng hoặc tải ảnh.'
+        next: (result) => {
+          if (result !== null) {
+            this.loadRooms();
+            this.closeModal();
+          }
+        }
       });
 
     } else {
-      // === LOGIC THÊM MỚI ===
+      // THÊM PHÒNG MỚI
       this.roomService.addRoom(roomData).pipe(
-        // Sau khi thêm phòng, LẤY ID và upload ảnh
-        concatMap(newRoom => this.uploadImages(newRoom.id!))
+        concatMap(newRoom => {
+          if (this.selectedFiles.length > 0) {
+            return this.uploadImages(newRoom.id!).pipe(
+              tap(() => {
+                this.showSuccessMessage('Thêm phòng mới thành công!');
+              })
+            );
+          } else {
+            this.showSuccessMessage('Thêm phòng mới thành công!');
+            return of(newRoom);
+          }
+        }),
+        catchError(err => {
+          console.error('Lỗi khi thêm phòng:', err);
+          this.formError = 'Lỗi khi thêm phòng: ' + (err.error?.message || err.message);
+          return of(null);
+        })
       ).subscribe({
-        next: () => {
-          this.loadRooms();
-          this.closeModal();
-        },
-        error: (err) => this.formError = 'Lỗi khi thêm phòng hoặc tải ảnh.'
+        next: (result) => {
+          if (result !== null) {
+            this.loadRooms();
+            this.closeModal();
+          }
+        }
       });
     }
   }
 
-  // ===========================================
-  // Modal Xóa (US 1.3)
-  // ===========================================
-
   openDeleteModal(room: Room): void {
     this.deleteError = null;
     
-    // US 1.3: Kiểm tra ở frontend
     if (room.status === 'OCCUPIED') {
-      alert('Không thể xóa phòng đang có người thuê!');
+      this.showErrorMessage('Không thể xóa phòng đang có người thuê!');
       return;
     }
     this.roomToDelete = room;
@@ -332,31 +354,26 @@ export class RoomManagementComponent implements OnInit {
     this.deleteError = null;
     this.roomService.deleteRoom(this.roomToDelete.id!).subscribe({
       next: () => {
+        this.showSuccessMessage('Xóa phòng thành công!');
         this.loadRooms();
         this.closeDeleteModal();
       },
       error: (err: HttpErrorResponse) => {
         if (err.status === 409) {
-          // Lỗi 409 Conflict (do backend trả về)
           this.deleteError = err.error?.error || 'Không thể xóa phòng đang có người thuê.';
         } else {
-          this.deleteError = 'Lỗi khi xóa phòng. Vui lòng thử lại.';
+          this.deleteError = 'Lỗi khi xóa phòng: ' + (err.error?.message || err.message);
         }
       }
     });
   }
 
-  // Helper (US 1.4)
   getStatusClass(status: string): string {
     switch (status) {
-      case 'OCCUPIED':
-        return 'status-occupied';
-      case 'AVAILABLE':
-        return 'status-available';
-      case 'REPAIRING':
-        return 'status-repairing';
-      default:
-        return 'status-default';
+      case 'OCCUPIED': return 'status-occupied';
+      case 'AVAILABLE': return 'status-available';
+      case 'REPAIRING': return 'status-repairing';
+      default: return 'status-default';
     }
   }
 
@@ -364,10 +381,6 @@ export class RoomManagementComponent implements OnInit {
     const s = this.roomStatuses.find(rs => rs.value === status);
     return s ? s.text : 'Không xác định';
   }
-
-  // ===========================================
-  // THÊM CÁC HÀM XỬ LÝ ẢNH
-  // ===========================================
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -379,7 +392,6 @@ export class RoomManagementComponent implements OnInit {
       const file = input.files[i];
       this.selectedFiles.push(file);
 
-      // Tạo preview
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.imagePreviews.push(e.target.result);
@@ -387,46 +399,50 @@ export class RoomManagementComponent implements OnInit {
       reader.readAsDataURL(file);
     }
     
-    // Reset input để có thể chọn lại file giống nhau
     input.value = '';
   }
 
-  /** Xóa ảnh MỚI (chưa upload) khỏi hàng đợi */
   onRemoveNewFile(index: number): void {
     this.selectedFiles.splice(index, 1);
     this.imagePreviews.splice(index, 1);
   }
 
-  /** Xóa ảnh CŨ (đã có trên server) */
   onDeleteExistingImage(image: RoomImage, event: Event): void {
-    event.stopPropagation(); // Ngăn modal đóng
-    event.preventDefault(); // Ngăn hành vi mặc định
+    event.stopPropagation();
+    event.preventDefault();
 
-    if (!confirm('Bạn có chắc muốn xóa ảnh này? Hành động này không thể hoàn tác.')) {
+    if (!confirm('Bạn có chắc muốn xóa ảnh này?')) {
       return;
     }
 
     this.roomService.deleteImage(image.id).subscribe({
       next: () => {
-        // Xóa ảnh khỏi UI ngay lập tức
         if (this.currentRoomForEdit && this.currentRoomForEdit.images) {
           this.currentRoomForEdit.images = this.currentRoomForEdit.images.filter(
             (img) => img.id !== image.id
           );
         }
+        this.showSuccessMessage('Xóa ảnh thành công!');
       },
       error: (err) => {
-        alert('Lỗi khi xóa ảnh. Vui lòng thử lại.');
-        console.error(err);
+        this.showErrorMessage('Lỗi khi xóa ảnh: ' + (err.error?.message || err.message));
       },
     });
   }
 
-  /** Hàm helper để upload file */
   private uploadImages(roomId: number): Observable<any> {
     if (this.selectedFiles.length === 0) {
-      return of(null); // Không có gì để upload, trả về observable rỗng
+      return of(null);
     }
     return this.roomService.uploadImages(roomId, this.selectedFiles);
+  }
+
+  // HÀM THÔNG BÁO
+  private showSuccessMessage(message: string): void {
+    alert(message);
+  }
+
+  private showErrorMessage(message: string): void {
+    alert(message);
   }
 }

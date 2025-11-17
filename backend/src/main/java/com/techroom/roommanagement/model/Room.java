@@ -7,11 +7,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
-import com.techroom.roommanagement.model.Building;
-import java.util.Set; // <-- THÊM
-import java.util.HashSet; // <-- THÊM
+import java.util.Set;
+import java.util.HashSet;
 
 @Entity
 @Table(name = "rooms")
@@ -23,12 +20,10 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "building_id")
-    @JsonIgnoreProperties({"rooms"})
+    @JsonIgnoreProperties({"rooms", "hibernateLazyInitializer", "handler"})
     private Building building;
-
-
 
     @Column(nullable = false, length = 120)
     private String name;
@@ -46,23 +41,23 @@ public class Room {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    // ✅ SỬA DÒNG NÀY:
-    // Thêm (insertable = false, updatable = false)
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // Liên kết 1-n với bảng room_images
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("room")
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonIgnoreProperties({"room", "hibernateLazyInitializer", "handler"})
     private List<RoomImage> images;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {
             CascadeType.PERSIST,
             CascadeType.MERGE
     })
-    @JoinTable(name = "room_amenities",
+    @JoinTable(
+            name = "room_amenities",
             joinColumns = { @JoinColumn(name = "room_id") },
-            inverseJoinColumns = { @JoinColumn(name = "amenity_id") })
+            inverseJoinColumns = { @JoinColumn(name = "amenity_id") }
+    )
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Set<Amenity> amenities = new HashSet<>();
 
     public enum RoomStatus {
