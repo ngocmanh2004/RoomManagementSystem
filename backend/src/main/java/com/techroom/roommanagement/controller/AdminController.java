@@ -2,14 +2,12 @@ package com.techroom.roommanagement.controller;
 
 import com.techroom.roommanagement.dto.RegisterRequest;
 import com.techroom.roommanagement.model.User;
-import com.techroom.roommanagement.repository.UserRepository;
 import com.techroom.roommanagement.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -17,47 +15,58 @@ import java.util.List;
 public class AdminController {
 
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private UserService userService;
 
     @GetMapping("/users")
-    //@PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userRepository.findAll());
+    public ResponseEntity<Page<User>> getAllUsers(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer role,
+            @RequestParam(required = false) User.Status status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size
+    ) {
+        return ResponseEntity.ok(userService.getAllUsers(keyword, role, status, page, size));
     }
 
-    @PostMapping("/create-user")
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/users")
     public ResponseEntity<?> createUser(@RequestBody RegisterRequest request) {
         try {
             User user = userService.createUser(request);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
-    @PutMapping("/users/{userId}/role")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> updateUserRole(
-            @PathVariable int userId,
-            @RequestParam int newRole) {
+    @PutMapping("/users/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable int id, @RequestBody User userDetails) {
         try {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-
-            if (newRole < 0 || newRole > 2) {
-                return ResponseEntity.badRequest()
-                        .body("Invalid role. Must be 0 (Admin), 1 (Landlord), or 2 (Tenant)");
-            }
-
-            user.setRole(newRole);
-            userRepository.save(user);
-
-            return ResponseEntity.ok("Role updated successfully");
+            User updatedUser = userService.updateUser(id, userDetails);
+            return ResponseEntity.ok(updatedUser);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/users/{id}/status")
+    public ResponseEntity<?> updateUserStatus(@PathVariable int id, @RequestBody Map<String, String> payload) {
+        try {
+            String statusStr = payload.get("status");
+            User.Status status = User.Status.valueOf(statusStr);
+            userService.updateUserStatus(id, status);
+            return ResponseEntity.ok(Map.of("message", "Cập nhật trạng thái thành công"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable int id) {
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.ok(Map.of("message", "Xóa tài khoản thành công"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 }

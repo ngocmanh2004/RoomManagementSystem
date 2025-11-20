@@ -14,6 +14,7 @@ import { DashboardAdminComponent } from './features/admin/dasboard-admin/dasboar
 import { TenantManagementComponent } from './features/admin/tenant-management/tenant-management.component';
 import { RoomManagementComponent } from './features/admin/room-management/room-management.component';
 import { TenantProfileComponent } from './features/tenant-profile/tenant-profile.component';
+import { UserManagementComponent } from './features/admin/user-management/user-management.component';
 
 export const routes: Routes = [
   {
@@ -42,7 +43,8 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardAdminComponent },
       { path: 'tenants', component: TenantManagementComponent },
-      { path: 'rooms', component: RoomManagementComponent }
+      { path: 'rooms', component: RoomManagementComponent },
+      { path: 'users', component: UserManagementComponent }
     ]
   },
 

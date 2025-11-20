@@ -93,6 +93,11 @@ public class AuthController {
         } catch (Exception e) {
             logger.error("Login error: ", e);
             Map<String, String> error = new HashMap<>();
+
+            if (e.getMessage().contains("bị khóa")) {
+                error.put("message", e.getMessage());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error); // Trả về 403 Forbidden
+            }
             error.put("message", "Tên đăng nhập hoặc mật khẩu không đúng");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
@@ -118,6 +123,12 @@ public class AuthController {
             // Lấy user từ userId
             User user = userService.findById(refreshToken.getUserId())
                     .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+
+            // Kiểm tra lại status user khi refresh (đề phòng bị khóa giữa chừng)
+            if (user.getStatus() == User.Status.BANNED) {
+                refreshTokenService.deleteByToken(refreshTokenStr); // Xóa token
+                throw new RuntimeException("Tài khoản đã bị khóa");
+            }
 
             // Tạo lại UserDetails để sinh access token mới
             UserDetails userDetails = org.springframework.security.core.userdetails.User

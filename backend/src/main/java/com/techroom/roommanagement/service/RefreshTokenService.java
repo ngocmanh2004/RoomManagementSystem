@@ -5,6 +5,7 @@ import com.techroom.roommanagement.model.User;
 import com.techroom.roommanagement.repository.RefreshTokenRepository;
 import com.techroom.roommanagement.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,6 +58,7 @@ public class RefreshTokenService {
     /**
      * Xóa refresh token của user (dùng khi logout)
      */
+    @Modifying
     @Transactional
     public void deleteByUserId(Integer userId) {
         refreshTokenRepository.deleteByUserId(userId);
