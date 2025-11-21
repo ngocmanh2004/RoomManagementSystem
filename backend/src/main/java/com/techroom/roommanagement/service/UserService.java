@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -103,10 +104,30 @@ public class UserService {
 
     @Transactional
     public void updateUserStatus(int id, User.Status status) {
-        User user = userRepository.findById(id)
+        User targetUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
-        user.setStatus(status);
-        userRepository.save(user);
+
+        // Logic 1: Nếu định KHÓA tài khoản (BANNED)
+        if (status == User.Status.BANNED) {
+            // Lấy username của người đang đăng nhập hiện tại
+            String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+
+            // Ràng buộc 1: Không được tự khóa chính mình
+            if (targetUser.getUsername().equals(currentUsername)) {
+                throw new RuntimeException("Bạn không thể tự khóa tài khoản của chính mình!");
+            }
+
+            // Ràng buộc 2: Không được khóa Admin khác
+            // (Giả sử Role 0 là Admin như quy ước)
+            if (targetUser.getRole() == 0) {
+                throw new RuntimeException("Không thể khóa tài khoản của Quản trị viên (Admin)!");
+            }
+        }
+
+        targetUser.setStatus(status);
+        userRepository.save(targetUser);
+
+        // Nếu khóa thì xóa token để logout ngay lập tức
         if (status == User.Status.BANNED) {
             refreshTokenRepository.deleteByUserId(id);
         }
@@ -114,15 +135,29 @@ public class UserService {
 
     @Transactional
     public void deleteUser(int id) {
-        User user = userRepository.findById(id)
+        User targetUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
 
-        // Soft delete: mark user as BANNED (hoặc DELETED nếu muốn tách ra)
-        user.setStatus(User.Status.BANNED);  // đánh dấu đã bị khóa/xóa
-        userRepository.save(user);
+        // Bảo mật: Không xóa chính mình và Admin khác
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (targetUser.getUsername().equals(currentUsername)) {
+            throw new RuntimeException("Bạn không thể tự xóa tài khoản của chính mình!");
+        }
+        if (targetUser.getRole() == 0) {
+            throw new RuntimeException("Không thể xóa tài khoản Quản trị viên!");
+        }
+
+        // Kiểm tra ràng buộc dữ liệu (Contract / Landlord)
+        boolean hasContracts = contractRepository.existsByTenantUserId(id);
+        boolean isLandlord = landlordRepository.existsByUserId(id);
+
+        if (hasContracts || isLandlord) {
+            throw new RuntimeException("Không thể xóa người dùng này vì đang có dữ liệu liên quan (Hợp đồng/Nhà trọ). Vui lòng KHÓA tài khoản thay thế.");
+        }
 
         // Xóa refresh token luôn
         refreshTokenRepository.deleteByUserId(id);
+        userRepository.deleteById(id);
     }
 
     public User authenticate(String username, String password) {
