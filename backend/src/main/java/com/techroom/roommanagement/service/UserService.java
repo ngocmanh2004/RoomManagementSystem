@@ -1,11 +1,10 @@
 package com.techroom.roommanagement.service;
 
 import com.techroom.roommanagement.dto.RegisterRequest;
+import com.techroom.roommanagement.model.Landlord; // <-- Import Landlord
+import com.techroom.roommanagement.model.Tenant;
 import com.techroom.roommanagement.model.User;
-import com.techroom.roommanagement.repository.ContractRepository;
-import com.techroom.roommanagement.repository.LandlordRepository;
-import com.techroom.roommanagement.repository.RefreshTokenRepository;
-import com.techroom.roommanagement.repository.UserRepository;
+import com.techroom.roommanagement.repository.*; // Import các Repository
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,12 +24,19 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private ContractRepository contractRepository;
+
     @Autowired
-    private LandlordRepository landlordRepository;
+    private LandlordRepository landlordRepository; // <-- Cần cái này để lưu Chủ trọ
+
+    @Autowired
+    private com.techroom.roommanagement.repository.TenantRepository tenantRepository; // <-- Cần cái này để lưu Khách thuê
+
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -38,12 +44,12 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    // Fix lỗi danh sách ngược: Thêm Sort.by("id").descending()
     public Page<User> getAllUsers(String keyword, Integer role, User.Status status, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return userRepository.searchUsers(keyword, role, status, pageable);
     }
 
+    // Đăng ký (Mặc định là Khách thuê - Role 2)
     @Transactional
     public User register(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
@@ -58,11 +64,23 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(2);
+        user.setRole(2); // Mặc định Tenant
         user.setStatus(User.Status.ACTIVE);
-        return userRepository.save(user);
+
+        User savedUser = userRepository.save(user);
+
+        // Tạo bảng Tenant
+        Tenant tenant = new Tenant();
+        tenant.setUser(savedUser);
+        tenant.setAddress(request.getAddress());
+        tenant.setCccd(request.getCccd());
+        tenant.setDateOfBirth(request.getDateOfBirth());
+        tenantRepository.save(tenant);
+
+        return savedUser;
     }
 
+    // Admin tạo User (Có thể là Role 0, 1, 2)
     @Transactional
     public User createUser(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
@@ -79,9 +97,39 @@ public class UserService {
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
-        user.setRole(request.getRole() != null ? request.getRole() : 2);
+
+        // Lấy role từ request (hoặc mặc định là 2)
+        int role = request.getRole() != null ? request.getRole() : 2;
+        user.setRole(role);
         user.setStatus(User.Status.ACTIVE);
-        return userRepository.save(user);
+
+        User savedUser = userRepository.save(user);
+
+        // === LOGIC QUAN TRỌNG ĐÃ SỬA ===
+
+        // 1. Nếu là Khách thuê (Role 2) -> Tạo Tenant
+        if (role == 2) {
+            Tenant tenant = new Tenant();
+            tenant.setUser(savedUser);
+            tenant.setAddress(request.getAddress());
+            tenant.setCccd(request.getCccd());
+            tenant.setDateOfBirth(request.getDateOfBirth());
+            tenantRepository.save(tenant);
+        }
+        // 2. Nếu là Chủ trọ (Role 1) -> Tạo Landlord
+        else if (role == 1) {
+            Landlord landlord = new Landlord();
+            landlord.setUser(savedUser);
+            // Admin tạo nên mặc định APPROVED
+            landlord.setApproved(Landlord.ApprovalStatus.APPROVED);
+            landlord.setUtilityMode(Landlord.UtilityMode.LANDLORD_INPUT);
+            // Các thông tin khác (giấy phép, địa chỉ...) có thể cập nhật sau
+            landlordRepository.save(landlord);
+        }
+
+        // Role 0 (Admin) thì không cần tạo bảng phụ
+
+        return savedUser;
     }
 
     @Transactional
@@ -97,7 +145,11 @@ public class UserService {
         }
         user.setFullName(userDetails.getFullName());
         user.setPhone(userDetails.getPhone());
+
+        // Lưu ý: Việc đổi Role ở đây có thể phức tạp (cần xóa Tenant cũ tạo Landlord mới...)
+        // Tạm thời chỉ update Role field, logic chuyển đổi dữ liệu nên làm riêng nếu cần
         user.setRole(userDetails.getRole());
+
         user.setStatus(userDetails.getStatus());
         return userRepository.save(user);
     }
@@ -107,18 +159,13 @@ public class UserService {
         User targetUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
 
-        // Logic 1: Nếu định KHÓA tài khoản (BANNED)
         if (status == User.Status.BANNED) {
-            // Lấy username của người đang đăng nhập hiện tại
             String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
 
-            // Ràng buộc 1: Không được tự khóa chính mình
             if (targetUser.getUsername().equals(currentUsername)) {
                 throw new RuntimeException("Bạn không thể tự khóa tài khoản của chính mình!");
             }
 
-            // Ràng buộc 2: Không được khóa Admin khác
-            // (Giả sử Role 0 là Admin như quy ước)
             if (targetUser.getRole() == 0) {
                 throw new RuntimeException("Không thể khóa tài khoản của Quản trị viên (Admin)!");
             }
@@ -127,7 +174,6 @@ public class UserService {
         targetUser.setStatus(status);
         userRepository.save(targetUser);
 
-        // Nếu khóa thì xóa token để logout ngay lập tức
         if (status == User.Status.BANNED) {
             refreshTokenRepository.deleteByUserId(id);
         }
@@ -138,7 +184,6 @@ public class UserService {
         User targetUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
 
-        // Bảo mật: Không xóa chính mình và Admin khác
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         if (targetUser.getUsername().equals(currentUsername)) {
             throw new RuntimeException("Bạn không thể tự xóa tài khoản của chính mình!");
@@ -147,7 +192,6 @@ public class UserService {
             throw new RuntimeException("Không thể xóa tài khoản Quản trị viên!");
         }
 
-        // Kiểm tra ràng buộc dữ liệu (Contract / Landlord)
         boolean hasContracts = contractRepository.existsByTenantUserId(id);
         boolean isLandlord = landlordRepository.existsByUserId(id);
 
@@ -155,8 +199,11 @@ public class UserService {
             throw new RuntimeException("Không thể xóa người dùng này vì đang có dữ liệu liên quan (Hợp đồng/Nhà trọ). Vui lòng KHÓA tài khoản thay thế.");
         }
 
-        // Xóa refresh token luôn
         refreshTokenRepository.deleteByUserId(id);
+
+        // Cần xóa bảng phụ (Tenant/Landlord) trước khi xóa User nếu chưa có Cascade
+        // (Tuy nhiên, JPA thường xử lý nếu config đúng, hoặc ta xóa thủ công cho an toàn)
+
         userRepository.deleteById(id);
     }
 

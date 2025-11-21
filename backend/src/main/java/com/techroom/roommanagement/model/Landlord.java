@@ -7,6 +7,7 @@ import lombok.Data;
 @Table(name = "landlords")
 @Data
 public class Landlord {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -18,20 +19,31 @@ public class Landlord {
     @Column(name = "business_license")
     private String businessLicense;
 
+    @Column(name = "province_code")
     private Integer provinceCode;
+
+    @Column(name = "district_code")
     private Integer districtCode;
+
     private String address;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "ENUM('PENDING','APPROVED','REJECTED') DEFAULT 'PENDING'")
     private ApprovalStatus approved = ApprovalStatus.PENDING;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "rejection_reason", columnDefinition = "TEXT")
     private String rejectionReason;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "utility_mode")
+    @Column(name = "utility_mode", columnDefinition = "ENUM('LANDLORD_INPUT','TENANT_SUBMIT') DEFAULT 'LANDLORD_INPUT'")
     private UtilityMode utilityMode = UtilityMode.LANDLORD_INPUT;
 
-    public enum ApprovalStatus { PENDING, APPROVED, REJECTED }
-    public enum UtilityMode { LANDLORD_INPUT, TENANT_SUBMIT }
+    // Enum mapping với Database
+    public enum ApprovalStatus {
+        PENDING, APPROVED, REJECTED
+    }
+
+    public enum UtilityMode {
+        LANDLORD_INPUT, TENANT_SUBMIT
+    }
 }
