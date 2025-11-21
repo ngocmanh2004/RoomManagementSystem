@@ -114,16 +114,15 @@ public class UserService {
 
     @Transactional
     public void deleteUser(int id) {
-        if (!userRepository.existsById(id)) {
-            throw new RuntimeException("Không tìm thấy người dùng");
-        }
-        boolean hasContracts = contractRepository.existsByTenantUserId(id);
-        boolean isLandlord = landlordRepository.existsByUserId(id);
-        if (hasContracts || isLandlord) {
-            throw new RuntimeException("Không thể xóa người dùng này vì đang có dữ liệu liên quan (Hợp đồng/Nhà trọ). Vui lòng KHÓA tài khoản thay thế.");
-        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+
+        // Soft delete: mark user as BANNED (hoặc DELETED nếu muốn tách ra)
+        user.setStatus(User.Status.BANNED);  // đánh dấu đã bị khóa/xóa
+        userRepository.save(user);
+
+        // Xóa refresh token luôn
         refreshTokenRepository.deleteByUserId(id);
-        userRepository.deleteById(id);
     }
 
     public User authenticate(String username, String password) {

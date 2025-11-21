@@ -20,4 +20,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
                            @Param("role") Integer role,
                            @Param("status") User.Status status,
                            Pageable pageable);
+
+    // Soft delete helper
+    @Query("SELECT u FROM User u WHERE u.status = 'ACTIVE'")
+    Page<User> findAllActive(Pageable pageable);
 }

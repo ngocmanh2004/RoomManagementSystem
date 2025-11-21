@@ -140,10 +140,13 @@ public class AuthController {
             // Tạo access token mới
             String newAccessToken = jwtTokenProvider.generateAccessToken(userDetails);
 
-            // Tạo response
-            RefreshTokenResponse response = new RefreshTokenResponse(newAccessToken);
+            // Rotate refresh token: tạo refresh token mới và xóa token cũ (createRefreshToken đã xóa token cũ)
+            RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
 
-            logger.info("Token refreshed for user: {}", user.getUsername());
+            // Tạo response trả cả accessToken và refreshToken mới
+            RefreshTokenResponse response = new RefreshTokenResponse(newAccessToken, newRefreshToken.getToken());
+
+            logger.info("Token refreshed and rotated for user: {}", user.getUsername());
             return ResponseEntity.ok(response);
 
         } catch (RuntimeException e) {
