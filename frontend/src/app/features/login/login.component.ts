@@ -38,25 +38,37 @@ export class LoginComponent {
     }
 
     const { username, password } = this.loginForm.value;
+    console.log('🔐 LoginComponent: Attempting login for:', username);
 
     this.authService.login(username, password).subscribe({
       next: (res: any) => {
-        console.log('Login response:', res);
+        console.log('✅ LoginComponent: Login response received:', res);
         
-        // 1. LƯU TOKEN (Rất quan trọng, nếu không lưu thì không gọi được API khác)
-        // Giả sử authService của bạn có hàm này, hoặc bạn lưu trực tiếp vào localStorage
-        localStorage.setItem('accessToken', res.accessToken);
-        localStorage.setItem('refreshToken', res.refreshToken);
-        localStorage.setItem('user', JSON.stringify(res.user));
+        // ✅ 1. LƯU TOKEN VÀO LOCALSTORAGE (RẤT QUAN TRỌNG)
+        if (res.accessToken) {
+          localStorage.setItem('accessToken', res.accessToken);
+          console.log('✅ LoginComponent: Access token saved');
+        }
+        
+        if (res.refreshToken) {
+          localStorage.setItem('refreshToken', res.refreshToken);
+          console.log('✅ LoginComponent: Refresh token saved');
+        }
+        
+        if (res.userInfo) {
+          localStorage.setItem('currentUser', JSON.stringify(res.userInfo));
+          console.log('✅ LoginComponent: User info saved:', res.userInfo);
+        }
 
-        alert(`Đăng nhập thành công! Chào mừng ${res.user.fullName}`);
+        alert(`Đăng nhập thành công! Chào mừng ${res.userInfo?.fullName || 'bạn'}`);
         
-        // 2. ĐIỀU HƯỚNG THEO ROLE (STRING)
-        const userRole = res.user.role; // Backend trả về "ADMIN", "LANDLORD"...
+        // ✅ 2. ĐIỀU HƯỚNG THEO ROLE
+        const userRole = res.userInfo?.role; // Backend trả về "ADMIN", "LANDLORD", "TENANT"
+        console.log('🔑 LoginComponent: User role:', userRole);
         
         switch(userRole) {
-          case 'ADMIN':      // Khớp với getRoleName() trong AuthController
-          case 0:            // (Dự phòng nếu backend trả về số)
+          case 'ADMIN':
+          case 0:
             this.router.navigate(['/admin/dashboard']);
             break;
             
@@ -75,7 +87,7 @@ export class LoginComponent {
         }
       },
       error: (err) => {
-        console.error('Login error:', err);
+        console.error('❌ LoginComponent: Login error:', err);
         const errorMsg = err.error?.message || 'Sai tên đăng nhập hoặc mật khẩu';
         alert('Đăng nhập thất bại: ' + errorMsg);
       }

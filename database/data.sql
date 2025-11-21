@@ -9,32 +9,32 @@ SET SQL_SAFE_UPDATES = 0;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- Xóa tất cả dữ liệu (giữ nguyên cấu trúc bảng)
-TRUNCATE TABLE room_images;
-TRUNCATE TABLE room_amenities;
-TRUNCATE TABLE reviews;
+TRUNCATE TABLE refresh_tokens;
+TRUNCATE TABLE feedbacks;
+TRUNCATE TABLE notifications;
 TRUNCATE TABLE review_reports;
-TRUNCATE TABLE contracts;
-TRUNCATE TABLE invoices;
-TRUNCATE TABLE invoice_items;
-TRUNCATE TABLE payments;
-TRUNCATE TABLE utilities_electric;
-TRUNCATE TABLE utilities_water;
-TRUNCATE TABLE utility_submissions;
+TRUNCATE TABLE reviews;
 TRUNCATE TABLE extra_costs;
+TRUNCATE TABLE utility_submissions;
+TRUNCATE TABLE utilities_water;
+TRUNCATE TABLE utilities_electric;
+TRUNCATE TABLE payments;
+TRUNCATE TABLE invoice_items;
+TRUNCATE TABLE invoices;
+TRUNCATE TABLE contracts;
+TRUNCATE TABLE room_amenities;
+TRUNCATE TABLE room_images;
+TRUNCATE TABLE amenities;
 TRUNCATE TABLE rooms;
 TRUNCATE TABLE buildings;
-TRUNCATE TABLE landlords;
 TRUNCATE TABLE tenants;
-TRUNCATE TABLE notifications;
-TRUNCATE TABLE feedbacks;
-TRUNCATE TABLE refresh_tokens;
-TRUNCATE TABLE users;
-TRUNCATE TABLE amenities;
+TRUNCATE TABLE landlords;
 TRUNCATE TABLE districts;
 TRUNCATE TABLE provinces;
+TRUNCATE TABLE users;
 
 -- ============================================================
--- INSERT DỮ LIỆU MỚI
+-- INSERT DỮ LIỆU
 -- ============================================================
 
 -- PROVINCES
@@ -75,40 +75,20 @@ INSERT INTO buildings (landlord_id, name, province_code, district_code, address,
 (3, 'Dãy trọ Tuy Hòa', 3, 4, '110 Hùng Vương, Tuy Hòa, Phú Yên', 'Phòng gần biển, thoáng mát, giá hợp lý');
 
 -- ROOMS
-INSERT INTO rooms (building_id, name, price, area, status, description, created_at) VALUES
-(1, 'Phòng trọ trung tâm TP Quy Nhơn, gần ĐH Quy Nhơn', 4500000, 25, 'AVAILABLE', 'Phòng sạch sẽ, gần trung tâm, có Wifi & máy lạnh, phù hợp người đi làm.', '2025-11-10 10:00:00'),
-(2, 'Phòng trọ 47 Nguyễn Nhạc', 1500000, 20, 'AVAILABLE', 'Phòng nhỏ gọn, giá rẻ, phù hợp sinh viên.', '2025-09-15 14:00:00'),
-(3, 'Phòng gia đình Quận 7', 7800000, 45, 'AVAILABLE', 'Phòng rộng, có bếp nấu ăn, máy giặt và chỗ đậu xe riêng.', '2025-10-20 08:00:00'),
-(4, 'Dãy trọ đường 102 Nguyễn Thị Minh Khai', 6200000, 35, 'AVAILABLE', 'Phòng hiện đại, có điều hòa, wifi và sân để xe.', '2025-11-09 17:00:00'),
-(5, 'Phòng trọ Hùng Vương Tuy Hòa', 2800000, 28, 'AVAILABLE', 'Phòng gần biển, view thoáng, có máy lạnh và wifi miễn phí.', '2025-09-01 12:00:00');
+INSERT INTO rooms (building_id, name, price, area, status, description) VALUES
+(1, 'Phòng trọ trung tâm TP Quy Nhơn, gần ĐH Quy Nhơn', 4500000, 25, 'AVAILABLE', 'Phòng sạch sẽ, gần trung tâm, có Wifi & máy lạnh, phù hợp người đi làm.'),
+(2, 'Phòng trọ 47 Nguyễn Nhạc', 1500000, 20, 'AVAILABLE', 'Phòng nhỏ gọn, giá rẻ, phù hợp sinh viên.'),
+(3, 'Phòng gia đình Quận 7', 7800000, 45, 'AVAILABLE', 'Phòng rộng, có bếp nấu ăn, máy giặt và chỗ đậu xe riêng.'),
+(4, 'Dãy trọ đường 102 Nguyễn Thị Minh Khai', 6200000, 35, 'AVAILABLE', 'Phòng hiện đại, có điều hòa, wifi và sân để xe.'),
+(5, 'Phòng trọ Hùng Vương Tuy Hòa', 2800000, 28, 'AVAILABLE', 'Phòng gần biển, view thoáng, có máy lạnh và wifi miễn phí.');
 
--- ✅ ROOM IMAGES - CHỈ LƯU TÊN FILE (KHÔNG CÓ /images/rooms/)
+-- ROOM IMAGES
 INSERT INTO room_images (room_id, image_url) VALUES
--- Room 1
-(1, 'room1.jpg'),
-(1, 'room1-detail1.jpg'),
-(1, 'room1-detail2.jpg'),
-(1, 'room1-detail3.jpg'),
-(1, 'room1-detail4.jpg'),
--- Room 2
-(2, 'room1-detail1.jpg'),
-(2, 'room1-detail2.jpg'),
-(2, 'room1-detail3.jpg'),
-(2, 'room1-detail4.jpg'),
-(2, 'room1-detail5.jpg'),
--- Room 3
-(3, 'room1-detail3.jpg'),
-(3, 'room1-detail4.jpg'),
-(3, 'room1-detail5.jpg'),
-(3, 'room1-detail1.jpg'),
--- Room 4
-(4, 'room1-detail5.jpg'),
-(4, 'room1-detail3.jpg'),
-(4, 'room1-detail2.jpg'),
--- Room 5
-(5, 'room1-detail2.jpg'),
-(5, 'room1-detail3.jpg'),
-(5, 'room1-detail4.jpg');
+(1, 'room1.jpg'), (1, 'room1-detail1.jpg'), (1, 'room1-detail2.jpg'), (1, 'room1-detail3.jpg'), (1, 'room1-detail4.jpg'),
+(2, 'room1-detail1.jpg'), (2, 'room1-detail2.jpg'), (2, 'room1-detail3.jpg'), (2, 'room1-detail4.jpg'), (2, 'room1-detail5.jpg'),
+(3, 'room1-detail3.jpg'), (3, 'room1-detail4.jpg'), (3, 'room1-detail5.jpg'), (3, 'room1-detail1.jpg'),
+(4, 'room1-detail5.jpg'), (4, 'room1-detail3.jpg'), (4, 'room1-detail2.jpg'),
+(5, 'room1-detail2.jpg'), (5, 'room1-detail3.jpg'), (5, 'room1-detail4.jpg');
 
 -- AMENITIES
 INSERT INTO amenities (name, icon, description) VALUES
@@ -134,31 +114,26 @@ INSERT INTO tenants (user_id, cccd, date_of_birth, province_code, district_code)
 (6, '079987654321', '1999-10-22', 2, 3),
 (7, '080123456789', '2001-05-15', 3, 4);
 
+-- CONTRACTS (Cần thiết cho REVIEWS)
+INSERT INTO contracts (room_id, tenant_id, start_date, end_date, deposit, status) VALUES
+(1, 1, '2025-09-01', '2025-12-01', 9000000, 'EXPIRED'),
+(2, 2, '2025-10-01', '2026-01-01', 3000000, 'ACTIVE'),
+(3, 3, '2025-08-15', '2025-11-15', 15600000, 'EXPIRED');
+
+-- REVIEWS (EPIC 11)
+INSERT INTO reviews (room_id, tenant_id, rating, comment) VALUES
+(1, 5, 5, 'Phòng rất sạch sẽ, view đẹp, wifi nhanh. Chủ trọ thân thiện, hỗ trợ tốt. Giá hợp lý, rất hài lòng!'),
+(2, 6, 4, 'Phòng nhỏ nhưng gọn gàng, tiện nghi cơ bản đầy đủ. Khu vực yên tĩnh, tốt cho học tập. Chỉ tiếc wifi hơi yếu lúc cao điểm.'),
+(3, 7, 5, 'Phòng rộng rãi, bếp nấu ăn đầy đủ, máy giặt tiện lợi. An ninh tốt, khu vực sạch sẽ. Rất thích ở đây!');
+
 -- Bật lại safe mode và foreign key checks
 SET FOREIGN_KEY_CHECKS = 1;
 SET SQL_SAFE_UPDATES = 1;
 
 -- ============================================================
--- ✅ VERIFY RESULTS
+-- ✅ VERIFY
 -- ============================================================
-SELECT 
-    'Provinces' as table_name, COUNT(*) as count FROM provinces
-UNION ALL
-SELECT 'Districts', COUNT(*) FROM districts
-UNION ALL
-SELECT 'Users', COUNT(*) FROM users
-UNION ALL
-SELECT 'Rooms', COUNT(*) FROM rooms
-UNION ALL
-SELECT 'Room Images', COUNT(*) FROM room_images;
-
--- Xem chi tiết room images
-SELECT 
-    r.id as room_id,
-    r.name as room_name,
-    ri.id as image_id,
-    ri.image_url as filename,
-    CONCAT('/images/', r.id, '/', ri.image_url) as full_url
-FROM rooms r
-JOIN room_images ri ON r.id = ri.room_id
-ORDER BY r.id, ri.id;
+SELECT COUNT(*) as total_users FROM users;
+SELECT COUNT(*) as total_rooms FROM rooms;
+SELECT COUNT(*) as total_reviews FROM reviews;
+SELECT * FROM reviews;

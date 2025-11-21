@@ -1,0 +1,53 @@
+<div class="review-form-container">
+  <h3 class="form-title">{{ isEdit ? 'Chỉnh sửa đánh giá' : 'Viết đánh giá' }}</h3>
+
+  <form [formGroup]="reviewForm" (ngSubmit)="onSubmit()" class="review-form">
+    <!-- Rating -->
+    <div class="form-group">
+      <label class="form-label">
+        <span class="label-text">Đánh giá:</span>
+        <span class="required">*</span>
+      </label>
+      <app-star-rating 
+        [rating]="reviewForm.get('rating')?.value || 0"
+        (ratingChange)="onRatingChange($event)">
+      </app-star-rating>
+      <span class="error-message" *ngIf="getRatingError()">
+        {{ getRatingError() }}
+      </span>
+    </div>
+
+    <!-- Comment -->
+    <div class="form-group">
+      <label for="comment" class="form-label">
+        <span class="label-text">Bình luận:</span>
+      </label>
+      <textarea 
+        id="comment"
+        formControlName="comment"
+        placeholder="Chia sẻ trải nghiệm của bạn về phòng này..."
+        rows="4"
+        maxlength="1000"
+        class="form-textarea">
+      </textarea>
+      <div class="char-count">
+        {{ getCommentCharCount() }}/1000 ký tự
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+      <button type="submit" 
+              class="btn-submit"
+              [disabled]="reviewForm.invalid || isSubmitting">
+        {{ isSubmitting ? 'Đang gửi...' : (isEdit ? 'Cập nhật' : 'Gửi đánh giá') }}
+      </button>
+      <button type="button" 
+              class="btn-cancel"
+              (click)="onCancel()"
+              [disabled]="isSubmitting">
+        Hủy
+      </button>
+    </div>
+  </form>
+</div>

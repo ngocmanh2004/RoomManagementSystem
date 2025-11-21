@@ -65,10 +65,10 @@ public class AuthController {
                     .roles(getRoleName(user.getRole()))
                     .build();
 
-            // Tạo access token
+            // ✅ Tạo access token
             String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
 
-            // Tạo refresh token
+            // ✅ Tạo refresh token với username
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
 
             // Tạo user info
@@ -96,7 +96,7 @@ public class AuthController {
 
             if (e.getMessage().contains("bị khóa")) {
                 error.put("message", e.getMessage());
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error); // Trả về 403 Forbidden
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
             }
             error.put("message", "Tên đăng nhập hoặc mật khẩu không đúng");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
@@ -124,9 +124,9 @@ public class AuthController {
             User user = userService.findById(refreshToken.getUserId())
                     .orElseThrow(() -> new RuntimeException("User không tồn tại"));
 
-            // Kiểm tra lại status user khi refresh (đề phòng bị khóa giữa chừng)
+            // Kiểm tra lại status user khi refresh
             if (user.getStatus() == User.Status.BANNED) {
-                refreshTokenService.deleteByToken(refreshTokenStr); // Xóa token
+                refreshTokenService.deleteByToken(refreshTokenStr);
                 throw new RuntimeException("Tài khoản đã bị khóa");
             }
 
@@ -140,10 +140,10 @@ public class AuthController {
             // Tạo access token mới
             String newAccessToken = jwtTokenProvider.generateAccessToken(userDetails);
 
-            // Rotate refresh token: tạo refresh token mới và xóa token cũ (createRefreshToken đã xóa token cũ)
+            // Rotate refresh token
             RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
 
-            // Tạo response trả cả accessToken và refreshToken mới
+            // Tạo response
             RefreshTokenResponse response = new RefreshTokenResponse(newAccessToken, newRefreshToken.getToken());
 
             logger.info("Token refreshed and rotated for user: {}", user.getUsername());
@@ -161,7 +161,6 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
-
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestBody RefreshTokenRequest request) {

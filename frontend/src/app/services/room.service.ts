@@ -78,7 +78,8 @@ export class RoomService {
   getRoomById(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiBase}/rooms/${id}`);
   }
-  getAmenitiesByRoomId(roomId: number): Observable<any[]> {
+
+  getAmenitiesByRoom(roomId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiBase}/amenities/room/${roomId}`);
   }
 

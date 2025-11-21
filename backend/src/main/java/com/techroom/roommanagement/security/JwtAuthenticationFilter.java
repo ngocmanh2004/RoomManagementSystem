@@ -30,14 +30,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // Bỏ qua filter cho /api/auth/**
+        // ✅ Bỏ qua filter cho /api/auth/**
         String path = request.getRequestURI();
         if (path.startsWith("/api/auth/")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Lấy token từ header Authorization
+        // ✅ Lấy token từ header Authorization
         String authHeader = request.getHeader("Authorization");
         String token = null;
         String username = null;
@@ -45,28 +45,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
             try {
+                // ✅ Extract username với error handling
                 username = jwtTokenProvider.extractUsername(token);
             } catch (Exception e) {
-                logger.error("Cannot extract username from token", e);
+                logger.warn("Cannot extract username from token: " + e.getMessage());
             }
         }
 
-        // Nếu có username và chưa được xác thực thì xác thực user
+        // ✅ Nếu có username và chưa được xác thực thì xác thực user
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            try {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-            if (jwtTokenProvider.validateToken(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                // ✅ Validate token trước khi authenticate
+                if (jwtTokenProvider.validateToken(token, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                // Đặt user đã xác thực vào SecurityContext
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    // ✅ Đặt user đã xác thực vào SecurityContext
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                    logger.debug("User " + username + " authenticated successfully");
+                } else {
+                    logger.warn("Token validation failed for user: " + username);
+                }
+            } catch (Exception e) {
+                logger.error("Error processing JWT token: " + e.getMessage(), e);
             }
         }
 
-        // Tiếp tục chain filter
+        // ✅ Tiếp tục chain filter
         filterChain.doFilter(request, response);
     }
 }

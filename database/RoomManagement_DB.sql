@@ -6,7 +6,7 @@ USE roommanagement_db;
 -- 1. USERS
 -- ============================================================
 CREATE TABLE users (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(50) UNIQUE NOT NULL,
   password VARCHAR(255) NOT NULL,
   full_name VARCHAR(100) NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE users (
 );
 
 -- ============================================================
--- 2. PROVINCES & DISTRICTS (Giữ nguyên INT)
+-- 2. PROVINCES & DISTRICTS
 -- ============================================================
 CREATE TABLE provinces (
   code INT PRIMARY KEY,
@@ -38,8 +38,8 @@ CREATE TABLE districts (
 -- 3. LANDLORDS
 -- ============================================================
 CREATE TABLE landlords (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
-  user_id INT NOT NULL, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
   business_license VARCHAR(255),
   province_code INT,
   district_code INT,
@@ -56,8 +56,8 @@ CREATE TABLE landlords (
 -- 4. TENANTS
 -- ============================================================
 CREATE TABLE tenants (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
-  user_id INT NOT NULL, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
   cccd VARCHAR(20) UNIQUE,
   date_of_birth DATE,
   province_code INT,
@@ -72,8 +72,8 @@ CREATE TABLE tenants (
 -- 5. BUILDINGS
 -- ============================================================
 CREATE TABLE buildings (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
-  landlord_id INT NOT NULL, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  landlord_id INT NOT NULL,
   name VARCHAR(100) NOT NULL,
   province_code INT,
   district_code INT,
@@ -89,8 +89,8 @@ CREATE TABLE buildings (
 -- 6. ROOMS
 -- ============================================================
 CREATE TABLE rooms (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
-  building_id INT NOT NULL, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  building_id INT NOT NULL,
   name VARCHAR(120) NOT NULL,
   price DECIMAL(12,2) NOT NULL,
   area DECIMAL(5,2),
@@ -104,8 +104,8 @@ CREATE TABLE rooms (
 -- 7. ROOM_IMAGES
 -- ============================================================
 CREATE TABLE room_images (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
-  room_id INT NOT NULL, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  room_id INT NOT NULL,
   image_url VARCHAR(255) NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (room_id) REFERENCES rooms(id)
@@ -115,15 +115,15 @@ CREATE TABLE room_images (
 -- 8. AMENITIES & ROOM_AMENITIES
 -- ============================================================
 CREATE TABLE amenities (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   icon VARCHAR(255),
   description VARCHAR(255)
 );
 
 CREATE TABLE room_amenities (
-  room_id INT NOT NULL, -- SỬA
-  amenity_id INT NOT NULL, -- SỬA
+  room_id INT NOT NULL,
+  amenity_id INT NOT NULL,
   PRIMARY KEY (room_id, amenity_id),
   FOREIGN KEY (room_id) REFERENCES rooms(id),
   FOREIGN KEY (amenity_id) REFERENCES amenities(id)
@@ -133,9 +133,9 @@ CREATE TABLE room_amenities (
 -- 9. CONTRACTS
 -- ============================================================
 CREATE TABLE contracts (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
-  room_id INT NOT NULL, -- SỬA
-  tenant_id INT NOT NULL, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  room_id INT NOT NULL,
+  tenant_id INT NOT NULL,
   start_date DATE NOT NULL,
   end_date DATE,
   deposit DECIMAL(12,2) DEFAULT 0,
@@ -149,8 +149,8 @@ CREATE TABLE contracts (
 -- 10. INVOICES & INVOICE_ITEMS
 -- ============================================================
 CREATE TABLE invoices (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
-  contract_id INT NOT NULL, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  contract_id INT NOT NULL,
   month VARCHAR(7) NOT NULL,
   total_amount DECIMAL(12,2) DEFAULT 0,
   status ENUM('UNPAID','PAID','OVERDUED','PENDING_CONFIRM') DEFAULT 'UNPAID',
@@ -160,8 +160,8 @@ CREATE TABLE invoices (
 );
 
 CREATE TABLE invoice_items (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
-  invoice_id INT NOT NULL, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  invoice_id INT NOT NULL,
   type ENUM('RENT','ELECTRICITY','WATER','SERVICE','OTHER'),
   description VARCHAR(255),
   amount DECIMAL(12,2) NOT NULL,
@@ -172,8 +172,8 @@ CREATE TABLE invoice_items (
 -- 11. PAYMENTS
 -- ============================================================
 CREATE TABLE payments (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
-  invoice_id INT NOT NULL, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  invoice_id INT NOT NULL,
   amount DECIMAL(12,2) NOT NULL,
   method ENUM('BANK','MOMO','ZALO','CASH'),
   status ENUM('SUCCESS','PENDING','FAILED') DEFAULT 'PENDING',
@@ -186,8 +186,8 @@ CREATE TABLE payments (
 -- 12. UTILITIES (ELECTRIC & WATER)
 -- ============================================================
 CREATE TABLE utilities_electric (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
-  room_id INT NOT NULL, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  room_id INT NOT NULL,
   old_index INT,
   new_index INT,
   unit_price DECIMAL(10,2),
@@ -201,8 +201,8 @@ CREATE TABLE utilities_electric (
 );
 
 CREATE TABLE utilities_water (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
-  room_id INT NOT NULL, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  room_id INT NOT NULL,
   old_index INT,
   new_index INT,
   unit_price DECIMAL(10,2),
@@ -219,15 +219,15 @@ CREATE TABLE utilities_water (
 -- 13. UTILITY_SUBMISSIONS
 -- ============================================================
 CREATE TABLE utility_submissions (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
-  tenant_id INT NOT NULL, -- SỬA
-  room_id INT NOT NULL, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  tenant_id INT NOT NULL,
+  room_id INT NOT NULL,
   type ENUM('ELECTRICITY','WATER') NOT NULL,
   new_index INT NOT NULL,
   photo_url VARCHAR(255),
   month VARCHAR(7) NOT NULL,
   status ENUM('PENDING','VERIFIED','REJECTED') DEFAULT 'PENDING',
-  verified_by INT, -- SỬA
+  verified_by INT,
   verified_at DATETIME,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (tenant_id) REFERENCES tenants(id),
@@ -239,8 +239,8 @@ CREATE TABLE utility_submissions (
 -- 14. EXTRA_COSTS
 -- ============================================================
 CREATE TABLE extra_costs (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
-  room_id INT, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  room_id INT,
   type ENUM('INTERNET','CLEANING','MAINTENANCE','OTHER'),
   description TEXT,
   amount DECIMAL(12,2),
@@ -250,35 +250,48 @@ CREATE TABLE extra_costs (
 );
 
 -- ============================================================
--- 15. REVIEWS & REPORTS
+-- 15. REVIEWS (EPIC 11)
 -- ============================================================
 CREATE TABLE reviews (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
-  room_id INT NOT NULL, -- SỬA
-  tenant_id INT NOT NULL, -- SỬA
-  rating INT CHECK (rating BETWEEN 1 AND 5),
-  comment TEXT,
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  room_id INT NOT NULL,
+  tenant_id INT NOT NULL,
+  rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  comment LONGTEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (room_id) REFERENCES rooms(id),
-  FOREIGN KEY (tenant_id) REFERENCES tenants(id)
-);
-
-CREATE TABLE review_reports (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
-  review_id INT NOT NULL, -- SỬA
-  reporter_id INT NOT NULL, -- SỬA
-  reason ENUM('SPAM','OFFENSIVE','FALSE','OTHER'),
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (review_id) REFERENCES reviews(id),
-  FOREIGN KEY (reporter_id) REFERENCES users(id)
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_review_room_tenant (room_id, tenant_id),
+  FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
+  FOREIGN KEY (tenant_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_reviews_room_id (room_id),
+  INDEX idx_reviews_tenant_id (tenant_id),
+  INDEX idx_reviews_created_at (created_at DESC)
 );
 
 -- ============================================================
--- 16. NOTIFICATIONS
+-- 16. REVIEW_REPORTS (EPIC 11.5)
+-- ============================================================
+CREATE TABLE review_reports (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  review_id INT NOT NULL,
+  reporter_id INT NOT NULL,
+  reason VARCHAR(255) NOT NULL DEFAULT 'OTHER',
+  description LONGTEXT,
+  status ENUM('PENDING','RESOLVED','DISMISSED') DEFAULT 'PENDING',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE,
+  FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_review_reports_review_id (review_id),
+  INDEX idx_review_reports_reporter_id (reporter_id),
+  INDEX idx_review_reports_status (status)
+);
+
+-- ============================================================
+-- 17. NOTIFICATIONS
 -- ============================================================
 CREATE TABLE notifications (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
-  user_id INT NOT NULL, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
   title VARCHAR(100),
   message TEXT,
   type ENUM('SYSTEM','UTILITY_REQUEST','UTILITY_CONFIRMED','PAYMENT_RECEIVED','FEEDBACK') DEFAULT 'SYSTEM',
@@ -288,12 +301,12 @@ CREATE TABLE notifications (
 );
 
 -- ============================================================
--- 17. FEEDBACKS
+-- 18. FEEDBACKS
 -- ============================================================
 CREATE TABLE feedbacks (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
-  sender_id INT NOT NULL, -- SỬA
-  receiver_id INT NOT NULL, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  sender_id INT NOT NULL,
+  receiver_id INT NOT NULL,
   title VARCHAR(100),
   content TEXT,
   attachment_url VARCHAR(255),
@@ -304,13 +317,19 @@ CREATE TABLE feedbacks (
 );
 
 -- ============================================================
--- 18. REFRESH_TOKENS
+-- 19. REFRESH_TOKENS
 -- ============================================================
 CREATE TABLE refresh_tokens (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- SỬA
+  id INT AUTO_INCREMENT PRIMARY KEY,
   token VARCHAR(500) NOT NULL UNIQUE,
-  user_id INT NOT NULL, -- SỬA
+  user_id INT NOT NULL,
   expiry_date DATETIME NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+-- ============================================================
+-- VERIFY TABLES
+-- ============================================================
+DESCRIBE reviews;
+DESCRIBE review_reports;

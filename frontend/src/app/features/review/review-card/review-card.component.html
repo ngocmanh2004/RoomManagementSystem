@@ -1,0 +1,45 @@
+<div class="review-card">
+  
+  <!-- Header: Avatar + Name + Date -->
+  <div class="review-header">
+    <div class="reviewer-info">
+      <div class="reviewer-avatar">
+        {{ review.tenantName.charAt(0).toUpperCase() }}
+      </div>
+      <div class="reviewer-details">
+        <h4 class="reviewer-name">{{ review.tenantName }}</h4>
+        <span class="review-date">{{ formatDate(review.createdAt) }}</span>
+      </div>
+    </div>
+    
+    <!-- Action Buttons (chỉ hiện nếu isOwner) -->
+    <div *ngIf="isOwner" class="review-actions">
+      <button (click)="editReview()" class="btn-edit" title="Chỉnh sửa">
+        ✏️
+      </button>
+      <button (click)="deleteReview()" class="btn-delete" title="Xóa">
+        🗑️
+      </button>
+    </div>
+  </div>
+
+  <!-- Rating -->
+  <div class="review-rating">
+    <app-star-rating 
+      [rating]="review.rating"
+      [readOnly]="true">
+    </app-star-rating>
+    <span class="rating-label">({{ getRatingLabel(review.rating) }})</span>
+  </div>
+
+  <!-- Comment -->
+  <div class="review-comment">
+    <p>{{ review.comment }}</p>
+  </div>
+
+  <!-- Updated (nếu có) -->
+  <div *ngIf="review.updatedAt && review.updatedAt !== review.createdAt" class="review-updated">
+    <small>Cập nhật: {{ formatDate(review.updatedAt) }}</small>
+  </div>
+
+</div>

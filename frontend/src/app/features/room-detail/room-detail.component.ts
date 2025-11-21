@@ -1,111 +1,143 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { RoomService } from '../../services/room.service';
+import { AmenityService } from '../../services/amenity.service';
+import { ReviewListComponent } from '../review/review-list/review-list.component';
+import { Room } from '../../models/room.model';
+import { Amenity } from '../../models/amenity.model';
 
 @Component({
   selector: 'app-room-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterModule, ReviewListComponent],
   templateUrl: './room-detail.component.html',
   styleUrls: ['./room-detail.component.css'],
 })
 export class RoomDetailComponent implements OnInit {
-  roomId: string | null = null;
-  room: any;
-  amenities: any[] = [];
-  currentMainImage = '';
+  room: Room | null = null;
+  roomId!: number;
+  amenities: Amenity[] = [];
   currentImageIndex = 0;
   isLightboxOpen = false;
-  lightboxImage = '';
+  lightboxImage: string = '';
+  currentMainImage: string = '';
+  mapsUrl: SafeResourceUrl | null = null;
 
-  constructor(private route: ActivatedRoute, private roomService: RoomService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private roomService: RoomService,
+    private amenityService: AmenityService,
+    private sanitizer: DomSanitizer
+  ) {}
 
-  ngOnInit(): void {
-    this.roomId = this.route.snapshot.paramMap.get('id');
-    if (this.roomId) {
-      this.roomService.getRoomById(+this.roomId).subscribe((data) => {
-        this.room = data;
-        const first =
-          this.room?.imageUrl ||
-          this.room?.mainImage ||
-          this.room?.images?.[0]?.imageUrl ||
-          '';
-        this.currentMainImage = this.normalizeImage(first);
-        this.loadAmenities(+this.roomId!);
-      });
-    }
+  ngOnInit() {
+    this.route.params.subscribe((params) => {
+      this.roomId = +params['id'];
+      console.log('🏠 RoomDetail: roomId set to:', this.roomId); // ✅ DEBUG
+      this.loadRoomDetail();
+    });
   }
 
-  loadAmenities(roomId: number): void {
-    this.roomService.getAmenitiesByRoomId(roomId).subscribe({
-      next: (data) => (this.amenities = data || []),
+  loadRoomDetail() {
+    this.roomService.getRoomById(this.roomId).subscribe({
+      next: (data) => {
+        this.room = data;
+
+        // ✅ Fix Maps URL
+        if (this.room?.building?.address) {
+          const mapsUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
+            this.room.building.address
+          )}&output=embed`;
+          this.mapsUrl = this.sanitizer.bypassSecurityTrustResourceUrl(mapsUrl);
+        }
+
+        if (this.room?.images && this.room.images.length > 0) {
+          this.currentMainImage = this.normalizeImage(
+            this.room.images[0].imageUrl
+          );
+        }
+        this.loadAmenities();
+      },
+      error: (err) => console.error('Lỗi tải phòng:', err),
+    });
+  }
+
+  loadAmenities() {
+    if (!this.room?.id) return;
+    this.amenityService.getAmenitiesByRoom(this.room.id).subscribe({
+      next: (data) => (this.amenities = data),
       error: (err) => console.error('Lỗi tải tiện nghi:', err),
     });
   }
 
-  normalizeImage(raw: string): string {
-    if (!raw) return 'assets/images/default-room.jpg';
-    if (/^https?:\/\//i.test(raw)) return raw;
-    if (raw.startsWith('/images/')) return raw;
-    return `/images/${raw.replace(/^\/+/, '')}`;
-  }
-
-  /** ====== ẢNH NGOÀI LIGHTBOX ====== */
-  changeMainImage(image: string, index: number): void {
-    this.currentMainImage = this.normalizeImage(image);
+  changeMainImage(imageUrl: string, index: number) {
+    this.currentMainImage = this.normalizeImage(imageUrl);
     this.currentImageIndex = index;
   }
 
-  nextImage(event?: Event): void {
-    event?.stopPropagation();
-    const arr = this.room?.images || [];
-    if (!arr.length) return;
-    this.currentImageIndex = (this.currentImageIndex + 1) % arr.length;
-    this.currentMainImage = this.normalizeImage(
-      arr[this.currentImageIndex].imageUrl
-    );
+  normalizeImage(url: string): string {
+    if (!url) return '/assets/images/no-image.jpg';
+
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+
+    return `http://localhost:8081${url}`;
   }
 
-  prevImage(event?: Event): void {
-    event?.stopPropagation();
-    const arr = this.room?.images || [];
-    if (!arr.length) return;
+  prevImage(event: Event) {
+    event.stopPropagation();
+    if (!this.room?.images || this.room.images.length === 0) return;
     this.currentImageIndex =
-      (this.currentImageIndex - 1 + arr.length) % arr.length;
+      (this.currentImageIndex - 1 + this.room.images.length) %
+      this.room.images.length;
     this.currentMainImage = this.normalizeImage(
-      arr[this.currentImageIndex].imageUrl
+      this.room.images[this.currentImageIndex].imageUrl
     );
   }
 
-  /** ====== LIGHTBOX ====== */
-  openLightbox(index: number): void {
-    const arr = this.room?.images || [];
-    if (!arr.length) return;
-    this.currentImageIndex = index;
-    this.lightboxImage = this.normalizeImage(arr[index].imageUrl);
+  nextImage(event: Event) {
+    event.stopPropagation();
+    if (!this.room?.images || this.room.images.length === 0) return;
+    this.currentImageIndex =
+      (this.currentImageIndex + 1) % this.room.images.length;
+    this.currentMainImage = this.normalizeImage(
+      this.room.images[this.currentImageIndex].imageUrl
+    );
+  }
+
+  openLightbox(index: number) {
+    if (!this.room?.images || this.room.images.length === 0) return;
     this.isLightboxOpen = true;
+    this.lightboxImage = this.normalizeImage(this.room.images[index].imageUrl);
   }
 
-  prevLightboxImage(event: Event): void {
-    event.stopPropagation();
-    const arr = this.room?.images || [];
-    if (!arr.length) return;
-    this.currentImageIndex = (this.currentImageIndex - 1 + arr.length) % arr.length;
-    this.lightboxImage = this.normalizeImage(arr[this.currentImageIndex].imageUrl);
-  }
-
-  nextLightboxImage(event: Event): void {
-    event.stopPropagation();
-    const arr = this.room?.images || [];
-    if (!arr.length) return;
-    this.currentImageIndex = (this.currentImageIndex + 1) % arr.length;
-    this.lightboxImage = this.normalizeImage(arr[this.currentImageIndex].imageUrl);
-  }
-
-  closeLightbox(event: MouseEvent): void {
-    if ((event.target as HTMLElement).classList.contains('lightbox')) {
+  closeLightbox(event: Event) {
+    if (event.target === event.currentTarget) {
       this.isLightboxOpen = false;
     }
+  }
+
+  prevLightboxImage(event: Event) {
+    event.stopPropagation();
+    if (!this.room?.images || this.room.images.length === 0) return;
+    this.currentImageIndex =
+      (this.currentImageIndex - 1 + this.room.images.length) %
+      this.room.images.length;
+    this.lightboxImage = this.normalizeImage(
+      this.room.images[this.currentImageIndex].imageUrl
+    );
+  }
+
+  nextLightboxImage(event: Event) {
+    event.stopPropagation();
+    if (!this.room?.images || this.room.images.length === 0) return;
+    this.currentImageIndex =
+      (this.currentImageIndex + 1) % this.room.images.length;
+    this.lightboxImage = this.normalizeImage(
+      this.room.images[this.currentImageIndex].imageUrl
+    );
   }
 }
