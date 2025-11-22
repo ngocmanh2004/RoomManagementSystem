@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
@@ -20,6 +22,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
                            @Param("role") Integer role,
                            @Param("status") User.Status status,
                            Pageable pageable);
+    List<User> findAllByRole(int role);
 
     // Soft delete helper
     @Query("SELECT u FROM User u WHERE u.status = 'ACTIVE'")

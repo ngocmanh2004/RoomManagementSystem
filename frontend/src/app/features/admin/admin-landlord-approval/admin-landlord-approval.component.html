@@ -1,0 +1,207 @@
+<div class="approval-container">
+  <div class="header">
+    <h1>Duyệt đăng ký Chủ trọ</h1>
+    <p class="subtitle">Quản lý các yêu cầu đăng ký trở thành chủ trọ</p>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Đang tải dữ liệu...</p>
+  </div>
+
+  <div *ngIf="!loading" class="content">
+    <!-- Danh sách chờ duyệt -->
+    <div class="section">
+      <h2>
+        Đang chờ duyệt 
+        <span class="count-badge">{{ pendingRequests.length }}</span>
+      </h2>
+      
+      <div *ngIf="pendingRequests.length === 0" class="empty-state">
+        <span class="icon">📋</span>
+        <p>Không có yêu cầu nào đang chờ duyệt</p>
+      </div>
+
+      <div class="landlord-grid" *ngIf="pendingRequests.length > 0">
+        <div 
+          *ngFor="let request of pendingRequests" 
+          class="landlord-card"
+          (click)="viewDetail(request)"
+        >
+          <div class="card-header">
+            <div class="avatar">{{ request.user.fullName.charAt(0) }}</div>
+            <div class="user-info">
+              <h3>{{ request.user.fullName }}</h3>
+              <p>{{ request.user.email }}</p>
+              <p class="small">Gửi: {{ request.createdAt | date:'short' }}</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="info-item">
+              <span class="label">CCCD:</span>
+              <span class="value">{{ request.cccd }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Số phòng:</span>
+              <span class="value">{{ request.expectedRoomCount }}</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn-approve" (click)="approveRequest(request.id); $event.stopPropagation()">
+              ✓ Duyệt
+            </button>
+            <button class="btn-reject" (click)="openRejectModal(request); $event.stopPropagation()">
+              ✕ Từ chối
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tất cả đăng ký -->
+    <div class="section">
+      <h2>Tất cả đăng ký</h2>
+      
+      <div class="table-container">
+        <table class="landlord-table">
+          <thead>
+            <tr>
+              <th>Họ tên</th>
+              <th>Email</th>
+              <th>Gửi lúc</th>
+              <th>CCCD</th>
+              <th>Số phòng</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let request of allRequests">
+              <td>{{ request.user.fullName }}</td>
+              <td>{{ request.user.email }}</td>
+              <td>{{ request.createdAt | date:'short' }}</td>
+              <td>{{ request.cccd }}</td>
+              <td>{{ request.expectedRoomCount }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatusBadgeClass(request.status)">
+                  {{ getStatusText(request.status) }}
+                </span>
+              </td>
+              <td>
+                <button class="btn-view" (click)="viewDetail(request)">
+                  Xem chi tiết
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal chi tiết -->
+<div class="modal-overlay" *ngIf="selectedRequest" (click)="closeDetail()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Chi tiết đăng ký</h2>
+      <button class="btn-close" (click)="closeDetail()">✕</button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="detail-section">
+        <h3>Thông tin người dùng</h3>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="label">Họ tên:</span>
+            <span class="value">{{ selectedRequest.user.fullName }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Email:</span>
+            <span class="value">{{ selectedRequest.user.email }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Số điện thoại:</span>
+            <span class="value">{{ selectedRequest.user.phone }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Thông tin đăng ký</h3>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="label">CCCD/CMND:</span>
+            <span class="value">{{ selectedRequest.cccd }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Địa chỉ:</span>
+            <span class="value">{{ selectedRequest.address }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Số phòng dự kiến:</span>
+            <span class="value">{{ selectedRequest.expectedRoomCount }} phòng</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Trạng thái:</span>
+            <span class="status-badge" [ngClass]="getStatusBadgeClass(selectedRequest.status)">
+              {{ getStatusText(selectedRequest.status) }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section" *ngIf="selectedRequest.rejectionReason">
+        <h3>Lý do từ chối</h3>
+        <p class="rejection-reason">{{ selectedRequest.rejectionReason }}</p>
+      </div>
+
+      <div class="detail-section">
+        <h3>Tài liệu đính kèm</h3>
+        <div class="documents">
+          <div class="doc-item">📄 CCCD mặt trước</div>
+          <div class="doc-item">📄 CCCD mặt sau</div>
+          <div class="doc-item">📄 Giấy phép kinh doanh</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer" *ngIf="selectedRequest.status === 'PENDING'">
+      <button class="btn-approve" (click)="approveRequest(selectedRequest.id)">
+        ✓ Duyệt đăng ký
+      </button>
+      <button class="btn-reject" (click)="openRejectModal(selectedRequest)">
+        ✕ Từ chối
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal từ chối -->
+<div class="modal-overlay" *ngIf="showRejectModal" (click)="closeRejectModal()">
+  <div class="modal-content modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Từ chối đăng ký</h2>
+      <button class="btn-close" (click)="closeRejectModal()">✕</button>
+    </div>
+    
+    <div class="modal-body">
+      <label>Lý do từ chối:</label>
+      <textarea 
+        [(ngModel)]="rejectionReason"
+        class="form-control"
+        rows="4"
+        placeholder="Nhập lý do từ chối..."
+      ></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-confirm-reject" (click)="confirmReject()">
+        Xác nhận từ chối
+      </button>
+      <button class="btn-cancel" (click)="closeRejectModal()">
+        Hủy
+      </button>
+    </div>
+  </div>
+</div>

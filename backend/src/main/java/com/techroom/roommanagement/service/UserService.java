@@ -44,6 +44,10 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
     public Page<User> getAllUsers(String keyword, Integer role, User.Status status, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return userRepository.searchUsers(keyword, role, status, pageable);
