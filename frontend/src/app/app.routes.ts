@@ -17,7 +17,6 @@ import { TenantProfileComponent } from './features/tenant-profile/tenant-profile
 import { UserManagementComponent } from './features/admin/user-management/user-management.component';
 import { RegisterLandlordComponent } from './features/register-landlord/register-landlord.component';
 import { AdminLandlordApprovalComponent } from './features/admin/admin-landlord-approval/admin-landlord-approval.component';
-import { LandlordStatusComponent } from './features/landlord/landlord-status/landlord-status.component';
 
 export const routes: Routes = [
   {
@@ -34,7 +33,6 @@ export const routes: Routes = [
       { path: 'admin/tenant-managemant', component: TenantManagementComponent},
       { path: 'register-landlord', component: RegisterLandlordComponent},
       { path: 'tenant-profile', component: TenantProfileComponent },
-      { path: 'landlord-status', component: LandlordStatusComponent }
 
     ]
   },

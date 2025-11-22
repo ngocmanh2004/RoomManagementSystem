@@ -1,0 +1,99 @@
+<!-- <div class="status-container">
+  <div class="header">
+    <button class="btn-back" (click)="goBack()">← Quay lại</button>
+    <h1>Hồ sơ đăng ký Chủ trọ</h1>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Đang tải thông tin...</p>
+  </div>
+
+  <div *ngIf="!loading && notRegistered" class="not-registered-card">
+    <div class="icon">📋</div>
+    <h2>Bạn chưa đăng ký làm Chủ trọ</h2>
+    <p>Đăng ký ngay để có thể quản lý phòng trọ của bạn</p>
+    <button class="btn-register" (click)="goToRegister()">
+      Đăng ký ngay
+    </button>
+  </div>
+
+  <div *ngIf="!loading && landlord" class="status-card">
+    <div class="status-header">
+      <div class="status-badge" [ngClass]="getStatusBadgeClass()">
+        {{ getStatusText() }}
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h3>Thông tin đăng ký</h3>
+      
+      <div class="info-row">
+        <span class="label">CCCD/CMND:</span>
+        <span class="value">{{ landlord.cccd }}</span>
+      </div>
+
+      <div class="info-row">
+        <span class="label">Địa chỉ:</span>
+        <span class="value">{{ landlord.address }}</span>
+      </div>
+
+      <div class="info-row">
+        <span class="label">Số phòng dự kiến:</span>
+        <span class="value">{{ landlord.expectedRoomCount }} phòng</span>
+      </div>
+    </div>
+
+    <div class="info-section" *ngIf="landlord.approved === 'PENDING'">
+      <div class="pending-message">
+        <span class="icon">⏳</span>
+        <div>
+          <h4>Đang chờ xét duyệt</h4>
+          <p>Hồ sơ của bạn đang được admin xem xét. Vui lòng chờ thông báo.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-section success-section" *ngIf="landlord.approved === 'APPROVED'">
+      <div class="success-message">
+        <span class="icon">✅</span>
+        <div>
+          <h4>Chúc mừng!</h4>
+          <p>Hồ sơ của bạn đã được phê duyệt. Bạn có thể bắt đầu quản lý phòng trọ.</p>
+        </div>
+      </div>
+      <button class="btn-dashboard" (click)="router.navigate(['/landlord/dashboard'])">
+        Đi tới trang quản lý
+      </button>
+    </div>
+
+    <div class="info-section reject-section" *ngIf="landlord.approved === 'REJECTED'">
+      <div class="reject-message">
+        <span class="icon">❌</span>
+        <div>
+          <h4>Hồ sơ bị từ chối</h4>
+          <p><strong>Lý do:</strong> {{ landlord.rejectionReason || 'Không có lý do cụ thể' }}</p>
+          <p class="note">Vui lòng kiểm tra lại thông tin và đăng ký lại.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="documents-section">
+      <h3>Tài liệu đã tải lên</h3>
+      <div class="documents-grid">
+        <div class="document-item">
+          <span class="doc-icon">📄</span>
+          <span class="doc-name">CCCD mặt trước</span>
+        </div>
+        <div class="document-item">
+          <span class="doc-icon">📄</span>
+          <span class="doc-name">CCCD mặt sau</span>
+        </div>
+        <div class="document-item">
+          <span class="doc-icon">📄</span>
+          <span class="doc-name">Giấy phép kinh doanh</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->

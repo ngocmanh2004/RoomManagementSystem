@@ -8,13 +8,7 @@
             {{ user?.fullName?.charAt(0) || '?' }}
           </div>
           <div class="profile-name">{{ user?.fullName }}</div>
-          <div class="profile-role">
-            {{
-              user?.role === 0 ? 'Quản trị viên' :
-              user?.role === 1 ? 'Chủ trọ' :
-              user?.role === 2 ? 'Khách thuê' : ''
-            }}
-          </div>
+          <div class="profile-role">Khách thuê</div>
         </div>
 
         <div *ngIf="!editMode" class="profile-view">
