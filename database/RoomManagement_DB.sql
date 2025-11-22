@@ -15,7 +15,7 @@ CREATE TABLE users (
   role TINYINT NOT NULL DEFAULT 2 COMMENT '0=Admin, 1=Chủ trọ, 2=Khách thuê',
   status ENUM('ACTIVE','BANNED','PENDING') DEFAULT 'ACTIVE',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 2. PROVINCES & DISTRICTS
@@ -24,7 +24,7 @@ CREATE TABLE provinces (
   code INT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   division_type VARCHAR(50)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE districts (
   code INT PRIMARY KEY,
@@ -32,44 +32,74 @@ CREATE TABLE districts (
   province_code INT NOT NULL,
   division_type VARCHAR(50),
   FOREIGN KEY (province_code) REFERENCES provinces(code)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 3. LANDLORDS
+-- 3. LANDLORD_REQUESTS (YÊU CẦU ĐĂNG KÝ CHỦ TRỌ)
+-- ============================================================
+CREATE TABLE landlord_requests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  cccd VARCHAR(20) NOT NULL,
+  address VARCHAR(255) NOT NULL,
+  expected_room_count INT NOT NULL,
+  province_code INT,
+  district_code INT,
+  front_image_path VARCHAR(255) NOT NULL,
+  back_image_path VARCHAR(255) NOT NULL,
+  business_license_path VARCHAR(255) NOT NULL,
+  status ENUM('PENDING','APPROVED','REJECTED') DEFAULT 'PENDING' NOT NULL,
+  rejection_reason TEXT,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  processed_at DATETIME,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (province_code) REFERENCES provinces(code),
+  FOREIGN KEY (district_code) REFERENCES districts(code), -- ✅ THÊM DẤU PHẨY
+  INDEX idx_user_id (user_id),
+  INDEX idx_status (status),
+  INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- 4. LANDLORDS (CHỦ TRỌ ĐÃ ĐƯỢC DUYỆT)
 -- ============================================================
 CREATE TABLE landlords (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  business_license VARCHAR(255),
+  user_id INT NOT NULL UNIQUE,
+  cccd VARCHAR(20),
+  address VARCHAR(255),
+  expected_room_count INT,
   province_code INT,
   district_code INT,
-  address VARCHAR(255),
-  approved ENUM('PENDING','APPROVED','REJECTED') DEFAULT 'PENDING',
-  rejection_reason TEXT,
+  front_image_path VARCHAR(255),
+  back_image_path VARCHAR(255),
+  business_license_path VARCHAR(255),
+  approved ENUM('APPROVED') DEFAULT 'APPROVED',
   utility_mode ENUM('LANDLORD_INPUT','TENANT_SUBMIT') DEFAULT 'LANDLORD_INPUT',
-  FOREIGN KEY (user_id) REFERENCES users(id),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (province_code) REFERENCES provinces(code),
   FOREIGN KEY (district_code) REFERENCES districts(code)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 4. TENANTS
+-- 5. TENANTS
 -- ============================================================
 CREATE TABLE tenants (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
+  user_id INT NOT NULL UNIQUE,
   cccd VARCHAR(20) UNIQUE,
   date_of_birth DATE,
   province_code INT,
   district_code INT,
   address VARCHAR(255),
-  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (province_code) REFERENCES provinces(code),
   FOREIGN KEY (district_code) REFERENCES districts(code)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 5. BUILDINGS
+-- 6. BUILDINGS
 -- ============================================================
 CREATE TABLE buildings (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -80,13 +110,13 @@ CREATE TABLE buildings (
   address VARCHAR(255),
   description TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (landlord_id) REFERENCES landlords(id),
+  FOREIGN KEY (landlord_id) REFERENCES landlords(id) ON DELETE CASCADE,
   FOREIGN KEY (province_code) REFERENCES provinces(code),
   FOREIGN KEY (district_code) REFERENCES districts(code)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 6. ROOMS
+-- 7. ROOMS
 -- ============================================================
 CREATE TABLE rooms (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -97,40 +127,40 @@ CREATE TABLE rooms (
   status ENUM('AVAILABLE','OCCUPIED','REPAIRING') DEFAULT 'AVAILABLE',
   description TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (building_id) REFERENCES buildings(id)
-);
+  FOREIGN KEY (building_id) REFERENCES buildings(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 7. ROOM_IMAGES
+-- 8. ROOM_IMAGES
 -- ============================================================
 CREATE TABLE room_images (
   id INT AUTO_INCREMENT PRIMARY KEY,
   room_id INT NOT NULL,
   image_url VARCHAR(255) NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (room_id) REFERENCES rooms(id)
-);
+  FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 8. AMENITIES & ROOM_AMENITIES
+-- 9. AMENITIES & ROOM_AMENITIES
 -- ============================================================
 CREATE TABLE amenities (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   icon VARCHAR(255),
   description VARCHAR(255)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE room_amenities (
   room_id INT NOT NULL,
   amenity_id INT NOT NULL,
   PRIMARY KEY (room_id, amenity_id),
-  FOREIGN KEY (room_id) REFERENCES rooms(id),
-  FOREIGN KEY (amenity_id) REFERENCES amenities(id)
-);
+  FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
+  FOREIGN KEY (amenity_id) REFERENCES amenities(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 9. CONTRACTS
+-- 10. CONTRACTS
 -- ============================================================
 CREATE TABLE contracts (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -141,12 +171,12 @@ CREATE TABLE contracts (
   deposit DECIMAL(12,2) DEFAULT 0,
   status ENUM('PENDING','ACTIVE','EXPIRED','CANCELLED') DEFAULT 'PENDING',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (room_id) REFERENCES rooms(id),
-  FOREIGN KEY (tenant_id) REFERENCES tenants(id)
-);
+  FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
+  FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 10. INVOICES & INVOICE_ITEMS
+-- 11. INVOICES & INVOICE_ITEMS
 -- ============================================================
 CREATE TABLE invoices (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -156,8 +186,8 @@ CREATE TABLE invoices (
   status ENUM('UNPAID','PAID','OVERDUED','PENDING_CONFIRM') DEFAULT 'UNPAID',
   issue_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uq_invoice_month (contract_id, month),
-  FOREIGN KEY (contract_id) REFERENCES contracts(id)
-);
+  FOREIGN KEY (contract_id) REFERENCES contracts(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE invoice_items (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -165,11 +195,11 @@ CREATE TABLE invoice_items (
   type ENUM('RENT','ELECTRICITY','WATER','SERVICE','OTHER'),
   description VARCHAR(255),
   amount DECIMAL(12,2) NOT NULL,
-  FOREIGN KEY (invoice_id) REFERENCES invoices(id)
-);
+  FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 11. PAYMENTS
+-- 12. PAYMENTS
 -- ============================================================
 CREATE TABLE payments (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -179,11 +209,11 @@ CREATE TABLE payments (
   status ENUM('SUCCESS','PENDING','FAILED') DEFAULT 'PENDING',
   proof_url VARCHAR(255),
   paid_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (invoice_id) REFERENCES invoices(id)
-);
+  FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 12. UTILITIES (ELECTRIC & WATER)
+-- 13. UTILITIES (ELECTRIC & WATER)
 -- ============================================================
 CREATE TABLE utilities_electric (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -197,8 +227,8 @@ CREATE TABLE utilities_electric (
   status ENUM('PAID','UNPAID') DEFAULT 'UNPAID',
   source ENUM('LANDLORD','TENANT','SYSTEM') DEFAULT 'LANDLORD',
   UNIQUE KEY uq_electric_room_month (room_id, month),
-  FOREIGN KEY (room_id) REFERENCES rooms(id)
-);
+  FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE utilities_water (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -212,11 +242,11 @@ CREATE TABLE utilities_water (
   status ENUM('PAID','UNPAID') DEFAULT 'UNPAID',
   source ENUM('LANDLORD','TENANT','SYSTEM') DEFAULT 'LANDLORD',
   UNIQUE KEY uq_water_room_month (room_id, month),
-  FOREIGN KEY (room_id) REFERENCES rooms(id)
-);
+  FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 13. UTILITY_SUBMISSIONS
+-- 14. UTILITY_SUBMISSIONS
 -- ============================================================
 CREATE TABLE utility_submissions (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -230,13 +260,13 @@ CREATE TABLE utility_submissions (
   verified_by INT,
   verified_at DATETIME,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (tenant_id) REFERENCES tenants(id),
-  FOREIGN KEY (room_id) REFERENCES rooms(id),
+  FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+  FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
   FOREIGN KEY (verified_by) REFERENCES users(id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 14. EXTRA_COSTS
+-- 15. EXTRA_COSTS
 -- ============================================================
 CREATE TABLE extra_costs (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -246,11 +276,11 @@ CREATE TABLE extra_costs (
   amount DECIMAL(12,2),
   month VARCHAR(7),
   status ENUM('PAID','UNPAID') DEFAULT 'UNPAID',
-  FOREIGN KEY (room_id) REFERENCES rooms(id)
-);
+  FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 15. REVIEWS (EPIC 11)
+-- 16. REVIEWS & REPORTS
 -- ============================================================
 CREATE TABLE reviews (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -266,11 +296,8 @@ CREATE TABLE reviews (
   INDEX idx_reviews_room_id (room_id),
   INDEX idx_reviews_tenant_id (tenant_id),
   INDEX idx_reviews_created_at (created_at DESC)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================================
--- 16. REVIEW_REPORTS (EPIC 11.5)
--- ============================================================
 CREATE TABLE review_reports (
   id INT AUTO_INCREMENT PRIMARY KEY,
   review_id INT NOT NULL,
@@ -284,7 +311,7 @@ CREATE TABLE review_reports (
   INDEX idx_review_reports_review_id (review_id),
   INDEX idx_review_reports_reporter_id (reporter_id),
   INDEX idx_review_reports_status (status)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 17. NOTIFICATIONS
@@ -297,8 +324,8 @@ CREATE TABLE notifications (
   type ENUM('SYSTEM','UTILITY_REQUEST','UTILITY_CONFIRMED','PAYMENT_RECEIVED','FEEDBACK') DEFAULT 'SYSTEM',
   is_read TINYINT(1) DEFAULT 0,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 18. FEEDBACKS
@@ -312,9 +339,9 @@ CREATE TABLE feedbacks (
   attachment_url VARCHAR(255),
   status ENUM('SENT','IN_PROGRESS','RESOLVED') DEFAULT 'SENT',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (sender_id) REFERENCES users(id),
-  FOREIGN KEY (receiver_id) REFERENCES users(id)
-);
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 19. REFRESH_TOKENS
@@ -326,10 +353,10 @@ CREATE TABLE refresh_tokens (
   expiry_date DATETIME NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================================
--- VERIFY TABLES
--- ============================================================
+-- Kiểm tra cấu trúc
+DESCRIBE landlord_requests;
+DESCRIBE landlords;
 DESCRIBE reviews;
 DESCRIBE review_reports;
