@@ -1,72 +1,79 @@
-<div class="reviews-section">
-  
-  <!-- Section Header -->
-  <div class="section-header">
-    <h2 class="section-title">Đánh giá phòng</h2>
-    <button 
-      *ngIf="isLoggedIn"
-      (click)="openReviewForm()"
-      class="btn-primary">
-      ✍️ Viết đánh giá
-    </button>
-    <button 
-      *ngIf="!isLoggedIn"
-      disabled
-      class="btn-disabled">
-      🔒 Đăng nhập để đánh giá
-    </button>
+<div class="review-list-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-spinner">
+    <p>Đang tải đánh giá...</p>
   </div>
 
-  <!-- Form tạo/edit đánh giá -->
-  <div *ngIf="showForm && isLoggedIn" class="form-wrapper">
-    <!-- ✅ DEBUG: log roomId -->
-    <div style="background: #fff3cd; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
-      <small>🔍 Debug: roomId = {{ roomId }}</small>
-    </div>
-    
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-message">
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <!-- Not Logged In -->
+  <div *ngIf="!isLoggedIn" class="not-logged-in-message">
+    <p>Vui lòng đăng nhập để xem và gửi đánh giá</p>
+  </div>
+
+  <!-- User's Review -->
+  <div *ngIf="isLoggedIn && currentUserReview" class="user-review-section">
+    <h3>Đánh giá của bạn</h3>
+    <app-review-card 
+      [review]="currentUserReview"
+      [isOwner]="true"
+      [currentUserId]="currentUserId"
+      (edit)="onEditReview($event)"
+      (delete)="onDeleteReview($event)">
+    </app-review-card>
+  </div>
+
+  <!-- Review Form (Create) -->
+  <div *ngIf="isLoggedIn && showForm && !editingReview" class="review-form-section">
+    <h3>Gửi đánh giá của bạn</h3>
     <app-review-form 
       [roomId]="roomId"
-      [editingReview]="editingReview"
       (submit)="onFormSubmit($event)"
       (cancel)="onFormCancel()">
     </app-review-form>
   </div>
 
-  <!-- Loading -->
-  <div *ngIf="isLoading" class="loading-state">
-    <p>⏳ Đang tải đánh giá...</p>
+  <!-- Review Form (Edit) -->
+  <div *ngIf="isLoggedIn && showForm && editingReview" class="review-form-section">
+    <h3>Sửa đánh giá</h3>
+    <app-review-form 
+      [roomId]="roomId"
+      [review]="editingReview"
+      (submit)="onFormSubmit($event)"
+      (cancel)="onFormCancel()">
+    </app-review-form>
   </div>
 
-  <!-- Error Message -->
-  <div *ngIf="errorMessage && !isLoading" class="error-state">
-    <p class="error-message">❌ {{ errorMessage }}</p>
-  </div>
+  <!-- Other Reviews -->
+  <div *ngIf="isLoggedIn && reviews.length > 0" class="other-reviews-section">
+    <h3>Đánh giá khác</h3>
+    <div class="reviews-list">
+      <app-review-card 
+        *ngFor="let review of reviews; trackBy: trackByReviewId"
+        [review]="review"
+        [isOwner]="isReviewOwner(review)"
+        [currentUserId]="currentUserId"
+        (edit)="onEditReview($event)"
+        (delete)="onDeleteReview($event)">
+      </app-review-card>
+    </div>
 
-  <!-- Reviews List -->
-  <div *ngIf="reviews.length > 0 && !isLoading" class="reviews-list">
-    <app-review-card 
-      *ngFor="let review of reviews; trackBy: trackByReviewId"
-      [review]="review"
-      [isOwner]="isLoggedIn && review.canEdit"
-      (onEdit)="onEditReview(review)"
-      (onDelete)="onDeleteReview(review.id)">
-    </app-review-card>
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="pagination">
+      <button 
+        *ngFor="let page of getPaginationPages()"
+        [class.active]="currentPage === page"
+        (click)="loadReviews(page)">
+        {{ page + 1 }}
+      </button>
+    </div>
   </div>
 
   <!-- No Reviews -->
-  <div *ngIf="reviews.length === 0 && !isLoading && !errorMessage" class="no-reviews-state">
-    <p>📭 Chưa có đánh giá nào cho phòng này</p>
+  <div *ngIf="isLoggedIn && reviews.length === 0 && !showForm && !currentUserReview" class="no-reviews-message">
+    <p>Chưa có đánh giá nào cho phòng này</p>
   </div>
-
-  <!-- Pagination -->
-  <div *ngIf="totalPages > 1 && !isLoading" class="pagination">
-    <button 
-      *ngFor="let pageNum of getPaginationPages()"
-      [class.active]="pageNum === currentPage"
-      (click)="loadReviews(pageNum)"
-      class="pagination-btn">
-      {{ pageNum + 1 }}
-    </button>
-  </div>
-
 </div>

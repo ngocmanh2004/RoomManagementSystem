@@ -11,31 +11,21 @@ import { StarRatingComponent } from '../star-rating/star-rating.component';
   styleUrl: './review-card.component.css'
 })
 export class ReviewCardComponent {
-  @Input() review!: Review;           // ✅ Nhận review data
-  @Input() isOwner = false;           // ✅ Nhận flag isOwner
+  @Input() review!: Review;
+  @Input() isOwner = false;
+  @Input() currentUserId?: number;
   
-  @Output() onEdit = new EventEmitter<Review>();      // ✅ Emit Review object
-  @Output() onDelete = new EventEmitter<number>();    // ✅ Emit review ID
+  @Output() edit = new EventEmitter<Review>();
+  @Output() delete = new EventEmitter<number>();
 
-  /**
-   * ✅ Edit handler
-   */
   editReview() {
-    console.log('✏️ ReviewCard: Edit clicked for review', this.review.id);
-    this.onEdit.emit(this.review);
+    this.edit.emit(this.review);
   }
 
-  /**
-   * ✅ Delete handler
-   */
   deleteReview() {
-    console.log('🗑️ ReviewCard: Delete clicked for review', this.review.id);
-    this.onDelete.emit(this.review.id);
+    this.delete.emit(this.review.id);
   }
 
-  /**
-   * ✅ Format date
-   */
   formatDate(dateStr: string): string {
     const date = new Date(dateStr);
     return date.toLocaleDateString('vi-VN', {
@@ -45,9 +35,6 @@ export class ReviewCardComponent {
     });
   }
 
-  /**
-   * ✅ Get rating label
-   */
   getRatingLabel(rating: number): string {
     const labels: { [key: number]: string } = {
       5: 'Rất tốt',

@@ -25,7 +25,6 @@ export class ReviewService {
     const token = localStorage.getItem('accessToken');
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
-      console.log('✅ ReviewService: Token added to header');
     }
     return headers;
   }
@@ -42,8 +41,6 @@ export class ReviewService {
   }
 
   createReview(request: ReviewRequest): Observable<Review> {
-    console.log('📤 ReviewService: Creating review:', JSON.stringify(request));
-    
     if (!request.roomId || request.roomId <= 0) {
       throw new Error('roomId là bắt buộc');
     }
@@ -59,8 +56,6 @@ export class ReviewService {
   }
 
   updateReview(id: number, request: ReviewRequest): Observable<Review> {
-    console.log('📝 ReviewService: Updating review:', id);
-    
     if (!request.rating || request.rating < 1 || request.rating > 5) {
       throw new Error('rating phải từ 1 đến 5');
     }
@@ -72,12 +67,7 @@ export class ReviewService {
     );
   }
 
-  /**
-   * ✅ Delete review - expect ApiResponse type
-   */
   deleteReview(id: number): Observable<ApiResponse<void>> {
-    console.log('🗑️ ReviewService: Deleting review:', id);
-    
     return this.http.delete<ApiResponse<void>>(
       `${this.apiUrl}/${id}`,
       { headers: this.getHeaders() }

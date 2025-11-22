@@ -42,7 +42,7 @@ public class RoomImageController {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy phòng với id: " + roomId));
 
         List<RoomImage> savedImages = new ArrayList<>();
-
+    
         for (MultipartFile file : files) {
             // 1. Lưu file vào ổ đĩa
             String relativePath = fileStorageService.save(file, roomId);

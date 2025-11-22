@@ -7,31 +7,28 @@ export interface Review {
   comment: string;
   createdAt: string;
   updatedAt: string;
-  canEdit: boolean;
-  canDelete: boolean;
+  canEdit?: boolean;
+  canDelete?: boolean;
 }
 
 export interface ReviewRequest {
   roomId: number;
   rating: number;
-  comment?: string;
+  comment: string;
 }
 
 export interface ReviewResponse {
   content: Review[];
-  totalElements: number;
   totalPages: number;
+  totalElements: number;
   currentPage: number;
-  size: number;
 }
 
 export interface ApiResponse<T> {
-  status: string;     
   message: string;
-  data?: T;
+  data: T;
 }
 
 export interface ErrorResponse {
   message: string;
-  status?: string;
 }
