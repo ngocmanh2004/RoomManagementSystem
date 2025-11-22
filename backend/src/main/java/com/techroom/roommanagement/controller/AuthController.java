@@ -162,6 +162,38 @@ public class AuthController {
         }
     }
 
+    /**
+     * Lấy thông tin user hiện tại (theo token)
+     */
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+        try {
+            // Nếu không có header, trả về 401
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Unauthorized"));
+            }
+
+            String token = authHeader.substring(7);
+            String username = jwtTokenProvider.extractUsername(token);
+            if (username == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Unauthorized"));
+
+            User user = userService.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+
+            UserInfo userInfo = new UserInfo(
+                    user.getId(),
+                    user.getUsername(),
+                    user.getFullName(),
+                    user.getEmail(),
+                    getRoleName(user.getRole())
+            );
+
+            return ResponseEntity.ok(userInfo);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", e.getMessage()));
+        }
+    }
+
+
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestBody RefreshTokenRequest request) {
         try {

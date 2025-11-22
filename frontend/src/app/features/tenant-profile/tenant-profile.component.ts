@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { TenantService } from '../../services/tenant.service';
+import { LandlordService } from '../../services/landlord.service';
 import { ProvinceService } from '../../services/province.service';
 import { User } from '../../models/users'; // Giả sử bạn đã tạo file này
 import { Tenant } from '../../models/tenant.model'; // Giả sử bạn đã tạo file này
@@ -25,6 +26,7 @@ export class TenantProfileComponent implements OnInit {
   contract: any = null; 
   room: any = null;    
   invoice: any = null;  
+  isLandlordView = false;
 
   provinces: Province[] = [];
   districts: District[] = [];
@@ -35,6 +37,7 @@ export class TenantProfileComponent implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private tenantService: TenantService,
+    private landlordService: LandlordService,
     private provinceService: ProvinceService,
     private router: Router
   ) {}
@@ -42,7 +45,9 @@ export class TenantProfileComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.loadProvinces(); 
-    this.loadData();
+    // Refresh current user and subscribe reactively to changes
+    this.authService.fetchCurrentUser().subscribe({ next: () => {}, error: () => {} });
+    this.subscribeToCurrentUser();
   }
 
   initForm(): void {
@@ -65,33 +70,72 @@ export class TenantProfileComponent implements OnInit {
     });
   }
 
-  async loadData(): Promise<void> {
-    const currentUser = this.authService.getCurrentUser();
-    if (!currentUser) {
-      return;
-    }
-    
-    this.tenantService.getTenantByUserId(currentUser.id).subscribe({
-      next: (tenantData) => {
-        this.tenant = tenantData;
-        this.user = tenantData.user; 
-        this.profileForm.patchValue({
-          fullName: this.user.fullName || '',
-          email: this.user.email || '',
-          phone: this.user.phone || '', 
-          cccd: tenantData.cccd || '',
-          dateOfBirth: tenantData.dateOfBirth || '',
-          provinceCode: tenantData.provinceCode || null,
-          districtCode: tenantData.districtCode || null,
-          address: tenantData.address || ''
+  /**
+   * Subscribe to authService.currentUser$ so the profile view updates reactively
+   * when the user's role changes (e.g., after admin approval).
+   */
+  subscribeToCurrentUser(): void {
+    this.authService.currentUser$.subscribe((currentUser) => {
+      if (!currentUser) return;
+
+      // If user is landlord, load landlord info and show landlord view
+      if (currentUser.role === 1) {
+        this.isLandlordView = true;
+
+        // Try to load landlord data
+        this.landlordService.getRegistrationStatus(currentUser.id).subscribe({
+          next: (landlordData) => {
+            if (!landlordData) return;
+            this.user = landlordData.user;
+            this.profileForm.patchValue({
+              fullName: this.user?.fullName || '',
+              email: this.user?.email || '',
+              phone: this.user?.phone || '',
+              cccd: landlordData.cccd || '',
+              dateOfBirth: '',
+              provinceCode: landlordData.provinceCode || null,
+              districtCode: landlordData.districtCode || null,
+              address: landlordData.address || ''
+            });
+
+            if (landlordData.provinceCode) {
+              this.loadDistricts(landlordData.provinceCode);
+            }
+          },
+          error: (err) => {
+            console.error('Lỗi khi tải thông tin landlord:', err);
+          }
         });
 
-        if (tenantData.provinceCode) {
-          this.loadDistricts(tenantData.provinceCode);
-        }
-      },
-      error: (err) => {
-        console.error('Lỗi khi tải thông tin tenant:', err);
+        // Also try to populate tenant record if exists (optional)
+        this.tenantService.getTenantByUserId(currentUser.id).subscribe({ next: (t) => this.tenant = t, error: () => {} });
+
+      } else {
+        // Tenant view
+        this.isLandlordView = false;
+        this.tenantService.getTenantByUserId(currentUser.id).subscribe({
+          next: (tenantData) => {
+            this.tenant = tenantData;
+            this.user = tenantData.user;
+            this.profileForm.patchValue({
+              fullName: this.user.fullName || '',
+              email: this.user.email || '',
+              phone: this.user.phone || '',
+              cccd: tenantData.cccd || '',
+              dateOfBirth: tenantData.dateOfBirth || '',
+              provinceCode: tenantData.provinceCode || null,
+              districtCode: tenantData.districtCode || null,
+              address: tenantData.address || ''
+            });
+
+            if (tenantData.provinceCode) {
+              this.loadDistricts(tenantData.provinceCode);
+            }
+          },
+          error: (err) => {
+            console.error('Lỗi khi tải thông tin tenant:', err);
+          }
+        });
       }
     });
   }

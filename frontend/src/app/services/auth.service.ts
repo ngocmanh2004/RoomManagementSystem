@@ -96,6 +96,18 @@ export class AuthService {
     return this.normalizeUser(user);
   }
 
+  /**
+   * Fetch current user info from backend and update local cache.
+   */
+  fetchCurrentUser(): Observable<UserInfo> {
+    return this.http.get<UserInfo>(`${this.apiUrl}/me`).pipe(
+      tap(user => {
+        const normalized = this.normalizeUser(user);
+        this.saveUser(normalized);
+      })
+    );
+  }
+  
   getUserRole(): number | null {
     const user = this.getCurrentUser();
     return user ? user.role : null;
