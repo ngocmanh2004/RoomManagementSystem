@@ -35,7 +35,6 @@ export class RoomDetailComponent implements OnInit {
   ngOnInit() {
     this.route.params.subscribe((params) => {
       this.roomId = +params['id'];
-      console.log('🏠 RoomDetail: roomId set to:', this.roomId); // ✅ DEBUG
       this.loadRoomDetail();
     });
   }
@@ -45,7 +44,6 @@ export class RoomDetailComponent implements OnInit {
       next: (data) => {
         this.room = data;
 
-        // ✅ Fix Maps URL
         if (this.room?.building?.address) {
           const mapsUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
             this.room.building.address

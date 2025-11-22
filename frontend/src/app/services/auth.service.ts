@@ -40,9 +40,11 @@ export class AuthService {
       .pipe(
         tap(response => {
           this.saveTokens(response.accessToken, response.refreshToken);
-          const normalizedUser = this.normalizeUser(response.user); // ✅ Convert role
+          const normalizedUser = this.normalizeUser(response.user);
           this.saveUser(normalizedUser);
           this.currentUserSubject.next(normalizedUser);
+          
+          console.log('✅ Login - Saved user:', normalizedUser);
         })
       );
   }
@@ -92,8 +94,18 @@ export class AuthService {
     const userStr = localStorage.getItem('currentUser');
     if (!userStr) return null;
     
-    const user = JSON.parse(userStr);
-    return this.normalizeUser(user);
+    try {
+      const user = JSON.parse(userStr);
+      return this.normalizeUser(user);
+    } catch (e) {
+      console.error('Error parsing currentUser:', e);
+      return null;
+    }
+  }
+
+  getCurrentUserId(): number | null {
+    const user = this.getCurrentUser();
+    return user ? user.id : null;
   }
 
   getUserRole(): number | null {

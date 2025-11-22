@@ -9,11 +9,11 @@ import { CommonModule } from '@angular/common';
   styleUrl: './star-rating.component.css'
 })
 export class StarRatingComponent implements OnInit {
-  @Input() rating: number = 0;              // ✅ Rating hiện tại (1-5)
-  @Input() readOnly: boolean = false;       // ✅ Chỉ xem, không cho chỉnh
-  @Input() size: 'small' | 'medium' | 'large' = 'medium';  // Size icon
+  @Input() rating: number = 0;
+  @Input() readOnly: boolean = false;
+  @Input() size: 'small' | 'medium' | 'large' = 'medium';
   
-  @Output() ratingChange = new EventEmitter<number>();  // Emit khi change
+  @Output() ratingChange = new EventEmitter<number>();
 
   stars: { id: number; filled: boolean }[] = [];
   hoveredRating = 0;
@@ -22,9 +22,6 @@ export class StarRatingComponent implements OnInit {
     this.initStars();
   }
 
-  /**
-   * ✅ Khởi tạo 5 sao
-   */
   private initStars() {
     this.stars = [
       { id: 1, filled: this.rating >= 1 },
@@ -35,23 +32,16 @@ export class StarRatingComponent implements OnInit {
     ];
   }
 
-  /**
-   * ✅ Click vào sao
-   */
   onStarClick(starId: number) {
     if (this.readOnly) {
-      return; // Không cho edit nếu readOnly
+      return;
     }
     
-    console.log('⭐ StarRating: Star clicked:', starId);
     this.rating = starId;
     this.initStars();
     this.ratingChange.emit(this.rating);
   }
 
-  /**
-   * ✅ Hover vào sao
-   */
   onStarHover(starId: number) {
     if (this.readOnly) {
       return;
@@ -59,16 +49,10 @@ export class StarRatingComponent implements OnInit {
     this.hoveredRating = starId;
   }
 
-  /**
-   * ✅ Leave hover
-   */
   onStarLeave() {
     this.hoveredRating = 0;
   }
 
-  /**
-   * ✅ Check sao có được highlight không
-   */
   isStarFilled(starId: number): boolean {
     if (this.hoveredRating > 0) {
       return starId <= this.hoveredRating;
@@ -76,9 +60,6 @@ export class StarRatingComponent implements OnInit {
     return starId <= this.rating;
   }
 
-  /**
-   * ✅ Get CSS class cho sao
-   */
   getStarClass(starId: number): string {
     let classes = `star star-${this.size}`;
     
