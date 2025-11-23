@@ -8,6 +8,7 @@ import com.techroom.roommanagement.exception.NotFoundException;
 import com.techroom.roommanagement.model.Review;
 import com.techroom.roommanagement.model.Room;
 import com.techroom.roommanagement.model.User;
+import com.techroom.roommanagement.model.ContractStatus;  // ✅ ADD THIS
 import com.techroom.roommanagement.repository.ContractRepository;
 import com.techroom.roommanagement.repository.ReviewRepository;
 import com.techroom.roommanagement.repository.RoomRepository;
@@ -84,13 +85,12 @@ public class ReviewService {
 
         // ✅ 5. Kiểm tra user có contract với phòng không
         // ✅ NẾU MUỐN SKIP KIỂM TRA CONTRACT CHO TEST, HÃY COMMENT ĐOẠN NÀY
-        List<String> validStatuses = Arrays.asList("ACTIVE", "EXPIRED");
-        boolean hasValidContract = contractRepository
-                .existsByTenantIdAndRoomIdAndStatusIn(
-                        currentUserId,
-                        requestDTO.getRoomId(),
-                        validStatuses
-                );
+        List<ContractStatus> validStatuses = Arrays.asList(ContractStatus.ACTIVE, ContractStatus.EXPIRED);
+        boolean hasValidContract = contractRepository.existsByTenantIdAndRoomIdAndStatusIn(
+                currentUserId,
+                requestDTO.getRoomId(),
+                validStatuses
+        );
 
         System.out.println("🔍 ReviewService: Has valid contract: " + hasValidContract);
 
@@ -124,7 +124,6 @@ public class ReviewService {
         System.out.println("✅ ReviewService: Review created successfully - ID: " + savedReview.getId());
         return convertToDTO(savedReview, currentUserId);
     }
-// ...existing code...
 
     /**
      * US 11.3: Chỉnh sửa đánh giá

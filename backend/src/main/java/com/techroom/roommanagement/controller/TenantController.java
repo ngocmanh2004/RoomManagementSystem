@@ -49,10 +49,17 @@ public class TenantController {
 
     // Lấy tenant theo userId 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<Tenant> getTenantByUserId(@PathVariable int userId) {
+    public ResponseEntity<?> getTenantByUserId(@PathVariable int userId) {
         Optional<Tenant> tenant = tenantRepository.findByUserId(userId);
-        return tenant.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        if (tenant.isPresent()) {
+            return ResponseEntity.ok(tenant.get());
+        }
+        return ResponseEntity.ok(Map.of(
+            "id", 0,
+            "cccd", "",
+            "dateOfBirth", "",
+            "address", ""
+        ));
     }
 
     // Tạo tenant

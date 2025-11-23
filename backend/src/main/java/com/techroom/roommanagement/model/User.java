@@ -11,7 +11,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(unique = true, nullable = false, length = 50)
     private String username;
@@ -29,7 +29,7 @@ public class User {
     private String phone;
 
     @Column(nullable = false)
-    private int role = 2; // 0=Admin, 1=Chủ trọ, 2=Khách thuê
+    private int role = 2;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

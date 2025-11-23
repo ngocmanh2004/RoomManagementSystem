@@ -83,8 +83,7 @@
 
       <h2>Bản đồ</h2>
       <div class="map-container">
-        <iframe *ngIf="mapsUrl" width="100%" height="250" frameborder="0" style="border:0"
-          [src]="mapsUrl"
+        <iframe *ngIf="mapsUrl" width="100%" height="250" frameborder="0" style="border:0" [src]="mapsUrl"
           allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
         </iframe>
         <div *ngIf="!mapsUrl" style="text-align: center; padding: 20px; background: #f0f0f0;">
@@ -112,7 +111,11 @@
           <span><i class="fa-solid fa-phone"></i> 0909000001</span>
         </div>
         <div class="contact-buttons">
-          <button class="btn btn-primary btn-full">Đặt thuê ngay</button>
+          <button class="btn btn-primary btn-full" (click)="openBookingModal()"
+            [disabled]="!isUserLoggedIn || userRole !== 2 || !room || room.status !== 'AVAILABLE'">
+            {{ !isUserLoggedIn ? 'Đăng nhập để đặt thuê' : userRole !== 2 ? 'Chỉ khách thuê được đặt' : room.status !==
+            'AVAILABLE' ? 'Phòng không khả dụng' : 'Đặt thuê ngay' }}
+          </button>
           <button class="btn btn-secondary btn-full">Nhắn tin</button>
         </div>
         <div class="important-note">
@@ -122,8 +125,10 @@
       </div>
     </aside>
   </div>
+  <app-booking-modal [room]="room" [isOpen]="isBookingModalOpen" (closeModal)="closeBookingModal()"
+    (bookingSuccess)="onBookingSuccess()">
+  </app-booking-modal>
 </div>
 
-<app-review-list 
-  [roomId]="roomId">
+<app-review-list [roomId]="roomId">
 </app-review-list>

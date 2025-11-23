@@ -1,43 +1,33 @@
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { catchError, switchMap, throwError } from 'rxjs';
 
-export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
-  if (req.url.includes('/api/auth/login') || req.url.includes('/api/auth/register')) {
-    return next(req);
-  }
+export const tokenInterceptor = (req: HttpRequest<any>, next: any) => {
+  const authService = new AuthService(null as any);
+  const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
 
-  const token = authService.getAccessToken();
-
-  if (token) {
+  if (token && !req.url.includes('/login') && !req.url.includes('/register')) {
     req = req.clone({
       setHeaders: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
     });
   }
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && !req.url.includes('/api/auth/refresh')) {
-        return authService.refreshToken().pipe(
-          switchMap(() => {
-            const newToken = authService.getAccessToken();
-            const cloned = req.clone({
-              setHeaders: {
-                Authorization: `Bearer ${newToken}`
-              }
-            });
-            return next(cloned);
-          }),
-          catchError((refreshError) => {
-            authService.logout();
-            window.location.href = '/login';
-            return throwError(() => refreshError);
-          })
-        );
+      if (error.status === 401 || error.status === 403) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        
+        if (!window.location.href.includes('/login')) {
+          window.location.href = '/login';
+        }
       }
       return throwError(() => error);
     })

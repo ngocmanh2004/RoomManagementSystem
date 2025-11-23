@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -20,11 +21,11 @@ public class Contract {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tenant_id", nullable = false)
     private Tenant tenant;
     
@@ -34,11 +35,14 @@ public class Contract {
     @Column(name = "end_date")
     private LocalDate endDate;
     
-    @Column(name = "deposit")
+    @Column(name = "deposit", nullable = false)
     private Double deposit;
     
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
+    
+    @Column(name = "rejection_reason", columnDefinition = "TEXT")
+    private String rejectionReason;
     
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -62,6 +66,3 @@ public class Contract {
     }
 }
 
-enum ContractStatus {
-    PENDING, ACTIVE, EXPIRED, CANCELLED
-}
