@@ -26,19 +26,9 @@
     </app-review-card>
   </div>
 
-  <!-- Review Form (Create) -->
-  <div *ngIf="isLoggedIn && showForm && !editingReview" class="review-form-section">
-    <h3>Gửi đánh giá của bạn</h3>
-    <app-review-form 
-      [roomId]="roomId"
-      (submit)="onFormSubmit($event)"
-      (cancel)="onFormCancel()">
-    </app-review-form>
-  </div>
-
-  <!-- Review Form (Edit) -->
-  <div *ngIf="isLoggedIn && showForm && editingReview" class="review-form-section">
-    <h3>Sửa đánh giá</h3>
+  <!-- Review Form (Create & Edit) -->
+  <div *ngIf="isLoggedIn && showForm" class="review-form-section">
+    <h3>{{ editingReview ? 'Sửa đánh giá' : 'Gửi đánh giá của bạn' }}</h3>
     <app-review-form 
       [roomId]="roomId"
       [review]="editingReview"

@@ -17,13 +17,16 @@ import { Amenity } from '../../models/amenity.model';
 })
 export class RoomDetailComponent implements OnInit {
   room: Room | null = null;
-  roomId!: number;
+  roomId: number = 0;
   amenities: Amenity[] = [];
   currentImageIndex = 0;
   isLightboxOpen = false;
   lightboxImage: string = '';
   currentMainImage: string = '';
   mapsUrl: SafeResourceUrl | null = null;
+  mapsEmbedUrl: string = '';
+  isLoading = true;
+  error = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -34,39 +37,62 @@ export class RoomDetailComponent implements OnInit {
 
   ngOnInit() {
     this.route.params.subscribe((params) => {
-      this.roomId = +params['id'];
+      const id = +params['id'];
+      
+      if (!id || id <= 0) {
+        this.error = 'Không tìm thấy phòng này';
+        this.isLoading = false;
+        return;
+      }
+
+      this.roomId = id;
       this.loadRoomDetail();
     });
   }
 
   loadRoomDetail() {
+    if (!this.roomId || this.roomId <= 0) {
+      this.error = 'Không tìm thấy phòng này';
+      this.isLoading = false;
+      return;
+    }
+
+    this.isLoading = true;
+    this.error = '';
+
     this.roomService.getRoomById(this.roomId).subscribe({
       next: (data) => {
         this.room = data;
 
         if (this.room?.building?.address) {
-          const mapsUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
-            this.room.building.address
-          )}&output=embed`;
-          this.mapsUrl = this.sanitizer.bypassSecurityTrustResourceUrl(mapsUrl);
+          const address = encodeURIComponent(this.room.building.address);
+          this.mapsEmbedUrl = `https://www.google.com/maps?q=${address}&output=embed`;
+          this.mapsUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.mapsEmbedUrl);
         }
 
         if (this.room?.images && this.room.images.length > 0) {
-          this.currentMainImage = this.normalizeImage(
-            this.room.images[0].imageUrl
-          );
+          this.currentMainImage = this.normalizeImage(this.room.images[0].imageUrl);
         }
+
         this.loadAmenities();
+        this.isLoading = false;
       },
-      error: (err) => console.error('Lỗi tải phòng:', err),
+      error: (err) => {
+        console.error('Error loading room:', err);
+        this.error = 'Không thể tải thông tin phòng';
+        this.isLoading = false;
+      }
     });
   }
 
   loadAmenities() {
     if (!this.room?.id) return;
     this.amenityService.getAmenitiesByRoom(this.room.id).subscribe({
-      next: (data) => (this.amenities = data),
-      error: (err) => console.error('Lỗi tải tiện nghi:', err),
+      next: (data) => {
+        console.log('Amenities loaded:', data);
+        this.amenities = data;
+      },
+      error: (err) => console.error('Error loading amenities:', err)
     });
   }
 
@@ -88,22 +114,15 @@ export class RoomDetailComponent implements OnInit {
   prevImage(event: Event) {
     event.stopPropagation();
     if (!this.room?.images || this.room.images.length === 0) return;
-    this.currentImageIndex =
-      (this.currentImageIndex - 1 + this.room.images.length) %
-      this.room.images.length;
-    this.currentMainImage = this.normalizeImage(
-      this.room.images[this.currentImageIndex].imageUrl
-    );
+    this.currentImageIndex = (this.currentImageIndex - 1 + this.room.images.length) % this.room.images.length;
+    this.currentMainImage = this.normalizeImage(this.room.images[this.currentImageIndex].imageUrl);
   }
 
   nextImage(event: Event) {
     event.stopPropagation();
     if (!this.room?.images || this.room.images.length === 0) return;
-    this.currentImageIndex =
-      (this.currentImageIndex + 1) % this.room.images.length;
-    this.currentMainImage = this.normalizeImage(
-      this.room.images[this.currentImageIndex].imageUrl
-    );
+    this.currentImageIndex = (this.currentImageIndex + 1) % this.room.images.length;
+    this.currentMainImage = this.normalizeImage(this.room.images[this.currentImageIndex].imageUrl);
   }
 
   openLightbox(index: number) {
@@ -121,21 +140,14 @@ export class RoomDetailComponent implements OnInit {
   prevLightboxImage(event: Event) {
     event.stopPropagation();
     if (!this.room?.images || this.room.images.length === 0) return;
-    this.currentImageIndex =
-      (this.currentImageIndex - 1 + this.room.images.length) %
-      this.room.images.length;
-    this.lightboxImage = this.normalizeImage(
-      this.room.images[this.currentImageIndex].imageUrl
-    );
+    this.currentImageIndex = (this.currentImageIndex - 1 + this.room.images.length) % this.room.images.length;
+    this.lightboxImage = this.normalizeImage(this.room.images[this.currentImageIndex].imageUrl);
   }
 
   nextLightboxImage(event: Event) {
     event.stopPropagation();
     if (!this.room?.images || this.room.images.length === 0) return;
-    this.currentImageIndex =
-      (this.currentImageIndex + 1) % this.room.images.length;
-    this.lightboxImage = this.normalizeImage(
-      this.room.images[this.currentImageIndex].imageUrl
-    );
+    this.currentImageIndex = (this.currentImageIndex + 1) % this.room.images.length;
+    this.lightboxImage = this.normalizeImage(this.room.images[this.currentImageIndex].imageUrl);
   }
 }
