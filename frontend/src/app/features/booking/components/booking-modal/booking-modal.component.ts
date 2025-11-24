@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BookingService } from '../../../../services/booking.service';
-import { AuthService } from '../../../../services/auth.service';
+import { AuthService } from '../../../../services/auth.service';  // ✅ Sửa path
 import { TenantService } from '../../../../services/tenant.service';
 import { BookingRequest } from '../../../../models/booking.model';
 import { Room } from '../../../../models/room.model';
@@ -41,28 +41,33 @@ export class BookingModalComponent implements OnInit {
     this.currentUserId = this.authService.getCurrentUserId();
     this.userRole = this.authService.getUserRole();
     
-    if (!this.currentUserId) {
-      this.errorMessage = 'Bạn cần đăng nhập để đặt thuê phòng';
-    }
-    
-    if (this.userRole !== 2) {
-      this.errorMessage = 'Chỉ khách thuê có thể đặt phòng';
-    }
+    console.log('📌 Modal init - userId:', this.currentUserId, 'role:', this.userRole);
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['isOpen'] && this.isOpen && this.room) {
-      this.loadUserData();
+      this.errorMessage = '';
+      this.successMessage = '';
+      this.currentUserId = this.authService.getCurrentUserId();
+      this.userRole = this.authService.getUserRole();
+      
+      console.log('📌 Modal opened - userId:', this.currentUserId, 'role:', this.userRole);
+      
+      if (this.currentUserId) {
+        this.loadUserData();
+      }
     }
   }
 
   initializeForm() {
+    const today = new Date().toISOString().split('T')[0];
+    
     this.bookingForm = this.fb.group({
       fullName: ['', [Validators.required, Validators.minLength(3)]],
       cccd: ['', [Validators.required, Validators.pattern(/^[0-9]{9,12}$/)]],
       phone: ['', [Validators.required, Validators.pattern(/^0[0-9]{9}$/)]],
       address: ['', [Validators.required, Validators.minLength(5)]],
-      startDate: ['', Validators.required],
+      startDate: [today, Validators.required],
       endDate: [''],
       deposit: [0, [Validators.required, Validators.min(0)]],
       notes: ['']
@@ -70,41 +75,82 @@ export class BookingModalComponent implements OnInit {
   }
 
   loadUserData() {
-    if (!this.currentUserId) {
-      this.errorMessage = 'Không thể tải thông tin người dùng';
-      return;
-    }
+  if (!this.currentUserId) {
+    this.errorMessage = 'Không thể tải thông tin người dùng';
+    return;
+  }
 
-    this.isLoadingUserData = true;
-    this.errorMessage = '';
+  this.isLoadingUserData = true;
+  this.errorMessage = '';
 
-    this.tenantService.getTenantByUserId(this.currentUserId).subscribe({
-      next: (tenant: any) => {
-        const currentUser = this.authService.getCurrentUser();
-        
+  const currentUser = this.authService.getCurrentUser();
+  console.log('📌 Current user from AuthService:', currentUser);
+  console.log('📌 Current user fullName:', currentUser?.fullName);
+  console.log('📌 Current user phone:', currentUser?.phone);
+
+  this.tenantService.getTenantByUserId(this.currentUserId).subscribe({
+    next: (response: any) => {
+      console.log('✅ Tenant API raw response:', response);
+      console.log('✅ Response type:', typeof response);
+      console.log('✅ Response keys:', Object.keys(response || {}));
+      
+      console.log('✅ Full response object:', JSON.stringify(response, null, 2));
+      
+      let tenant = response;
+      
+      if (response?.data) {
+        tenant = response.data;
+        console.log('✅ Unwrapped tenant from response.data:', tenant);
+      }
+      
+      console.log('📋 Tenant fields:');
+      console.log('  - id:', tenant?.id);
+      console.log('  - userId:', tenant?.userId);
+      console.log('  - cccd:', tenant?.cccd);
+      console.log('  - phone:', tenant?.phone);
+      console.log('  - user.phone:', tenant?.user?.phone); // ✅ Thêm dòng này
+      console.log('  - address:', tenant?.address);
+      console.log('  - fullName:', tenant?.fullName);
+      console.log('  - user.fullName:', tenant?.user?.fullName); // ✅ Thêm dòng này
+      console.log('  - ALL tenant object:', JSON.stringify(tenant, null, 2));
+      
+      // ✅ FIX: Lấy từ tenant.user.phone và tenant.user.fullName
+      const formValues = {
+        fullName: tenant?.user?.fullName || currentUser?.fullName || tenant?.fullName || '',
+        cccd: tenant?.cccd || '',
+        phone: tenant?.user?.phone || currentUser?.phone || tenant?.phone || '',
+        address: tenant?.address || ''
+      };
+      
+      console.log('📝 Values to patch into form:', formValues);
+      
+      this.bookingForm.patchValue(formValues);
+      
+      console.log('✅ Form value after patch:', this.bookingForm.value);
+      console.log('✅ Form control values:');
+      console.log('  - fullName:', this.bookingForm.get('fullName')?.value);
+      console.log('  - cccd:', this.bookingForm.get('cccd')?.value);
+      console.log('  - phone:', this.bookingForm.get('phone')?.value);
+      console.log('  - address:', this.bookingForm.get('address')?.value);
+      
+      this.isLoadingUserData = false;
+    },
+    error: (error: any) => {
+      console.error('❌ Error loading tenant data:', error);
+      
+      if (currentUser) {
         this.bookingForm.patchValue({
-          fullName: currentUser?.fullName || '',
-          cccd: tenant?.cccd || '',
-          phone: currentUser?.phone || '',
-          address: tenant?.address || ''
-        });
-        
-        this.isLoadingUserData = false;
-      },
-      error: (error: any) => {
-        console.error('Error loading tenant data:', error);
-        const currentUser = this.authService.getCurrentUser();
-        
-        this.bookingForm.patchValue({
-          fullName: currentUser?.fullName || '',
-          phone: currentUser?.phone || '',
+          fullName: currentUser.fullName || '',
+          phone: currentUser.phone || '',
+          cccd: '',
           address: ''
         });
-        
-        this.isLoadingUserData = false;
       }
-    });
-  }
+      
+      this.isLoadingUserData = false;
+    }
+  });
+}
 
   resetForm() {
     this.loadUserData();
@@ -115,6 +161,27 @@ export class BookingModalComponent implements OnInit {
   }
 
   submit() {
+    this.currentUserId = this.authService.getCurrentUserId();
+    this.userRole = this.authService.getUserRole();
+    const token = localStorage.getItem('accessToken');
+    
+    console.log('========== BOOKING MODAL SUBMIT ==========');
+    console.log('📌 Current User ID:', this.currentUserId);
+    console.log('📌 User Role:', this.userRole);
+    console.log('📌 Access Token:', token ? 'EXISTS' : 'MISSING');
+    console.log('📌 Form Valid:', this.bookingForm.valid);
+    console.log('📌 Form Value:', this.bookingForm.value);
+    
+    if (!token) {
+      this.errorMessage = 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.';
+      return;
+    }
+    
+    if (!this.currentUserId) {
+      this.errorMessage = 'Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.';
+      return;
+    }
+    
     if (this.userRole !== 2) {
       this.errorMessage = 'Chỉ khách thuê có thể đặt phòng';
       return;
@@ -122,6 +189,7 @@ export class BookingModalComponent implements OnInit {
 
     if (!this.bookingForm.valid) {
       this.errorMessage = 'Vui lòng điền đầy đủ thông tin hợp lệ';
+      this.bookingForm.markAllAsTouched();
       return;
     }
 
@@ -131,7 +199,6 @@ export class BookingModalComponent implements OnInit {
     }
 
     const formValue = this.bookingForm.value;
-
     const startDate = new Date(formValue.startDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -147,11 +214,6 @@ export class BookingModalComponent implements OnInit {
         this.errorMessage = 'Ngày kết thúc phải sau ngày bắt đầu';
         return;
       }
-    }
-
-    if (formValue.deposit < 0) {
-      this.errorMessage = 'Số tiền cọc phải là số dương';
-      return;
     }
 
     this.isSubmitting = true;
@@ -170,9 +232,11 @@ export class BookingModalComponent implements OnInit {
       address: formValue.address
     };
 
+    console.log('📤 Sending booking request:', bookingRequest);
+
     this.bookingService.createBooking(bookingRequest).subscribe({
       next: (response: any) => {
-        console.log('Booking created successfully:', response);
+        console.log('✅ Booking response:', response);
         this.successMessage = 'Yêu cầu đặt thuê phòng đã được gửi thành công!';
         this.isSubmitting = false;
         
@@ -182,8 +246,20 @@ export class BookingModalComponent implements OnInit {
         }, 1500);
       },
       error: (error: any) => {
-        console.error('Booking error:', error);
-        const errorMsg = error?.error?.message || error?.message || 'Lỗi đặt thuê phòng. Vui lòng thử lại.';
+        console.error('❌ Booking error:', error);
+        
+        let errorMsg = 'Lỗi đặt thuê phòng. Vui lòng thử lại.';
+        
+        if (error.status === 401) {
+          errorMsg = 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.';
+        } else if (error.status === 403) {
+          errorMsg = 'Bạn không có quyền thực hiện thao tác này.';
+        } else if (error.error?.message) {
+          errorMsg = error.error.message;
+        } else if (error.message) {
+          errorMsg = error.message;
+        }
+        
         this.errorMessage = errorMsg;
         this.isSubmitting = false;
       }

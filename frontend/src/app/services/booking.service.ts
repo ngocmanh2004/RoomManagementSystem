@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { BookingRequest, Contract, ContractResponse } from '../models/booking.model';
@@ -11,19 +11,6 @@ export class BookingService {
   private apiUrl = '/api/bookings';
 
   constructor(private http: HttpClient) {}
-
-  private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('accessToken');
-    let headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-
-    if (token) {
-      headers = headers.set('Authorization', `Bearer ${token}`);
-    }
-    
-    return headers;
-  }
 
   createBooking(request: BookingRequest): Observable<Contract> {
     const payload = {
@@ -39,31 +26,37 @@ export class BookingService {
     };
 
     console.log('📝 Creating booking:', JSON.stringify(payload));
+    console.log('📝 Token exists:', localStorage.getItem('accessToken') ? 'YES' : 'NO');
 
-    return this.http.post<Contract>(
-      this.apiUrl,
-      payload,
-      { headers: this.getHeaders() }
-    ).pipe(
+    return this.http.post<Contract>(this.apiUrl, payload).pipe(
       tap(response => {
         console.log('✅ Booking created:', response);
       }),
       catchError(error => {
         console.error('❌ Booking error:', error);
-        const message = error.error?.message || error.statusText || 'Lỗi đặt thuê phòng';
+        console.error('❌ Error status:', error.status);
+        console.error('❌ Error response:', error.error);
+        
+        let message = 'Lỗi đặt thuê phòng';
+        
+        if (error.status === 401) {
+          message = 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.';
+        } else if (error.status === 403) {
+          message = 'Bạn không có quyền thực hiện thao tác này.';
+        } else if (error.error?.message) {
+          message = error.error.message;
+        } else if (error.statusText) {
+          message = error.statusText;
+        }
+        
         return throwError(() => new Error(message));
       })
     );
   }
 
   getMyContracts(page: number = 0, size: number = 10): Observable<ContractResponse> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
-
     return this.http.get<ContractResponse>(
-      `${this.apiUrl}/my-contracts`,
-      { params, headers: this.getHeaders() }
+      `${this.apiUrl}/my-contracts?page=${page}&size=${size}`
     ).pipe(
       catchError(error => {
         console.error('Error loading contracts:', error);
@@ -73,10 +66,7 @@ export class BookingService {
   }
 
   getContractById(id: number): Observable<Contract> {
-    return this.http.get<Contract>(
-      `${this.apiUrl}/${id}`,
-      { headers: this.getHeaders() }
-    ).pipe(
+    return this.http.get<Contract>(`${this.apiUrl}/${id}`).pipe(
       catchError(error => {
         console.error('Error loading contract:', error);
         return throwError(() => new Error(error.error?.message || 'Lỗi tải chi tiết hợp đồng'));

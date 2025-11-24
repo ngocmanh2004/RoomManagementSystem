@@ -29,6 +29,19 @@ public class Contract {
     @JoinColumn(name = "tenant_id", nullable = false)
     private Tenant tenant;
     
+    // ✅ THÊM 4 TRƯỜNG MỚI
+    @Column(name = "full_name", nullable = false, length = 100)
+    private String fullName;
+    
+    @Column(name = "cccd", nullable = false, length = 20)
+    private String cccd;
+    
+    @Column(name = "phone", nullable = false, length = 20)
+    private String phone;
+    
+    @Column(name = "address", nullable = false, length = 255)
+    private String address;
+    
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
     

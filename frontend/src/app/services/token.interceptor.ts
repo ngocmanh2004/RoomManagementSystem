@@ -1,34 +1,35 @@
-import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { AuthService } from './auth.service';
 
-export const tokenInterceptor = (req: HttpRequest<any>, next: any) => {
-  const authService = new AuthService(null as any);
-  const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+export const tokenInterceptor = (req: any, next: any) => {
+  const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+
+  console.log('🔐 Interceptor - URL:', req.url);
+  console.log('🔐 Interceptor - Token:', token ? 'EXISTS' : 'MISSING');
 
   if (token && !req.url.includes('/login') && !req.url.includes('/register')) {
     req = req.clone({
       setHeaders: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${token}`
       }
     });
+    console.log('✅ Interceptor - Authorization header added');
   }
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 || error.status === 403) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        
-        if (!window.location.href.includes('/login')) {
-          window.location.href = '/login';
-        }
+      console.error('❌ HTTP Error:', error.status, error.url);
+      console.error('❌ Error body:', error.error);
+      
+      if (error.status === 401) {
+        console.warn('⚠️ 401 Unauthorized - Check token validity');
       }
+      
+      if (error.status === 403) {
+        console.warn('⚠️ 403 Forbidden - Check user permissions');
+      }
+
       return throwError(() => error);
     })
   );

@@ -30,8 +30,14 @@ export class RoomDetailComponent implements OnInit {
   isLoading = true;
   error = '';
   isBookingModalOpen = false;
-  isUserLoggedIn = false;
-  userRole: number | null = null;
+
+  get isUserLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
+
+  get userRole(): number | null {
+    return this.authService.getUserRole();
+  }
 
   constructor(
     private route: ActivatedRoute,
@@ -42,9 +48,6 @@ export class RoomDetailComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.isUserLoggedIn = this.authService.isLoggedIn();
-    this.userRole = this.authService.getUserRole();
-    
     this.route.params.subscribe((params) => {
       const id = +params['id'];
       
@@ -106,12 +109,17 @@ export class RoomDetailComponent implements OnInit {
   }
 
   openBookingModal() {
-    if (!this.isUserLoggedIn) {
+    const isLoggedIn = this.authService.isLoggedIn();
+    const userRole = this.authService.getUserRole();
+    
+    console.log('🔐 openBookingModal - isLoggedIn:', isLoggedIn, 'userRole:', userRole);
+    
+    if (!isLoggedIn) {
       alert('Vui lòng đăng nhập để đặt thuê phòng');
       return;
     }
     
-    if (this.userRole !== 2) {
+    if (userRole !== 2) {
       alert('Chỉ khách thuê có thể đặt thuê phòng');
       return;
     }
@@ -130,6 +138,7 @@ export class RoomDetailComponent implements OnInit {
 
   onBookingSuccess() {
     alert('Yêu cầu đặt thuê phòng đã được gửi thành công!');
+    this.isBookingModalOpen = false;
     this.loadRoomDetail();
   }
 

@@ -26,13 +26,29 @@ public class BookingController {
     private BookingService bookingService;
     
     private Integer getCurrentUserId() {
+        System.out.println("========== GET CURRENT USER ID ==========");
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated()) {
+        System.out.println("Authentication: " + auth);
+        
+        if (auth != null) {
+            System.out.println("Is Authenticated: " + auth.isAuthenticated());
+            System.out.println("Principal type: " + auth.getPrincipal().getClass().getName());
+            System.out.println("Principal: " + auth.getPrincipal());
+            
             Object principal = auth.getPrincipal();
             if (principal instanceof CustomUserDetails) {
-                return ((CustomUserDetails) principal).getId();
+                CustomUserDetails userDetails = (CustomUserDetails) principal;
+                Integer userId = userDetails.getId();
+                System.out.println("✅ User ID extracted: " + userId);
+                return userId;
+            } else {
+                System.out.println("❌ Principal is NOT CustomUserDetails");
             }
+        } else {
+            System.out.println("❌ Authentication is NULL");
         }
+        
+        System.out.println("========== RETURN NULL ==========");
         return null;
     }
     
@@ -41,23 +57,34 @@ public class BookingController {
             @Valid @RequestBody BookingDTO bookingDTO,
             BindingResult bindingResult
     ) {
+        System.out.println("========== CREATE BOOKING ENDPOINT ==========");
+        System.out.println("Request body: " + bookingDTO);
+        
         if (bindingResult.hasErrors()) {
             String error = bindingResult.getFieldError().getDefaultMessage();
+            System.out.println("❌ Validation error: " + error);
             return ResponseEntity.badRequest()
                     .body(new ApiResponse(false, error, null));
         }
         
         Integer userId = getCurrentUserId();
+        System.out.println("User ID from getCurrentUserId(): " + userId);
+        
         if (userId == null) {
+            System.out.println("❌ User ID is NULL - Returning 401");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse(false, "Vui lòng đăng nhập", null));
         }
         
         try {
+            System.out.println("✅ Calling bookingService.createBooking()...");
             Contract contract = bookingService.createBooking(bookingDTO, userId);
+            System.out.println("✅ Contract created: " + contract.getId());
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new ApiResponse(true, "Tạo yêu cầu đặt phòng thành công", contract));
         } catch (Exception e) {
+            System.out.println("❌ Error creating booking: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.badRequest()
                     .body(new ApiResponse(false, e.getMessage(), null));
         }
