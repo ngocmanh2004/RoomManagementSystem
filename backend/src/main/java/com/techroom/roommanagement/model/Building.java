@@ -2,19 +2,26 @@ package com.techroom.roommanagement.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "buildings")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Building {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(nullable = false, length = 120)
     private String name;
@@ -35,7 +42,11 @@ public class Building {
     @Column(name = "district_code")
     private Integer districtCode;
 
-    //Timestamp (nếu DB có)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "landlord_id")
+    @JsonIgnoreProperties({"user", "building", "hibernateLazyInitializer", "handler"})
+    private Landlord landlord;
+
     @Column(name = "created_at", insertable = false, updatable = false)
-    private java.time.LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 }

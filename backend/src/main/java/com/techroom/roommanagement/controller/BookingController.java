@@ -1,0 +1,130 @@
+package com.techroom.roommanagement.controller;
+
+import com.techroom.roommanagement.dto.BookingDTO;
+import com.techroom.roommanagement.dto.ApiResponse;
+import com.techroom.roommanagement.model.Contract;
+import com.techroom.roommanagement.service.BookingService;
+import com.techroom.roommanagement.security.CustomUserDetails;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+
+@RestController
+@RequestMapping("/api/bookings")
+@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
+public class BookingController {
+    
+    @Autowired
+    private BookingService bookingService;
+    
+    private Integer getCurrentUserId() {
+        System.out.println("========== GET CURRENT USER ID ==========");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("Authentication: " + auth);
+        
+        if (auth != null) {
+            System.out.println("Is Authenticated: " + auth.isAuthenticated());
+            System.out.println("Principal type: " + auth.getPrincipal().getClass().getName());
+            System.out.println("Principal: " + auth.getPrincipal());
+            
+            Object principal = auth.getPrincipal();
+            if (principal instanceof CustomUserDetails) {
+                CustomUserDetails userDetails = (CustomUserDetails) principal;
+                Integer userId = userDetails.getId();
+                System.out.println("✅ User ID extracted: " + userId);
+                return userId;
+            } else {
+                System.out.println("❌ Principal is NOT CustomUserDetails");
+            }
+        } else {
+            System.out.println("❌ Authentication is NULL");
+        }
+        
+        System.out.println("========== RETURN NULL ==========");
+        return null;
+    }
+    
+    @PostMapping
+    public ResponseEntity<?> createBooking(
+            @Valid @RequestBody BookingDTO bookingDTO,
+            BindingResult bindingResult
+    ) {
+        System.out.println("========== CREATE BOOKING ENDPOINT ==========");
+        System.out.println("Request body: " + bookingDTO);
+        
+        if (bindingResult.hasErrors()) {
+            String error = bindingResult.getFieldError().getDefaultMessage();
+            System.out.println("❌ Validation error: " + error);
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(false, error, null));
+        }
+        
+        Integer userId = getCurrentUserId();
+        System.out.println("User ID from getCurrentUserId(): " + userId);
+        
+        if (userId == null) {
+            System.out.println("❌ User ID is NULL - Returning 401");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse(false, "Vui lòng đăng nhập", null));
+        }
+        
+        try {
+            System.out.println("✅ Calling bookingService.createBooking()...");
+            Contract contract = bookingService.createBooking(bookingDTO, userId);
+            System.out.println("✅ Contract created: " + contract.getId());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ApiResponse(true, "Tạo yêu cầu đặt phòng thành công", contract));
+        } catch (Exception e) {
+            System.out.println("❌ Error creating booking: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(false, e.getMessage(), null));
+        }
+    }
+    
+    @GetMapping("/my-contracts")
+    public ResponseEntity<?> getMyContracts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Integer userId = getCurrentUserId();
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse(false, "Unauthorized", null));
+        }
+        
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Contract> contracts = bookingService.getTenantContracts(userId, pageable);
+            return ResponseEntity.ok(new ApiResponse(true, "Lấy danh sách hợp đồng thành công", contracts));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(false, e.getMessage(), null));
+        }
+    }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getContractById(@PathVariable Integer id) {
+        Integer userId = getCurrentUserId();
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse(false, "Unauthorized", null));
+        }
+        
+        try {
+            Contract contract = bookingService.getTenantContractById(id, userId);
+            return ResponseEntity.ok(new ApiResponse(true, "Lấy chi tiết hợp đồng thành công", contract));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(false, e.getMessage(), null));
+        }
+    }
+}

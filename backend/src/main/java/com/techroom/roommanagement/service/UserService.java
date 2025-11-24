@@ -196,6 +196,7 @@ public class UserService {
             throw new RuntimeException("Không thể xóa tài khoản Quản trị viên!");
         }
 
+        // ✅ FIX: Use correct method name
         boolean hasContracts = contractRepository.existsByTenantUserId(id);
         boolean isLandlord = landlordRepository.existsByUserId(id);
 
@@ -204,10 +205,6 @@ public class UserService {
         }
 
         refreshTokenRepository.deleteByUserId(id);
-
-        // Cần xóa bảng phụ (Tenant/Landlord) trước khi xóa User nếu chưa có Cascade
-        // (Tuy nhiên, JPA thường xử lý nếu config đúng, hoặc ta xóa thủ công cho an toàn)
-
         userRepository.deleteById(id);
     }
 

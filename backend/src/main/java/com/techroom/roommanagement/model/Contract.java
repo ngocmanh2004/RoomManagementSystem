@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -20,13 +21,26 @@ public class Contract {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tenant_id", nullable = false)
     private Tenant tenant;
+    
+    // ✅ THÊM 4 TRƯỜNG MỚI
+    @Column(name = "full_name", nullable = false, length = 100)
+    private String fullName;
+    
+    @Column(name = "cccd", nullable = false, length = 20)
+    private String cccd;
+    
+    @Column(name = "phone", nullable = false, length = 20)
+    private String phone;
+    
+    @Column(name = "address", nullable = false, length = 255)
+    private String address;
     
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
@@ -34,11 +48,14 @@ public class Contract {
     @Column(name = "end_date")
     private LocalDate endDate;
     
-    @Column(name = "deposit")
+    @Column(name = "deposit", nullable = false)
     private Double deposit;
     
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
+    
+    @Column(name = "rejection_reason", columnDefinition = "TEXT")
+    private String rejectionReason;
     
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -62,6 +79,3 @@ public class Contract {
     }
 }
 
-enum ContractStatus {
-    PENDING, ACTIVE, EXPIRED, CANCELLED
-}

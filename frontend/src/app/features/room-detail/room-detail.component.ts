@@ -4,14 +4,16 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { RoomService } from '../../services/room.service';
 import { AmenityService } from '../../services/amenity.service';
+import { AuthService } from '../../services/auth.service';
 import { ReviewListComponent } from '../review/review-list/review-list.component';
+import { BookingModalComponent } from '../booking/components/booking-modal/booking-modal.component';
 import { Room } from '../../models/room.model';
 import { Amenity } from '../../models/amenity.model';
 
 @Component({
   selector: 'app-room-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReviewListComponent],
+  imports: [CommonModule, RouterModule, ReviewListComponent, BookingModalComponent],
   templateUrl: './room-detail.component.html',
   styleUrls: ['./room-detail.component.css'],
 })
@@ -27,12 +29,22 @@ export class RoomDetailComponent implements OnInit {
   mapsEmbedUrl: string = '';
   isLoading = true;
   error = '';
+  isBookingModalOpen = false;
+
+  get isUserLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
+
+  get userRole(): number | null {
+    return this.authService.getUserRole();
+  }
 
   constructor(
     private route: ActivatedRoute,
     private roomService: RoomService,
     private amenityService: AmenityService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -94,6 +106,40 @@ export class RoomDetailComponent implements OnInit {
       },
       error: (err) => console.error('Error loading amenities:', err)
     });
+  }
+
+  openBookingModal() {
+    const isLoggedIn = this.authService.isLoggedIn();
+    const userRole = this.authService.getUserRole();
+    
+    console.log('🔐 openBookingModal - isLoggedIn:', isLoggedIn, 'userRole:', userRole);
+    
+    if (!isLoggedIn) {
+      alert('Vui lòng đăng nhập để đặt thuê phòng');
+      return;
+    }
+    
+    if (userRole !== 2) {
+      alert('Chỉ khách thuê có thể đặt thuê phòng');
+      return;
+    }
+    
+    if (!this.room || this.room.status !== 'AVAILABLE') {
+      alert('Phòng này hiện không khả dụng');
+      return;
+    }
+    
+    this.isBookingModalOpen = true;
+  }
+
+  closeBookingModal() {
+    this.isBookingModalOpen = false;
+  }
+
+  onBookingSuccess() {
+    alert('Yêu cầu đặt thuê phòng đã được gửi thành công!');
+    this.isBookingModalOpen = false;
+    this.loadRoomDetail();
   }
 
   changeMainImage(imageUrl: string, index: number) {

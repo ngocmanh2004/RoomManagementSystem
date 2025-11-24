@@ -1,7 +1,10 @@
 package com.techroom.roommanagement.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,6 +17,9 @@ import java.util.HashSet;
 @Table(name = "rooms")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Room {
 
     @Id
@@ -35,8 +41,8 @@ public class Room {
     private BigDecimal area;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('AVAILABLE','OCCUPIED','REPAIRING') DEFAULT 'AVAILABLE'")
-    private RoomStatus status = RoomStatus.AVAILABLE;
+    @Column(name = "status")
+    private RoomStatus status;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -61,8 +67,30 @@ public class Room {
     private Set<Amenity> amenities = new HashSet<>();
 
     public enum RoomStatus {
-        AVAILABLE,
-        OCCUPIED,
-        REPAIRING
+        AVAILABLE("Trong"),
+        OCCUPIED("Da thue"),
+        REPAIRING("Dang sua");
+        
+        private final String displayName;
+        
+        RoomStatus(String displayName) {
+            this.displayName = displayName;
+        }
+        
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
+    
+    public void setStatusFromString(String statusStr) {
+        if (statusStr == null) {
+            this.status = RoomStatus.AVAILABLE;
+            return;
+        }
+        try {
+            this.status = RoomStatus.valueOf(statusStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            this.status = RoomStatus.AVAILABLE;
+        }
     }
 }

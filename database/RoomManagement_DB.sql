@@ -1,7 +1,6 @@
 -- ============================================================
 -- FULL DATABASE SCHEMA + DATA
 -- ============================================================
-
 DROP DATABASE IF EXISTS roommanagement_db;
 CREATE DATABASE roommanagement_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE roommanagement_db;
@@ -173,17 +172,24 @@ CREATE TABLE room_amenities (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 10. CONTRACTS
+-- 10. CONTRACTS (ĐÃ SỬA - THÊM CÁC TRƯỜNG THIẾU)
 -- ============================================================
 CREATE TABLE contracts (
   id INT AUTO_INCREMENT PRIMARY KEY,
   room_id INT NOT NULL,
   tenant_id INT NOT NULL,
+  full_name VARCHAR(100) NOT NULL,
+  cccd VARCHAR(20) NOT NULL,
+  phone VARCHAR(20) NOT NULL,
+  address VARCHAR(255) NOT NULL,
   start_date DATE NOT NULL,
   end_date DATE,
   deposit DECIMAL(12,2) DEFAULT 0,
+  notes TEXT,
+  rejection_reason TEXT,
   status ENUM('PENDING','ACTIVE','EXPIRED','CANCELLED') DEFAULT 'PENDING',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
   FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
   INDEX idx_room_id (room_id),
@@ -415,7 +421,7 @@ INSERT INTO users (username, password, full_name, email, phone, role, status) VA
 ('chutroplk', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Nguyễn Văn An', 'vanan@techroom.vn', '0909111001', 1, 'ACTIVE'),
 ('chutrohcm', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Trần Thị Bích', 'thibich@techroom.vn', '0909111002', 1, 'ACTIVE'),
 ('chutrodn', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Lê Minh Cường', 'lecuong@techroom.vn', '0909111003', 1, 'ACTIVE'),
-('manhdz123', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Phạm Thị Dung', 'dungpham@gmail.com', '0909222001', 2, 'ACTIVE'),
+('user', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Phạm Thị Dung', 'dungpham@gmail.com', '0909222001', 2, 'ACTIVE'),
 ('nguoithue2', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Hoàng Văn Em', 'emhoang@gmail.com', '0909222002', 2, 'ACTIVE'),
 ('nguoithue3', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Võ Thị Phượng', 'phuongvo@gmail.com', '0909222003', 2, 'ACTIVE');
 
@@ -468,16 +474,16 @@ INSERT INTO room_amenities (room_id, amenity_id) VALUES
 (5, 1), (5, 2), (5, 3);
 
 -- TENANTS
-INSERT INTO tenants (user_id, cccd, date_of_birth, province_code, district_code) VALUES
-(5, '079123456789', '2000-04-12', 1, 2),
-(6, '079987654321', '1999-10-22', 2, 3),
-(7, '080123456789', '2001-05-15', 3, 4);
+INSERT INTO tenants (user_id, cccd, date_of_birth, province_code, district_code, address) VALUES
+(5, '079123456789', '2000-04-12', 1, 2, 'An Nhơn, Bình Định'),
+(6, '079987654321', '1999-10-22', 2, 3, 'Quận 7, TP.HCM'),
+(7, '080123456789', '2001-05-15', 3, 4, 'Tuy Hòa, Phú Yên');
 
--- CONTRACTS
-INSERT INTO contracts (room_id, tenant_id, start_date, end_date, deposit, status) VALUES
-(1, 1, '2025-09-01', '2025-12-01', 9000000, 'EXPIRED'),
-(2, 2, '2025-10-01', '2026-01-01', 3000000, 'ACTIVE'),
-(3, 3, '2025-08-15', '2025-11-15', 15600000, 'EXPIRED');
+-- CONTRACTS (ĐÃ SỬA - THÊM ĐẦY ĐỦ CÁC TRƯỜNG)
+INSERT INTO contracts (room_id, tenant_id, full_name, cccd, phone, address, start_date, end_date, deposit, notes, status) VALUES
+(1, 1, 'Phạm Thị Dung', '079123456789', '0909222001', 'An Nhơn, Bình Định', '2025-09-01', '2025-12-01', 9000000, 'Hợp đồng cũ', 'EXPIRED'),
+(2, 2, 'Hoàng Văn Em', '079987654321', '0909222002', 'Quận 7, TP.HCM', '2025-10-01', '2026-01-01', 3000000, '', 'ACTIVE'),
+(3, 3, 'Võ Thị Phượng', '080123456789', '0909222003', 'Tuy Hòa, Phú Yên', '2025-08-15', '2025-11-15', 15600000, '', 'EXPIRED');
 
 -- REVIEWS
 INSERT INTO reviews (room_id, tenant_id, rating, comment) VALUES
@@ -493,5 +499,6 @@ SET SQL_SAFE_UPDATES = 1;
 -- ============================================================
 SELECT COUNT(*) as total_users FROM users;
 SELECT COUNT(*) as total_rooms FROM rooms;
+SELECT COUNT(*) as total_contracts FROM contracts;
 SELECT COUNT(*) as total_reviews FROM reviews;
-SELECT * FROM reviews;
+SELECT * FROM contracts;

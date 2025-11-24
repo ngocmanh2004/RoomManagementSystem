@@ -6,7 +6,7 @@
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1400px; /* ✅ Tăng lên để chứa 2 cột */
   margin: 0 auto;
   padding: 0 20px;
 }
@@ -235,25 +235,10 @@
   box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
 }
 
-/* ===== ROOM GRID ===== */
-.main-section {
-  animation: fadeIn 0.6s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
+/* ===== ROOM GRID - 2 COLUMNS ===== */
 .room-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, 1fr); /* ✅ 2 cột như Figma */
   gap: 24px;
   margin-bottom: 40px;
 }
@@ -261,17 +246,13 @@
 app-room-card {
   display: block;
   animation: slideIn 0.4s ease-out backwards;
+  width: 100%;
 }
-
-app-room-card:nth-child(1) { animation-delay: 0.05s; }
-app-room-card:nth-child(2) { animation-delay: 0.1s; }
-app-room-card:nth-child(3) { animation-delay: 0.15s; }
-app-room-card:nth-child(4) { animation-delay: 0.2s; }
 
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -279,95 +260,82 @@ app-room-card:nth-child(4) { animation-delay: 0.2s; }
   }
 }
 
-/* ===== LOAD MORE ===== */
+/* ===== LOAD MORE BUTTON ===== */
 .load-more {
   display: flex;
   justify-content: center;
-  margin-top: 48px;
-}
-
-.load-more .btn-outline {
-  padding: 12px 32px;
-  font-size: 15px;
-  font-weight: 600;
+  margin-top: 32px;
 }
 
 /* ===== RESPONSIVE ===== */
 
+/* Large screens */
+@media (min-width: 1600px) {
+  .container {
+    max-width: 1600px;
+  }
+}
+
+/* Laptop */
+@media (max-width: 1200px) {
+  .container {
+    max-width: 1140px;
+  }
+}
+
 /* Tablet */
 @media (max-width: 992px) {
-  .page-header h1 {
-    font-size: 30px;
-  }
-
   .filter-options {
     grid-template-columns: repeat(2, 1fr);
   }
-
+  
   .filter-actions {
     grid-template-columns: 1fr;
   }
-
-  .form-group-buttons {
-    order: 2;
-  }
-
+  
   .sort-options {
     justify-self: flex-start;
-    order: 3;
+    margin-top: 8px;
   }
-
+  
   .room-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* ✅ 1 cột trên tablet */
   }
 }
 
 /* Mobile */
 @media (max-width: 768px) {
   .page-header {
-    padding: 40px 0;
+    padding: 24px 0;
   }
-
+  
   .page-header h1 {
-    font-size: 26px;
+    font-size: 24px;
   }
-
-  .page-header p {
-    font-size: 14px;
-  }
-
+  
   .filter-bar {
-    padding: 20px;
+    padding: 16px;
   }
-
+  
   .filter-options {
     grid-template-columns: 1fr;
   }
-
+  
   .filter-actions {
-    gap: 14px;
+    grid-template-columns: 1fr;
   }
-
+  
   .form-group-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .btn {
-    padding: 10px 14px;
-    font-size: 13px;
-  }
-
-  .sort-options {
     width: 100%;
   }
-
-  .sort-options select {
+  
+  .btn {
     flex: 1;
   }
-
+  
   .room-grid {
     gap: 20px;
+    grid-template-columns: 1fr;
   }
 }
 
@@ -391,6 +359,6 @@ app-room-card:nth-child(4) { animation-delay: 0.2s; }
   }
 
   .btn i {
-    display: none; /* Ẩn icon trên mobile nhỏ */
+    display: none;
   }
 }
