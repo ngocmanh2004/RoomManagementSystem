@@ -19,3 +19,4 @@ public interface TenantRepository extends JpaRepository<Tenant, Integer> {
      */
     Optional<Tenant> findByUserId(Integer userId);
 }
+

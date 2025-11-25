@@ -12,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
@@ -29,89 +31,94 @@ public class BookingService {
     
     @Autowired
     private NotificationService notificationService;
-    
+
     public Contract createBooking(BookingDTO bookingDTO, Integer tenantUserId) {
-    System.out.println("========== CREATE BOOKING START ==========");
-    System.out.println("User ID: " + tenantUserId);
-    System.out.println("Room ID: " + bookingDTO.getRoomId());
-    System.out.println("Full Name: " + bookingDTO.getFullName());
-    System.out.println("CCCD: " + bookingDTO.getCccd());
-    System.out.println("Phone: " + bookingDTO.getPhone());
-    System.out.println("Address: " + bookingDTO.getAddress());
-    
-    if (tenantUserId == null || tenantUserId <= 0) {
-        System.out.println("❌ REJECT: Invalid tenant userId");
-        throw new BadRequestException("Tenant ID khong hop le");
-    }
-    
-    if (bookingDTO.getRoomId() == null || bookingDTO.getRoomId() <= 0) {
-        System.out.println("❌ REJECT: Invalid roomId");
-        throw new BadRequestException("Room ID khong hop le");
-    }
-    
-    Room room = roomRepository.findById(bookingDTO.getRoomId())
-        .orElseThrow(() -> {
-            System.out.println("❌ REJECT: Room not found");
-            return new NotFoundException("Phong khong ton tai");
-        });
-    
-    System.out.println("✅ Room found: " + room.getName());
-    System.out.println("✅ Room status: " + room.getStatus());
-    
-    if (!Room.RoomStatus.AVAILABLE.equals(room.getStatus())) {
-        System.out.println("❌ REJECT: Room not available");
-        throw new BadRequestException("Phong nay khong kha dung. Trang thai: " + room.getStatus().getDisplayName());
-    }
-    
-    Tenant tenant = tenantRepository.findByUserId(tenantUserId)
-        .orElseThrow(() -> {
-            System.out.println("❌ REJECT: Tenant record not found for userId: " + tenantUserId);
-            return new NotFoundException("Thong tin nguoi thue khong ton tai. Vui long cap nhat thong tin ca nhan.");
-        });
-    
-    System.out.println("✅ Tenant found: ID=" + tenant.getId());
-    
-    Contract contract = Contract.builder()
-        .room(room)
-        .tenant(tenant)
-        .fullName(bookingDTO.getFullName())           // ✅ THÊM
-        .cccd(bookingDTO.getCccd())                   // ✅ THÊM
-        .phone(bookingDTO.getPhone())                 // ✅ THÊM
-        .address(bookingDTO.getAddress())             // ✅ THÊM
-        .startDate(bookingDTO.getStartDate())
-        .endDate(bookingDTO.getEndDate())
-        .deposit(bookingDTO.getDeposit() != null ? bookingDTO.getDeposit() : 0.0)
-        .notes(bookingDTO.getNotes() != null ? bookingDTO.getNotes() : "")
-        .status(ContractStatus.PENDING)
-        .createdAt(LocalDateTime.now())
-        .updatedAt(LocalDateTime.now())
-        .build();
-    
-    Contract savedContract = contractRepository.save(contract);
-    System.out.println("✅ Contract created successfully - ID: " + savedContract.getId());
-    
-    notificationService.sendNotification(
-        tenantUserId,
-        "Yeu cau thue phong",
-        "Yeu cau thue phong \"" + room.getName() + "\" da duoc gui thanh cong.",
-        "BOOKING_CREATED"
-    );
-    
-    if (room.getBuilding() != null && room.getBuilding().getLandlord() != null) {
-        User landlordUser = room.getBuilding().getLandlord().getUser();
-        if (landlordUser != null && landlordUser.getId() != null) {
-            notificationService.sendNotification(
-                landlordUser.getId(),
-                "Yeu cau thue phong moi",
-                "Co yeu cau thue phong \"" + room.getName() + "\" tu " + tenant.getUser().getFullName(),
-                "BOOKING_REQUEST"
-            );
+        System.out.println("========== CREATE BOOKING START ==========");
+        System.out.println("User ID: " + tenantUserId);
+        System.out.println("Room ID: " + bookingDTO.getRoomId());
+
+        if (tenantUserId == null || tenantUserId <= 0) {
+            System.out.println("REJECT: Invalid tenant userId");
+            throw new BadRequestException("Tenant ID khong hop le");
         }
+
+        if (bookingDTO.getRoomId() == null || bookingDTO.getRoomId() <= 0) {
+            System.out.println("REJECT: Invalid roomId");
+            throw new BadRequestException("Room ID khong hop le");
+        }
+
+        Room room = roomRepository.findById(bookingDTO.getRoomId())
+                .orElseThrow(() -> {
+                    System.out.println("REJECT: Room not found");
+                    return new NotFoundException("Phong khong ton tai");
+                });
+
+        System.out.println("Room found: " + room.getName());
+        System.out.println("Room status: " + room.getStatus());
+
+        if (!Room.RoomStatus.AVAILABLE.equals(room.getStatus())) {
+            System.out.println("REJECT: Room not available");
+            throw new BadRequestException("Phong nay khong kha dung");
+        }
+
+        Tenant tenant = tenantRepository.findByUserId(tenantUserId)
+                .orElseThrow(() -> {
+                    System.out.println("REJECT: Tenant record not found");
+                    return new NotFoundException("Thong tin nguoi thue khong ton tai");
+                });
+
+        System.out.println(" Tenant found: ID=" + tenant.getId());
+
+        Contract contract = Contract.builder()
+                .room(room)
+                .tenant(tenant)
+                .fullName(bookingDTO.getFullName())
+                .cccd(bookingDTO.getCccd())
+                .phone(bookingDTO.getPhone())
+                .address(bookingDTO.getAddress())
+                .startDate(bookingDTO.getStartDate())
+                .endDate(bookingDTO.getEndDate())
+                .deposit(bookingDTO.getDeposit() != null ? bookingDTO.getDeposit() : BigDecimal.ZERO)
+                .monthlyRent(room.getPrice())
+                .notes(bookingDTO.getNotes() != null ? bookingDTO.getNotes() : "")
+                .status(ContractStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        Contract savedContract = contractRepository.save(contract);
+
+        if (savedContract.getContractCode() == null) {
+            savedContract.setContractCode("HD" + String.format("%07d", savedContract.getId()));
+            savedContract = contractRepository.save(savedContract);
+        }
+
+        System.out.println("Contract created - ID: " + savedContract.getId());
+        System.out.println("Contract code: " + savedContract.getContractCode());
+
+        // Gửi thông báo...
+        notificationService.sendNotification(
+                tenantUserId,
+                "Yeu cau thue phong",
+                "Yeu cau thue phong \"" + room.getName() + "\" da duoc gui thanh cong.",
+                "BOOKING_CREATED"
+        );
+
+        if (room.getBuilding() != null && room.getBuilding().getLandlord() != null) {
+            User landlordUser = room.getBuilding().getLandlord().getUser();
+            if (landlordUser != null && landlordUser.getId() != null) {
+                notificationService.sendNotification(
+                        landlordUser.getId(),
+                        "Yeu cau thue phong moi",
+                        "Co yeu cau thue phong \"" + room.getName() + "\" tu " + tenant.getUser().getFullName(),
+                        "BOOKING_REQUEST"
+                );
+            }
+        }
+
+        System.out.println("========== CREATE BOOKING END ==========");
+        return savedContract;
     }
-    
-    System.out.println("========== CREATE BOOKING END ==========");
-    return savedContract;
-}
     
     public Page<Contract> getTenantContracts(Integer tenantId, Pageable pageable) {
         return contractRepository.findByTenantIdOrderByCreatedAtDesc(tenantId, pageable);

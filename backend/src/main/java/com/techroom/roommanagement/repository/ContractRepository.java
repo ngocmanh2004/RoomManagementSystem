@@ -76,4 +76,11 @@ public interface ContractRepository extends JpaRepository<Contract, Integer> {
     @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END FROM Contract c " +
            "WHERE c.tenant.user.id = :userId")
     boolean existsByTenantUserId(@Param("userId") Integer userId);
+
+    @Query("SELECT c FROM Contract c WHERE c.tenant.id = :tenantId " +
+            "AND c.status IN :statuses ORDER BY c.createdAt DESC")
+    Optional<Contract> findFirstByTenantIdAndStatusInOrderByCreatedAtDesc(
+            @Param("tenantId") Integer tenantId,
+            @Param("statuses") List<ContractStatus> statuses
+    );
 }

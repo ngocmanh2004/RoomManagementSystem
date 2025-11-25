@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
-import { BookingRequest, Contract, ContractResponse } from '../models/booking.model';
+import { catchError, tap, map } from 'rxjs/operators';
+import { BookingRequest, BookingContract, ContractResponse } from '../models/booking.model';
+import { Contract } from '../models/contract.model';
+import { ApiResponse } from '../models/api-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -28,17 +30,14 @@ export class BookingService {
     console.log('📝 Creating booking:', JSON.stringify(payload));
     console.log('📝 Token exists:', localStorage.getItem('accessToken') ? 'YES' : 'NO');
 
-    return this.http.post<Contract>(this.apiUrl, payload).pipe(
+    return this.http.post<ApiResponse<Contract>>(this.apiUrl, payload, { withCredentials: true }).pipe(
+      map(resp => resp.data as Contract),
       tap(response => {
-        console.log('✅ Booking created:', response);
+        console.log('✅ Booking created (unwrapped):', response);
       }),
       catchError(error => {
         console.error('❌ Booking error:', error);
-        console.error('❌ Error status:', error.status);
-        console.error('❌ Error response:', error.error);
-        
         let message = 'Lỗi đặt thuê phòng';
-        
         if (error.status === 401) {
           message = 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.';
         } else if (error.status === 403) {
@@ -48,16 +47,16 @@ export class BookingService {
         } else if (error.statusText) {
           message = error.statusText;
         }
-        
         return throwError(() => new Error(message));
       })
     );
   }
 
   getMyContracts(page: number = 0, size: number = 10): Observable<ContractResponse> {
-    return this.http.get<ContractResponse>(
-      `${this.apiUrl}/my-contracts?page=${page}&size=${size}`
+    return this.http.get<ApiResponse<ContractResponse>>(
+      `${this.apiUrl}/my-contracts?page=${page}&size=${size}`, { withCredentials: true }
     ).pipe(
+      map(resp => resp.data as ContractResponse),
       catchError(error => {
         console.error('Error loading contracts:', error);
         return throwError(() => new Error(error.error?.message || 'Lỗi tải hợp đồng'));
@@ -66,10 +65,21 @@ export class BookingService {
   }
 
   getContractById(id: number): Observable<Contract> {
-    return this.http.get<Contract>(`${this.apiUrl}/${id}`).pipe(
+    return this.http.get<ApiResponse<Contract>>(`${this.apiUrl}/${id}`, { withCredentials: true }).pipe(
+      map(resp => resp.data as Contract),
       catchError(error => {
         console.error('Error loading contract:', error);
         return throwError(() => new Error(error.error?.message || 'Lỗi tải chi tiết hợp đồng'));
+      })
+    );
+  }
+
+  getMyActiveContract(): Observable<Contract> {
+    return this.http.get<ApiResponse<Contract>>(`${this.apiUrl}/my-contract`, { withCredentials: true }).pipe(
+      map(resp => resp.data as Contract),
+      catchError(error => {
+        console.error('Error loading my active contract:', error);
+        return throwError(() => new Error(error.error?.message || 'Lỗi tải hợp đồng'));
       })
     );
   }
