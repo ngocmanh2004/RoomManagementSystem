@@ -159,9 +159,24 @@
       <div class="detail-section">
         <h3>Tài liệu đính kèm</h3>
         <div class="documents">
-          <div class="doc-item">📄 CCCD mặt trước</div>
-          <div class="doc-item">📄 CCCD mặt sau</div>
-          <div class="doc-item">📄 Giấy phép kinh doanh</div>
+          <div class="doc-item" *ngIf="selectedRequest.frontImagePath">
+            <a href="#" (click)="openDocument(selectedRequest.frontImagePath); $event.preventDefault()">
+              📄 CCCD mặt trước
+            </a>
+          </div>
+          <div class="doc-item" *ngIf="selectedRequest.backImagePath">
+            <a href="#" (click)="openDocument(selectedRequest.backImagePath); $event.preventDefault()">
+              📄 CCCD mặt sau
+            </a>
+          </div>
+          <div class="doc-item" *ngIf="selectedRequest.businessLicensePath">
+            <a href="#" (click)="openDocument(selectedRequest.businessLicensePath); $event.preventDefault()">
+              📄 Giấy phép kinh doanh
+            </a>
+          </div>
+          <div *ngIf="!selectedRequest.frontImagePath && !selectedRequest.backImagePath && !selectedRequest.businessLicensePath">
+            <p class="muted">Không có tài liệu đính kèm</p>
+          </div>
         </div>
       </div>
     </div>

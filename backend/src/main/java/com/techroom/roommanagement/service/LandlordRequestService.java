@@ -6,6 +6,7 @@ import com.techroom.roommanagement.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,8 +28,24 @@ public class LandlordRequestService {
     private final UserRepository userRepository;
     private final LandlordRepository landlordRepository;
 
-    @Value("${upload.path:/uploads}")
+    @Value("${file.upload-dir:./images/}")
     private String uploadPath;
+
+    @PostConstruct
+    public void initUploadDir() {
+        try {
+            Path uploadDir = Paths.get(uploadPath);
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
+                log.info("Created upload directory: {}", uploadDir.toAbsolutePath());
+            } else {
+                log.info("Using existing upload directory: {}", uploadDir.toAbsolutePath());
+            }
+        } catch (IOException e) {
+            log.error("Failed to create upload directory {}", uploadPath, e);
+            // don't throw here to avoid failing application startup; file ops will fail with clear error later
+        }
+    }
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
     private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(

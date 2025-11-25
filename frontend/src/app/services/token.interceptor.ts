@@ -8,7 +8,12 @@ export const tokenInterceptor = (req: any, next: any) => {
   console.log('🔐 Interceptor - URL:', req.url);
   console.log('🔐 Interceptor - Token:', token ? 'EXISTS' : 'MISSING');
 
-  if (token && !req.url.includes('/login') && !req.url.includes('/register')) {
+  const url = req.url || '';
+  // Only skip adding Authorization for the public auth endpoints
+  const isAuthLogin = url.includes('/api/auth/login') || url.includes('/auth/login');
+  const isAuthRegister = url.includes('/api/auth/register') || url.includes('/auth/register');
+
+  if (token && !isAuthLogin && !isAuthRegister) {
     req = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
