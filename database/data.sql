@@ -3,6 +3,10 @@ USE roommanagement_db;
 -- Tắt Safe Mode tạm thời
 SET SQL_SAFE_UPDATES = 0;
 
+ALTER TABLE rooms 
+ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+AFTER created_at;
+
 -- Thêm contract_code
 ALTER TABLE contracts 
 ADD COLUMN contract_code VARCHAR(20) UNIQUE AFTER id;
