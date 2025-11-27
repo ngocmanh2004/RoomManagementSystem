@@ -6,7 +6,7 @@
   <div class="header-section">
     <div>
       <h1>{{ room.name }}</h1>
-      <p class="address">{{ room.building?.address || 'Đang cập nhật' }}</p>
+      {{ room.building?.address || 'Đang cập nhật' }}
     </div>
     <div class="actions">
       <button class="btn btn-secondary">
@@ -15,14 +15,9 @@
     </div>
   </div>
 
-  <!-- Bộ ảnh -->
-  <div class="image-gallery" *ngIf="room.images?.length > 0">
+  <div class="image-gallery" *ngIf="room && room.images && room.images.length > 0">
     <div class="main-image">
-      <img
-        [src]="currentMainImage"
-        alt="Room image"
-        (click)="openLightbox(currentImageIndex)"
-      />
+      <img [src]="currentMainImage" alt="Room image" (click)="openLightbox(currentImageIndex)" />
       <div class="nav-arrows">
         <button class="nav-arrow" (click)="prevImage($event)">
           <i class="fa-solid fa-chevron-left"></i>
@@ -34,17 +29,11 @@
     </div>
 
     <div class="thumbnail-images">
-      <img
-        *ngFor="let img of room.images; let i = index"
-        [src]="normalizeImage(img.imageUrl)"
-        [class.active]="i === currentImageIndex"
-        (click)="changeMainImage(img.imageUrl, i)"
-        alt="Room thumbnail"
-      />
+      <img *ngFor="let img of room.images; let i = index" [src]="normalizeImage(img.imageUrl)"
+        [class.active]="i === currentImageIndex" (click)="changeMainImage(img.imageUrl, i)" alt="Room thumbnail" />
     </div>
   </div>
 
-  <!-- Lightbox -->
   <div class="lightbox" *ngIf="isLightboxOpen" (click)="closeLightbox($event)">
     <button class="lightbox-nav left" (click)="prevLightboxImage($event)">
       <i class="fa-solid fa-chevron-left"></i>
@@ -55,7 +44,6 @@
     </button>
   </div>
 
-  <!-- Thông tin -->
   <div class="info-bar">
     <div>
       <span>Giá thuê</span>
@@ -95,14 +83,12 @@
 
       <h2>Bản đồ</h2>
       <div class="map-container">
-        <iframe
-          width="100%"
-          height="250"
-          frameborder="0"
-          style="border:0"
-          [src]="'https://maps.google.com/maps?q=' + room.building?.address + '&output=embed'"
-          allowfullscreen
-        ></iframe>
+        <iframe *ngIf="mapsUrl" width="100%" height="250" frameborder="0" style="border:0" [src]="mapsUrl"
+          allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+        <div *ngIf="!mapsUrl" style="text-align: center; padding: 20px; background: #f0f0f0;">
+          <p>Không thể hiển thị bản đồ</p>
+        </div>
       </div>
 
       <div class="notes-box">
@@ -125,7 +111,11 @@
           <span><i class="fa-solid fa-phone"></i> 0909000001</span>
         </div>
         <div class="contact-buttons">
-          <button class="btn btn-primary btn-full">Đặt thuê ngay</button>
+          <button class="btn btn-primary btn-full" (click)="openBookingModal()"
+            [disabled]="!isUserLoggedIn || userRole !== 2 || !room || room.status !== 'AVAILABLE'">
+            {{ !isUserLoggedIn ? 'Đăng nhập để đặt thuê' : userRole !== 2 ? 'Chỉ khách thuê được đặt' : room.status !==
+            'AVAILABLE' ? 'Phòng không khả dụng' : 'Đặt thuê ngay' }}
+          </button>
           <button class="btn btn-secondary btn-full">Nhắn tin</button>
         </div>
         <div class="important-note">
@@ -135,4 +125,10 @@
       </div>
     </aside>
   </div>
+  <app-booking-modal [room]="room" [isOpen]="isBookingModalOpen" (closeModal)="closeBookingModal()"
+    (bookingSuccess)="onBookingSuccess()">
+  </app-booking-modal>
 </div>
+
+<app-review-list [roomId]="roomId">
+</app-review-list>

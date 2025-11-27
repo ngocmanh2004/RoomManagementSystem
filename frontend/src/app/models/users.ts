@@ -28,6 +28,7 @@ export interface UserInfo {
   username: string;
   fullName: string;
   email: string;
+  phone: string;
   role: number;
   roleName: string;
 }

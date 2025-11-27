@@ -1,44 +1,40 @@
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { AuthService } from './auth.service';
-import { catchError, switchMap, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
-export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
-  if (req.url.includes('/api/auth/login') || req.url.includes('/api/auth/register')) {
-    return next(req);
-  }
+export const tokenInterceptor = (req: any, next: any) => {
+  const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
 
-  const token = authService.getAccessToken();
+  console.log('🔐 Interceptor - URL:', req.url);
+  console.log('🔐 Interceptor - Token:', token ? 'EXISTS' : 'MISSING');
 
-  if (token) {
+  const url = req.url || '';
+  // Only skip adding Authorization for the public auth endpoints
+  const isAuthLogin = url.includes('/api/auth/login') || url.includes('/auth/login');
+  const isAuthRegister = url.includes('/api/auth/register') || url.includes('/auth/register');
+
+  if (token && !isAuthLogin && !isAuthRegister) {
     req = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
       }
     });
+    console.log('✅ Interceptor - Authorization header added');
   }
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && !req.url.includes('/api/auth/refresh')) {
-        return authService.refreshToken().pipe(
-          switchMap(() => {
-            const newToken = authService.getAccessToken();
-            const cloned = req.clone({
-              setHeaders: {
-                Authorization: `Bearer ${newToken}`
-              }
-            });
-            return next(cloned);
-          }),
-          catchError((refreshError) => {
-            authService.logout();
-            window.location.href = '/login';
-            return throwError(() => refreshError);
-          })
-        );
+      console.error('❌ HTTP Error:', error.status, error.url);
+      console.error('❌ Error body:', error.error);
+      
+      if (error.status === 401) {
+        console.warn('⚠️ 401 Unauthorized - Check token validity');
       }
+      
+      if (error.status === 403) {
+        console.warn('⚠️ 403 Forbidden - Check user permissions');
+      }
+
       return throwError(() => error);
     })
   );

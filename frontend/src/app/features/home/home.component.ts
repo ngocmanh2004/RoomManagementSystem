@@ -1,11 +1,10 @@
-// src/app/features/home/home.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RoomService } from '../../services/room.service';
 import { RoomCardComponent } from '../../shared/components/room-card/room-card.component';
-import { ProvinceService } from '../../services/province.service'; // THÊM MỚI
-import { Province, District } from '../../models/province.model'; // THÊM MỚI
+import { ProvinceService } from '../../services/province.service'; 
+import { Province, District } from '../../models/province.model'; 
 
 @Component({
   selector: 'app-home',
@@ -18,15 +17,12 @@ export class HomeComponent implements OnInit {
   rooms: any[] = [];
   amenities: any[] = [];
 
-  // Dữ liệu cho dropdown
-  provinces: Province[] = []; // Mới
-  districts: District[] = []; // Mới
+  provinces: Province[] = []; 
+  districts: District[] = []; 
 
-  // Bộ lọc (thay đổi)
-  selectedProvinceCode: string = ''; // Dùng string để 'value=""' hoạt động
-  selectedDistrictCode: string = ''; // Dùng string
+  selectedProvinceCode: string = ''; 
+  selectedDistrictCode: string = ''; 
   
-  // Giữ nguyên các bộ lọc cũ
   selectedType = '';
   selectedPrice = '';
   selectedAcreage = '';
@@ -39,17 +35,15 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private roomService: RoomService,
-    private provinceService: ProvinceService // THÊM MỚI
+    private provinceService: ProvinceService
   ) {}
 
   ngOnInit(): void {
     this.loadAllRooms();
     this.loadAmenities();
-    this.loadProvinces(); // THÊM MỚI
+    this.loadProvinces(); 
   }
 
-  // ... (Hàm normalizeRoomData, loadAllRooms, loadAmenities giữ nguyên) ...
-  // (Bạn có thể sao chép 3 hàm này từ file cũ)
   
   private normalizeRoomData(rooms: any[]): any[] {
     return rooms.map(room => ({
@@ -86,9 +80,6 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  /**
-   * HÀM MỚI: Tải tất cả Tỉnh/Thành
-   */
   loadProvinces(): void {
     this.provinceService.getAllProvinces().subscribe({
       next: (data) => {
@@ -99,12 +90,9 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  /**
-   * HÀM MỚI: Gọi khi chọn Tỉnh/Thành
-   */
   onProvinceChange(): void {
-    this.districts = []; // Xóa danh sách quận/huyện cũ
-    this.selectedDistrictCode = ''; // Reset quận/huyện đã chọn
+    this.districts = []; 
+    this.selectedDistrictCode = ''; 
 
     const provinceCode = parseInt(this.selectedProvinceCode);
     if (provinceCode) {
@@ -118,15 +106,11 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  /**
-   * SỬA LẠI HÀM NÀY:
-   */
   onSearch(evt?: Event): void {
     evt?.preventDefault();
     
     const filters: any = {};
     
-    // ✅ Xử lý khu vực (ĐÃ SỬA)
     if (this.selectedProvinceCode) {
       filters.provinceCode = parseInt(this.selectedProvinceCode);
     }
@@ -134,26 +118,23 @@ export class HomeComponent implements OnInit {
       filters.districtCode = parseInt(this.selectedDistrictCode);
     }
     
-    // ✅ Xử lý loại phòng (Giữ nguyên)
     if (this.selectedType) {
       filters.type = this.selectedType;
     }
     
-    // ✅ Xử lý khoảng giá (Giữ nguyên)
     if (this.selectedPrice) {
       const [min, max] = this.selectedPrice.split('-').map(Number);
       filters.minPrice = min;
       filters.maxPrice = max;
     }
     
-    // ✅ Xử lý diện tích (Giữ nguyên)
     if (this.selectedAcreage) {
       const [minArea, maxArea] = this.selectedAcreage.split('-').map(Number);
       filters.minArea = minArea;
       filters.maxArea = maxArea;
     }
 
-    console.log('🔍 Bộ lọc tìm kiếm:', filters); // Debug
+    console.log('🔍 Bộ lọc tìm kiếm:', filters);
 
     this.roomService.filterRooms(filters).subscribe({
       next: (data) => {
@@ -164,12 +145,9 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  // ... (applyFilters, onSortChange, clearFilters giữ nguyên) ...
-  // (Bạn có thể sao chép 3 hàm này từ file cũ)
   
   applyFilters(): void {
     const filters: any = {
-      // Sửa lại chỗ này để dùng code nếu có
       provinceCode: this.selectedProvinceCode ? parseInt(this.selectedProvinceCode) : undefined,
       districtCode: this.selectedDistrictCode ? parseInt(this.selectedDistrictCode) : undefined,
       type: this.selectedType,
@@ -214,9 +192,9 @@ export class HomeComponent implements OnInit {
   }
 
   clearFilters(): void {
-    this.selectedProvinceCode = ''; // Sửa
-    this.selectedDistrictCode = ''; // Sửa
-    this.districts = []; // Sửa
+    this.selectedProvinceCode = ''; 
+    this.selectedDistrictCode = ''; 
+    this.districts = []; 
 
     this.selectedType = '';
     this.selectedPrice = '';

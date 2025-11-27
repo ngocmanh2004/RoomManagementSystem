@@ -1,111 +1,199 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { RoomService } from '../../services/room.service';
+import { AmenityService } from '../../services/amenity.service';
+import { AuthService } from '../../services/auth.service';
+import { ReviewListComponent } from '../review/review-list/review-list.component';
+import { BookingModalComponent } from '../booking/components/booking-modal/booking-modal.component';
+import { Room } from '../../models/room.model';
+import { Amenity } from '../../models/amenity.model';
 
 @Component({
   selector: 'app-room-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterModule, ReviewListComponent, BookingModalComponent],
   templateUrl: './room-detail.component.html',
   styleUrls: ['./room-detail.component.css'],
 })
 export class RoomDetailComponent implements OnInit {
-  roomId: string | null = null;
-  room: any;
-  amenities: any[] = [];
-  currentMainImage = '';
+  room: Room | null = null;
+  roomId: number = 0;
+  amenities: Amenity[] = [];
   currentImageIndex = 0;
   isLightboxOpen = false;
-  lightboxImage = '';
+  lightboxImage: string = '';
+  currentMainImage: string = '';
+  mapsUrl: SafeResourceUrl | null = null;
+  mapsEmbedUrl: string = '';
+  isLoading = true;
+  error = '';
+  isBookingModalOpen = false;
 
-  constructor(private route: ActivatedRoute, private roomService: RoomService) {}
-
-  ngOnInit(): void {
-    this.roomId = this.route.snapshot.paramMap.get('id');
-    if (this.roomId) {
-      this.roomService.getRoomById(+this.roomId).subscribe((data) => {
-        this.room = data;
-        const first =
-          this.room?.imageUrl ||
-          this.room?.mainImage ||
-          this.room?.images?.[0]?.imageUrl ||
-          '';
-        this.currentMainImage = this.normalizeImage(first);
-        this.loadAmenities(+this.roomId!);
-      });
-    }
+  get isUserLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
   }
 
-  loadAmenities(roomId: number): void {
-    this.roomService.getAmenitiesByRoomId(roomId).subscribe({
-      next: (data) => (this.amenities = data || []),
-      error: (err) => console.error('Lỗi tải tiện nghi:', err),
+  get userRole(): number | null {
+    return this.authService.getUserRole();
+  }
+
+  constructor(
+    private route: ActivatedRoute,
+    private roomService: RoomService,
+    private amenityService: AmenityService,
+    private sanitizer: DomSanitizer,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit() {
+    this.route.params.subscribe((params) => {
+      const id = +params['id'];
+      
+      if (!id || id <= 0) {
+        this.error = 'Không tìm thấy phòng này';
+        this.isLoading = false;
+        return;
+      }
+
+      this.roomId = id;
+      this.loadRoomDetail();
     });
   }
 
-  normalizeImage(raw: string): string {
-    if (!raw) return 'assets/images/default-room.jpg';
-    if (/^https?:\/\//i.test(raw)) return raw;
-    if (raw.startsWith('/images/')) return raw;
-    return `/images/${raw.replace(/^\/+/, '')}`;
+  loadRoomDetail() {
+    if (!this.roomId || this.roomId <= 0) {
+      this.error = 'Không tìm thấy phòng này';
+      this.isLoading = false;
+      return;
+    }
+
+    this.isLoading = true;
+    this.error = '';
+
+    this.roomService.getRoomById(this.roomId).subscribe({
+      next: (data) => {
+        this.room = data;
+
+        if (this.room?.building?.address) {
+          const address = encodeURIComponent(this.room.building.address);
+          this.mapsEmbedUrl = `https://www.google.com/maps?q=${address}&output=embed`;
+          this.mapsUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.mapsEmbedUrl);
+        }
+
+        if (this.room?.images && this.room.images.length > 0) {
+          this.currentMainImage = this.normalizeImage(this.room.images[0].imageUrl);
+        }
+
+        this.loadAmenities();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error loading room:', err);
+        this.error = 'Không thể tải thông tin phòng';
+        this.isLoading = false;
+      }
+    });
   }
 
-  /** ====== ẢNH NGOÀI LIGHTBOX ====== */
-  changeMainImage(image: string, index: number): void {
-    this.currentMainImage = this.normalizeImage(image);
+  loadAmenities() {
+    if (!this.room?.id) return;
+    this.amenityService.getAmenitiesByRoom(this.room.id).subscribe({
+      next: (data) => {
+        console.log('Amenities loaded:', data);
+        this.amenities = data;
+      },
+      error: (err) => console.error('Error loading amenities:', err)
+    });
+  }
+
+  openBookingModal() {
+    const isLoggedIn = this.authService.isLoggedIn();
+    const userRole = this.authService.getUserRole();
+    
+    console.log('🔐 openBookingModal - isLoggedIn:', isLoggedIn, 'userRole:', userRole);
+    
+    if (!isLoggedIn) {
+      alert('Vui lòng đăng nhập để đặt thuê phòng');
+      return;
+    }
+    
+    if (userRole !== 2) {
+      alert('Chỉ khách thuê có thể đặt thuê phòng');
+      return;
+    }
+    
+    if (!this.room || this.room.status !== 'AVAILABLE') {
+      alert('Phòng này hiện không khả dụng');
+      return;
+    }
+    
+    this.isBookingModalOpen = true;
+  }
+
+  closeBookingModal() {
+    this.isBookingModalOpen = false;
+  }
+
+  onBookingSuccess() {
+    alert('Yêu cầu đặt thuê phòng đã được gửi thành công!');
+    this.isBookingModalOpen = false;
+    this.loadRoomDetail();
+  }
+
+  changeMainImage(imageUrl: string, index: number) {
+    this.currentMainImage = this.normalizeImage(imageUrl);
     this.currentImageIndex = index;
   }
 
-  nextImage(event?: Event): void {
-    event?.stopPropagation();
-    const arr = this.room?.images || [];
-    if (!arr.length) return;
-    this.currentImageIndex = (this.currentImageIndex + 1) % arr.length;
-    this.currentMainImage = this.normalizeImage(
-      arr[this.currentImageIndex].imageUrl
-    );
+  normalizeImage(url: string): string {
+    if (!url) return '/assets/images/no-image.jpg';
+
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+
+    return `http://localhost:8081${url}`;
   }
 
-  prevImage(event?: Event): void {
-    event?.stopPropagation();
-    const arr = this.room?.images || [];
-    if (!arr.length) return;
-    this.currentImageIndex =
-      (this.currentImageIndex - 1 + arr.length) % arr.length;
-    this.currentMainImage = this.normalizeImage(
-      arr[this.currentImageIndex].imageUrl
-    );
+  prevImage(event: Event) {
+    event.stopPropagation();
+    if (!this.room?.images || this.room.images.length === 0) return;
+    this.currentImageIndex = (this.currentImageIndex - 1 + this.room.images.length) % this.room.images.length;
+    this.currentMainImage = this.normalizeImage(this.room.images[this.currentImageIndex].imageUrl);
   }
 
-  /** ====== LIGHTBOX ====== */
-  openLightbox(index: number): void {
-    const arr = this.room?.images || [];
-    if (!arr.length) return;
-    this.currentImageIndex = index;
-    this.lightboxImage = this.normalizeImage(arr[index].imageUrl);
+  nextImage(event: Event) {
+    event.stopPropagation();
+    if (!this.room?.images || this.room.images.length === 0) return;
+    this.currentImageIndex = (this.currentImageIndex + 1) % this.room.images.length;
+    this.currentMainImage = this.normalizeImage(this.room.images[this.currentImageIndex].imageUrl);
+  }
+
+  openLightbox(index: number) {
+    if (!this.room?.images || this.room.images.length === 0) return;
     this.isLightboxOpen = true;
+    this.lightboxImage = this.normalizeImage(this.room.images[index].imageUrl);
   }
 
-  prevLightboxImage(event: Event): void {
-    event.stopPropagation();
-    const arr = this.room?.images || [];
-    if (!arr.length) return;
-    this.currentImageIndex = (this.currentImageIndex - 1 + arr.length) % arr.length;
-    this.lightboxImage = this.normalizeImage(arr[this.currentImageIndex].imageUrl);
-  }
-
-  nextLightboxImage(event: Event): void {
-    event.stopPropagation();
-    const arr = this.room?.images || [];
-    if (!arr.length) return;
-    this.currentImageIndex = (this.currentImageIndex + 1) % arr.length;
-    this.lightboxImage = this.normalizeImage(arr[this.currentImageIndex].imageUrl);
-  }
-
-  closeLightbox(event: MouseEvent): void {
-    if ((event.target as HTMLElement).classList.contains('lightbox')) {
+  closeLightbox(event: Event) {
+    if (event.target === event.currentTarget) {
       this.isLightboxOpen = false;
     }
+  }
+
+  prevLightboxImage(event: Event) {
+    event.stopPropagation();
+    if (!this.room?.images || this.room.images.length === 0) return;
+    this.currentImageIndex = (this.currentImageIndex - 1 + this.room.images.length) % this.room.images.length;
+    this.lightboxImage = this.normalizeImage(this.room.images[this.currentImageIndex].imageUrl);
+  }
+
+  nextLightboxImage(event: Event) {
+    event.stopPropagation();
+    if (!this.room?.images || this.room.images.length === 0) return;
+    this.currentImageIndex = (this.currentImageIndex + 1) % this.room.images.length;
+    this.lightboxImage = this.normalizeImage(this.room.images[this.currentImageIndex].imageUrl);
   }
 }

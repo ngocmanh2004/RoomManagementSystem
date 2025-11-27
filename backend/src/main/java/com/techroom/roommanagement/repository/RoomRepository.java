@@ -1,43 +1,47 @@
 package com.techroom.roommanagement.repository;
 
 import com.techroom.roommanagement.model.Room;
-import com.techroom.roommanagement.model.Room.RoomStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Integer> {
 
     List<Room> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String name, String description);
 
-    List<Room> findByStatus(RoomStatus status);
+    List<Room> findByStatus(Room.RoomStatus status);
 
+    List<Room> findByBuildingId(Integer buildingId);
 
-    @Query("SELECT r FROM Room r WHERE " +
-            "(:provinceCode IS NULL OR r.building.provinceCode = :provinceCode) AND " + // SỬA LẠI
-            "(:districtCode IS NULL OR r.building.districtCode = :districtCode) AND " + // THÊM MỚI
-            "(:minPrice IS NULL OR r.price >= :minPrice) AND " +
-            "(:maxPrice IS NULL OR r.price <= :maxPrice) AND " +
-            "(:type IS NULL OR LOWER(r.building.name) LIKE LOWER(CONCAT('%', :type, '%'))) AND " +
-            "(:minArea IS NULL OR r.area >= :minArea) AND " +
-            "(:maxArea IS NULL OR r.area <= :maxArea)")
-        // Lưu ý: Tham số 'amenities' của bạn chưa được sử dụng trong câu query
+    @Query("SELECT DISTINCT r FROM Room r " +
+           "LEFT JOIN r.building b " +
+           "LEFT JOIN r.amenities a " +
+           "WHERE (:provinceCode IS NULL OR b.provinceCode = :provinceCode) " +
+           "AND (:districtCode IS NULL OR b.districtCode = :districtCode) " +
+           "AND (:minPrice IS NULL OR r.price >= :minPrice) " +
+           "AND (:maxPrice IS NULL OR r.price <= :maxPrice) " +
+           "AND (:minArea IS NULL OR r.area >= :minArea) " +
+           "AND (:maxArea IS NULL OR r.area <= :maxArea) " +
+           "AND (:amenities IS NULL OR a.id IN :amenities) " +
+           "AND r.status = com.techroom.roommanagement.model.Room.RoomStatus.AVAILABLE")
     List<Room> filterRooms(
-            @Param("provinceCode") Integer provinceCode, // SỬA LẠI (từ String area)
-            @Param("districtCode") Integer districtCode, // THÊM MỚI
-            @Param("minPrice") Double minPrice,
-            @Param("maxPrice") Double maxPrice,
-            @Param("type") String type,
-            @Param("minArea") Integer minArea,
-            @Param("maxArea") Integer maxArea,
-            @Param("amenities") List<Integer> amenities
+        @Param("provinceCode") Integer provinceCode,
+        @Param("districtCode") Integer districtCode,
+        @Param("minPrice") Double minPrice,
+        @Param("maxPrice") Double maxPrice,
+        @Param("type") String type,
+        @Param("minArea") Integer minArea,
+        @Param("maxArea") Integer maxArea,
+        @Param("amenities") List<Integer> amenities
     );
 
-    // Phương thức này bây giờ không còn đúng nữa, vì ta không lọc theo 'area'
-    // @Query("SELECT DISTINCT SUBSTRING_INDEX(r.building.address, ',', -2) FROM Room r")
-    // List<String> findDistinctAreas();
+    @Query("SELECT CASE WHEN r.status = com.techroom.roommanagement.model.Room.RoomStatus.AVAILABLE THEN true ELSE false END " +
+           "FROM Room r WHERE r.id = :roomId")
+    boolean isRoomAvailable(@Param("roomId") Integer roomId);
 }

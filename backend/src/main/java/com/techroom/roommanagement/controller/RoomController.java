@@ -6,9 +6,9 @@ import com.techroom.roommanagement.service.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus; // <-- THÊM IMPORT NÀY
-import java.util.Map; // <-- THÊM IMPORT NÀY
-
+import org.springframework.http.HttpStatus;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -20,10 +20,9 @@ public class RoomController {
     private RoomService roomService;
 
     @GetMapping
-    public List<RoomDTO> getAllRooms() {
-        return roomService.getAllRooms().stream()
-                .map(RoomDTO::new)
-                .toList();
+    public ResponseEntity<List<Room>> getAllRooms() {
+        List<Room> rooms = roomService.getAllRooms();
+        return ResponseEntity.ok(rooms);
     }
 
     @GetMapping("/search")
@@ -43,7 +42,10 @@ public class RoomController {
             @RequestParam(required = false) Integer maxArea,
             @RequestParam(required = false) List<Integer> amenities
     ) {
-        List<Room> rooms = roomService.filterRooms(provinceCode, districtCode, minPrice, maxPrice, type, minArea, maxArea, amenities);
+        List<Room> rooms = roomService.filterRooms(
+                provinceCode, districtCode, minPrice, maxPrice,
+                type, minArea, maxArea, amenities
+        );
         return ResponseEntity.ok(rooms);
     }
 
@@ -54,39 +56,36 @@ public class RoomController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Endpoint này có thể xóa (nhưng vẫn giữ theo yêu cầu của bạn)
-    // @GetMapping("/areas")
-    // public ResponseEntity<List<String>> getAllAreas() {
-    //     List<String> areas = roomService.getDistinctAreas();
-    //     return ResponseEntity.ok(areas);
-    // }
-
-    // ===========================================
-    // THÊM CÁC ENDPOINT MỚI CHO SPRINT 1
-    // ===========================================
-
     /**
      * US 1.1: Thêm phòng trọ
      */
     @PostMapping
-    public ResponseEntity<Room> createRoom(@RequestBody Room room) {
-        if (room.getStatus() == null) {
-            room.setStatus(Room.RoomStatus.AVAILABLE);
+    public ResponseEntity<?> createRoom(@RequestBody Room room) {
+        try {
+            if (room.getStatus() == null) {
+                room.setStatus(Room.RoomStatus.AVAILABLE);
+            }
+            Room newRoom = roomService.saveRoom(room);
+            return ResponseEntity.status(HttpStatus.CREATED).body(newRoom);
+        } catch (RuntimeException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         }
-        Room newRoom = roomService.saveRoom(room);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newRoom);
     }
 
     /**
      * US 1.2: Chỉnh sửa phòng trọ
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Room> updateRoom(@PathVariable int id, @RequestBody Room roomDetails) {
+    public ResponseEntity<?> updateRoom(@PathVariable int id, @RequestBody Room roomDetails) {
         try {
             Room updatedRoom = roomService.updateRoom(id, roomDetails);
             return ResponseEntity.ok(updatedRoom);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         }
     }
 
@@ -114,10 +113,14 @@ public class RoomController {
     public ResponseEntity<?> deleteRoom(@PathVariable int id) {
         try {
             roomService.deleteRoom(id);
-            return ResponseEntity.noContent().build();
-        } catch (IllegalStateException e) { // Lỗi 409 Conflict
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
-        } catch (RuntimeException e) { // Lỗi 404 Not Found
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Xóa phòng thành công");
+            return ResponseEntity.ok(response);
+        } catch (IllegalStateException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }

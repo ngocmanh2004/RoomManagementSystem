@@ -1,0 +1,69 @@
+<div class="review-list-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-spinner">
+    <p>Đang tải đánh giá...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-message">
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <!-- Not Logged In -->
+  <div *ngIf="!isLoggedIn" class="not-logged-in-message">
+    <p>Vui lòng đăng nhập để xem và gửi đánh giá</p>
+  </div>
+
+  <!-- User's Review -->
+  <div *ngIf="isLoggedIn && currentUserReview" class="user-review-section">
+    <h3>Đánh giá của bạn</h3>
+    <app-review-card 
+      [review]="currentUserReview"
+      [isOwner]="true"
+      [currentUserId]="currentUserId"
+      (edit)="onEditReview($event)"
+      (delete)="onDeleteReview($event)">
+    </app-review-card>
+  </div>
+
+  <!-- Review Form (Create & Edit) -->
+  <div *ngIf="isLoggedIn && showForm" class="review-form-section">
+    <h3>{{ editingReview ? 'Sửa đánh giá' : 'Gửi đánh giá của bạn' }}</h3>
+    <app-review-form 
+      [roomId]="roomId"
+      [review]="editingReview"
+      (submit)="onFormSubmit($event)"
+      (cancel)="onFormCancel()">
+    </app-review-form>
+  </div>
+
+  <!-- Other Reviews -->
+  <div *ngIf="isLoggedIn && reviews.length > 0" class="other-reviews-section">
+    <h3>Đánh giá khác</h3>
+    <div class="reviews-list">
+      <app-review-card 
+        *ngFor="let review of reviews; trackBy: trackByReviewId"
+        [review]="review"
+        [isOwner]="isReviewOwner(review)"
+        [currentUserId]="currentUserId"
+        (edit)="onEditReview($event)"
+        (delete)="onDeleteReview($event)">
+      </app-review-card>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="pagination">
+      <button 
+        *ngFor="let page of getPaginationPages()"
+        [class.active]="currentPage === page"
+        (click)="loadReviews(page)">
+        {{ page + 1 }}
+      </button>
+    </div>
+  </div>
+
+  <!-- No Reviews -->
+  <div *ngIf="isLoggedIn && reviews.length === 0 && !showForm && !currentUserReview" class="no-reviews-message">
+    <p>Chưa có đánh giá nào cho phòng này</p>
+  </div>
+</div>

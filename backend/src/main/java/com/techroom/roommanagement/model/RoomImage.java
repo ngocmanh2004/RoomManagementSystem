@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 
 @Entity
@@ -29,12 +28,10 @@ public class RoomImage {
     private LocalDateTime createdAt;
 
     /**
-     *  Xử lý cả 2 trường hợp:
-     * 1. Nếu imageUrl chỉ là tên file: "room1.jpg" → "/images/1/room1.jpg"
-     * 2. Nếu imageUrl đã là full path: "/images/rooms/room1.jpg" → Lấy filename và rebuild
+     * ✅ Override getter để build đúng URL khi serialize
+     * Không dùng @JsonProperty vì sẽ conflict
      */
-    @JsonProperty("imageUrl")
-    public String getFullImageUrl() {
+    public String getImageUrl() {
         if (room == null || imageUrl == null) {
             return imageUrl;
         }
@@ -45,12 +42,12 @@ public class RoomImage {
             filename = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
         }
 
-        // Build lại URL đúng
+        // ✅ Build URL: /images/{roomId}/{filename}
         return "/images/" + room.getId() + "/" + filename;
     }
 
     /**
-     * Setter để lưu chỉ tên file vào DB
+     * ✅ Setter: lưu chỉ tên file vào DB
      */
     public void setImageUrl(String imageUrl) {
         if (imageUrl != null && imageUrl.contains("/")) {

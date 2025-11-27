@@ -32,38 +32,65 @@ export class LoginComponent {
   }
 
   login() {
-  if (this.loginForm.invalid) {
-    alert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!');
-    return;
-  }
-
-  const { username, password } = this.loginForm.value;
-
-  this.authService.login(username, password).subscribe({
-    next: (res) => {
-      console.log('Login response:', res);
-      alert(`Đăng nhập thành công! Chào mừng ${res.user.fullName}`);
-      
-      const userRole = res.user.role;
-      switch(userRole) {
-        case 0:
-          this.router.navigate(['/admin/dashboard']);
-          break;
-        case 1:
-          this.router.navigate(['/landlord/dashboard']);
-          break;
-        case 2:
-          this.router.navigate(['/tenant/dashboard']);
-          break;
-        default:
-          this.router.navigate(['/']);
-      }
-    },
-    error: (err) => {
-      console.error('Login error:', err);
-      const errorMsg = err.error?.message || err.error || 'Sai tên đăng nhập hoặc mật khẩu';
-      alert('Đăng nhập thất bại: ' + errorMsg);
+    if (this.loginForm.invalid) {
+      alert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!');
+      return;
     }
-  });
-}
+
+    const { username, password } = this.loginForm.value;
+    console.log('🔐 LoginComponent: Attempting login for:', username);
+
+    this.authService.login(username, password).subscribe({
+      next: (res: any) => {
+        console.log('✅ LoginComponent: Login response received:', res);
+        
+        // ✅ 1. LƯU TOKEN VÀO LOCALSTORAGE (RẤT QUAN TRỌNG)
+        if (res.accessToken) {
+          localStorage.setItem('accessToken', res.accessToken);
+          console.log('✅ LoginComponent: Access token saved');
+        }
+        
+        if (res.refreshToken) {
+          localStorage.setItem('refreshToken', res.refreshToken);
+          console.log('✅ LoginComponent: Refresh token saved');
+        }
+        
+        if (res.userInfo) {
+          localStorage.setItem('currentUser', JSON.stringify(res.userInfo));
+          console.log('✅ LoginComponent: User info saved:', res.userInfo);
+        }
+
+        alert(`Đăng nhập thành công! Chào mừng ${res.userInfo?.fullName || 'bạn'}`);
+        
+        // ✅ 2. ĐIỀU HƯỚNG THEO ROLE
+        const userRole = res.userInfo?.role; // Backend trả về "ADMIN", "LANDLORD", "TENANT"
+        console.log('🔑 LoginComponent: User role:', userRole);
+        
+        switch(userRole) {
+          case 'ADMIN':
+          case 0:
+            this.router.navigate(['/admin/dashboard']);
+            break;
+            
+          case 'LANDLORD':
+          case 1:
+            this.router.navigate(['/landlord/dashboard']);
+            break;
+            
+          case 'TENANT':
+          case 2:
+            this.router.navigate(['/tenant/dashboard']);
+            break;
+            
+          default:
+            this.router.navigate(['/']);
+        }
+      },
+      error: (err) => {
+        console.error('❌ LoginComponent: Login error:', err);
+        const errorMsg = err.error?.message || 'Sai tên đăng nhập hoặc mật khẩu';
+        alert('Đăng nhập thất bại: ' + errorMsg);
+      }
+    });
+  }
 }

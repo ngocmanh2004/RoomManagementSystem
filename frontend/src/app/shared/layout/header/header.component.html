@@ -30,21 +30,39 @@
           </button>
           
           <ul class="dropdown-menu">
-            <li>
-              <a [routerLink]="getDashboardLink()">
-                <i class="fa fa-tachometer-alt"></i> 
-                Dashboard {{ getRoleName(currentUser.role) }}
-              </a>
-            </li>
-            
-            <li class="divider"></li>
-            
+            <!-- ADMIN (0) hoặc LANDLORD (1) mới có Dashboard -->
+            <ng-container *ngIf="currentUser.role === 0 || currentUser.role === 1">
+              <li>
+                <a [routerLink]="getDashboardLink()">
+                  <i class="fa fa-tachometer-alt"></i>
+                  Dashboard {{ getRoleName(currentUser.role) }}
+                </a>
+              </li>
+              <li class="divider"></li>
+            </ng-container>
+
+            <!-- TENANT (2) hiển thị Đăng ký chủ trọ -->
+            <ng-container *ngIf="currentUser.role === 2">
+              <li>
+                <a routerLink="/register-landlord">
+                  <i class="fa fa-user-tie"></i> Đăng ký chủ trọ
+                </a>
+              </li>
+              <li class="divider"></li>
+              <li>
+                <a routerLink="/contract-detail">
+                  <i class="fa fa-user-tie"></i> Hợp đồng
+                </a>
+              </li>
+              <li class="divider"></li>
+            </ng-container>
+
             <li>
               <a [routerLink]="['/tenant-profile']">
                 <i class="fa fa-user"></i> Thông tin cá nhân
               </a>
             </li>
-            
+
             <ng-container *ngIf="currentUser.role === 0">
               <li>
                 <a [routerLink]="['/admin/users']">
@@ -52,7 +70,7 @@
                 </a>
               </li>
             </ng-container>
-            
+
             <ng-container *ngIf="currentUser.role === 1">
               <li>
                 <a [routerLink]="['/landlord/rooms']">
@@ -60,7 +78,7 @@
                 </a>
               </li>
             </ng-container>
-            
+
             <ng-container *ngIf="currentUser.role === 2">
               <li>
                 <a [routerLink]="['/tenant/bookings']">
@@ -68,9 +86,9 @@
                 </a>
               </li>
             </ng-container>
-            
+
             <li class="divider"></li>
-            
+
             <li>
               <a (click)="logout()" class="logout-btn">
                 <i class="fa fa-sign-out-alt"></i> Đăng xuất

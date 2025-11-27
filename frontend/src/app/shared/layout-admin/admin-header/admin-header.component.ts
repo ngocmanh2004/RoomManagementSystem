@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-
+import { AuthService } from '../../../services/auth.service';
 interface User {
   id: number;
   username: string;
@@ -24,7 +24,10 @@ export class AdminHeaderComponent implements OnInit {
   currentUser: User | null = null;
   showUserDropdown = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
     this.loadCurrentUser();
@@ -65,14 +68,16 @@ export class AdminHeaderComponent implements OnInit {
   }
 
   logout() {
-    // Xóa token và thông tin user
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('currentUser');
-    
-    // Chuyển về trang login
-    this.router.navigate(['/login']);
-  }
+  this.authService.logout().subscribe({
+    next: () => {
+      this.router.navigate(['/login']);
+    },
+    error: err => {
+      console.error(err);
+      this.router.navigate(['/login']);
+    }
+  });
+}
 
   // Click outside to close dropdown
   onClickOutside(event: Event) {

@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { AuthResponse, UserInfo, RefreshTokenRequest } from '../models/users';
 
@@ -40,9 +40,11 @@ export class AuthService {
       .pipe(
         tap(response => {
           this.saveTokens(response.accessToken, response.refreshToken);
-          const normalizedUser = this.normalizeUser(response.user); // ✅ Convert role
+          const normalizedUser = this.normalizeUser(response.user);
           this.saveUser(normalizedUser);
           this.currentUserSubject.next(normalizedUser);
+          
+          console.log('✅ Login - Saved user:', normalizedUser);
         })
       );
   }
@@ -92,10 +94,32 @@ export class AuthService {
     const userStr = localStorage.getItem('currentUser');
     if (!userStr) return null;
     
-    const user = JSON.parse(userStr);
-    return this.normalizeUser(user);
+    try {
+      const user = JSON.parse(userStr);
+      return this.normalizeUser(user);
+    } catch (e) {
+      console.error('Error parsing currentUser:', e);
+      return null;
+    }
   }
 
+  getCurrentUserId(): number | null {
+    const user = this.getCurrentUser();
+    return user ? user.id : null;
+  }
+
+  /**
+   * Fetch current user info from backend and update local cache.
+   */
+  fetchCurrentUser(): Observable<UserInfo> {
+    return this.http.get<UserInfo>(`${this.apiUrl}/me`).pipe(
+      tap(user => {
+        const normalized = this.normalizeUser(user);
+        this.saveUser(normalized);
+      })
+    );
+  }
+  
   getUserRole(): number | null {
     const user = this.getCurrentUser();
     return user ? user.role : null;

@@ -65,10 +65,10 @@ public class AuthController {
                     .roles(getRoleName(user.getRole()))
                     .build();
 
-            // Tạo access token
+            // ✅ Tạo access token
             String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
 
-            // Tạo refresh token
+            // ✅ Tạo refresh token với username
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
 
             // Tạo user info
@@ -93,6 +93,11 @@ public class AuthController {
         } catch (Exception e) {
             logger.error("Login error: ", e);
             Map<String, String> error = new HashMap<>();
+
+            if (e.getMessage().contains("bị khóa")) {
+                error.put("message", e.getMessage());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+            }
             error.put("message", "Tên đăng nhập hoặc mật khẩu không đúng");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
@@ -119,6 +124,12 @@ public class AuthController {
             User user = userService.findById(refreshToken.getUserId())
                     .orElseThrow(() -> new RuntimeException("User không tồn tại"));
 
+            // Kiểm tra lại status user khi refresh
+            if (user.getStatus() == User.Status.BANNED) {
+                refreshTokenService.deleteByToken(refreshTokenStr);
+                throw new RuntimeException("Tài khoản đã bị khóa");
+            }
+
             // Tạo lại UserDetails để sinh access token mới
             UserDetails userDetails = org.springframework.security.core.userdetails.User
                     .withUsername(user.getUsername())
@@ -129,10 +140,13 @@ public class AuthController {
             // Tạo access token mới
             String newAccessToken = jwtTokenProvider.generateAccessToken(userDetails);
 
-            // Tạo response
-            RefreshTokenResponse response = new RefreshTokenResponse(newAccessToken);
+            // Rotate refresh token
+            RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
 
-            logger.info("Token refreshed for user: {}", user.getUsername());
+            // Tạo response
+            RefreshTokenResponse response = new RefreshTokenResponse(newAccessToken, newRefreshToken.getToken());
+
+            logger.info("Token refreshed and rotated for user: {}", user.getUsername());
             return ResponseEntity.ok(response);
 
         } catch (RuntimeException e) {
@@ -145,6 +159,37 @@ public class AuthController {
             Map<String, String> error = new HashMap<>();
             error.put("message", "Có lỗi xảy ra, vui lòng đăng nhập lại");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
+    /**
+     * Lấy thông tin user hiện tại (theo token)
+     */
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+        try {
+            // Nếu không có header, trả về 401
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Unauthorized"));
+            }
+
+            String token = authHeader.substring(7);
+            String username = jwtTokenProvider.extractUsername(token);
+            if (username == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Unauthorized"));
+
+            User user = userService.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+
+            UserInfo userInfo = new UserInfo(
+                    user.getId(),
+                    user.getUsername(),
+                    user.getFullName(),
+                    user.getEmail(),
+                    getRoleName(user.getRole())
+            );
+
+            return ResponseEntity.ok(userInfo);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", e.getMessage()));
         }
     }
 

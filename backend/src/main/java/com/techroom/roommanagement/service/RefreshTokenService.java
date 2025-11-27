@@ -5,6 +5,7 @@ import com.techroom.roommanagement.model.User;
 import com.techroom.roommanagement.repository.RefreshTokenRepository;
 import com.techroom.roommanagement.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,10 +28,10 @@ public class RefreshTokenService {
         // Xóa refresh token cũ của user (nếu có) - 1 user chỉ có 1 refresh token
         refreshTokenRepository.deleteByUserId(user.getId());
 
-        // Tạo refresh token mới
+        // ✅ Tạo refresh token mới - truyền username
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUserId(user.getId());
-        refreshToken.setToken(jwtTokenProvider.generateRefreshToken());
+        refreshToken.setToken(jwtTokenProvider.generateRefreshToken(user.getUsername()));
         refreshToken.setExpiryDate(LocalDateTime.now().plusDays(7)); // 7 ngày
 
         return refreshTokenRepository.save(refreshToken);
@@ -57,6 +58,7 @@ public class RefreshTokenService {
     /**
      * Xóa refresh token của user (dùng khi logout)
      */
+    @Modifying
     @Transactional
     public void deleteByUserId(Integer userId) {
         refreshTokenRepository.deleteByUserId(userId);

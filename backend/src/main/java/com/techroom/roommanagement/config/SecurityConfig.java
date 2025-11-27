@@ -5,6 +5,7 @@ import com.techroom.roommanagement.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -43,17 +44,32 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/admin/users").permitAll()
-                        .requestMatchers("/api/admin/create-user").permitAll()
-                        .requestMatchers("/api/users/**").permitAll()
-                        .requestMatchers("/api/rooms/**").permitAll()
-                        .requestMatchers("/api/buildings/**").permitAll()
-                        .requestMatchers("/api/amenities/**").permitAll()
+                        .requestMatchers("/api/admin/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/landlord-registration/register").hasRole("TENANT")
+                        .requestMatchers("/api/landlord-registration/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/rooms/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/buildings/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/amenities/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/tenants/**").permitAll()
+                        .requestMatchers("/api/tenants/user/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/provinces/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/districts/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/districts/by-province/**").permitAll()
                         .requestMatchers("/images/**").permitAll()
                         .requestMatchers("/api/images/**").permitAll()
-                        .requestMatchers("/api/districts/by-province/**").permitAll()
 
-                        .requestMatchers("/api/provinces/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/reviews").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/reviews/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").authenticated()
+
+                        .requestMatchers(HttpMethod.POST, "/api/bookings").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/bookings/my-contracts").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/bookings/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/bookings/**").authenticated()
+
+                        .requestMatchers(HttpMethod.POST, "/api/users/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
 
                         .anyRequest().authenticated()
                 )
@@ -84,10 +100,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:4300"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
