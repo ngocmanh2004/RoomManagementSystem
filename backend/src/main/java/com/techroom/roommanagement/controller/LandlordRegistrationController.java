@@ -1,5 +1,6 @@
 package com.techroom.roommanagement.controller;
 
+import com.techroom.roommanagement.dto.ApiResponse;
 import com.techroom.roommanagement.model.LandlordRequest;
 import com.techroom.roommanagement.service.LandlordRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,34 +55,26 @@ public class LandlordRegistrationController {
     ) {
         try {
             LandlordRequest request = landlordRequestService.createRequest(
-                    userId,
-                    cccd,
-                    address,
-                    expectedRoomCount,
-                    provinceCode,
-                    districtCode,
-                    frontImage,
-                    backImage,
-                    businessLicense
+                    userId, cccd, address, expectedRoomCount,
+                    provinceCode, districtCode,
+                    frontImage, backImage, businessLicense
             );
 
-            return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "message", "Gửi yêu cầu thành công. Vui lòng chờ admin duyệt.",
-                    "request", request
-            ));
+            return ResponseEntity.ok(
+                    ApiResponse.success("Gửi yêu cầu thành công. Vui lòng chờ admin duyệt.", request)
+            );
+
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "success", false,
-                    "message", e.getMessage()
-            ));
+            return ResponseEntity.badRequest().body(
+                    ApiResponse.error(e.getMessage())
+            );
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of(
-                    "success", false,
-                    "message", "Có lỗi xảy ra khi xử lý yêu cầu: " + e.getMessage()
-            ));
+            return ResponseEntity.internalServerError().body(
+                    ApiResponse.error("Có lỗi xảy ra khi xử lý yêu cầu: " + e.getMessage())
+            );
         }
     }
+
 
     @GetMapping("/check/{userId}")
     @PreAuthorize("hasRole('TENANT') or hasRole('LANDLORD')")

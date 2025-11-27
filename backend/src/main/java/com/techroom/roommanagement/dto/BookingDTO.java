@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -23,7 +25,7 @@ public class BookingDTO {
     
     @NotNull(message = "Tiền đặt cọc là bắt buộc")
     @Min(value = 0, message = "Tiền đặt cọc không được âm")
-    private Double deposit;
+    private BigDecimal deposit;
     
     private String notes;
     

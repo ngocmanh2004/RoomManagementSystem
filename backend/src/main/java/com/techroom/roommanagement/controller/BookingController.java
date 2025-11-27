@@ -2,9 +2,14 @@ package com.techroom.roommanagement.controller;
 
 import com.techroom.roommanagement.dto.BookingDTO;
 import com.techroom.roommanagement.dto.ApiResponse;
+import com.techroom.roommanagement.exception.NotFoundException;
 import com.techroom.roommanagement.model.Contract;
+import com.techroom.roommanagement.model.ContractStatus;
+import com.techroom.roommanagement.model.Tenant;
 import com.techroom.roommanagement.service.BookingService;
 import com.techroom.roommanagement.security.CustomUserDetails;
+import com.techroom.roommanagement.repository.TenantRepository;
+import com.techroom.roommanagement.repository.ContractRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +21,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import java.util.Arrays;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -24,6 +31,11 @@ public class BookingController {
     
     @Autowired
     private BookingService bookingService;
+    @Autowired
+    private TenantRepository tenantRepository;
+
+    @Autowired
+    private ContractRepository contractRepository;
     
     private Integer getCurrentUserId() {
         System.out.println("========== GET CURRENT USER ID ==========");
@@ -50,6 +62,36 @@ public class BookingController {
         
         System.out.println("========== RETURN NULL ==========");
         return null;
+    }
+
+    @GetMapping("/my-contract")
+    public ResponseEntity<?> getMyActiveContract() {
+        Integer userId = getCurrentUserId();
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse(false, "Unauthorized", null));
+        }
+
+        try {
+            Tenant tenant = tenantRepository.findByUserId(userId)
+                    .orElseThrow(() -> new NotFoundException("Thông tin người thuê không tồn tại"));
+
+            Optional<Contract> contract = contractRepository
+                    .findFirstByTenantIdAndStatusInOrderByCreatedAtDesc(
+                            tenant.getId(),
+                            Arrays.asList(ContractStatus.ACTIVE, ContractStatus.APPROVED)
+                    );
+
+            if (contract.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ApiResponse(false, "Bạn chưa có hợp đồng thuê phòng", null));
+            }
+
+            return ResponseEntity.ok(new ApiResponse(true, "Lấy hợp đồng thành công", contract.get()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(false, e.getMessage(), null));
+        }
     }
     
     @PostMapping

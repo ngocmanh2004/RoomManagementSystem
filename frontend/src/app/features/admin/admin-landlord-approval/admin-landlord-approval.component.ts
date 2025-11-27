@@ -139,4 +139,22 @@ export class AdminLandlordApprovalComponent implements OnInit {
     };
     return texts[status] || status;
   }
+
+  /** Build a URL the frontend can open for a stored file.
+   * Backend stores filenames (or sometimes relative paths). We serve files under `/images/**`.
+   */
+  getDocumentUrl(filePath: string | undefined | null): string {
+    if (!filePath) return '';
+    // If already an absolute URL or starts with /images, return as-is
+    if (filePath.startsWith('http://') || filePath.startsWith('https://')) return filePath;
+    if (filePath.startsWith('/')) return filePath;
+    // otherwise build the proxied path
+    return `/images/${filePath}`;
+  }
+
+  openDocument(filePath: string | undefined | null): void {
+    const url = this.getDocumentUrl(filePath);
+    if (!url) return;
+    window.open(url, '_blank');
+  }
 }

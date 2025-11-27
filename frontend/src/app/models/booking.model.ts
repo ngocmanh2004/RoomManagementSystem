@@ -10,7 +10,7 @@ export interface BookingRequest {
   address: string;
 }
 
-export interface Contract {
+export interface BookingContract {
   id: number;
   room: {
     id: number;
@@ -32,7 +32,7 @@ export interface Contract {
 }
 
 export interface ContractResponse {
-  content: Contract[];
+  content: BookingContract[];
   totalPages: number;
   totalElements: number;
 }
