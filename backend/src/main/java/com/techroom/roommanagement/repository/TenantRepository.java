@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -18,5 +19,9 @@ public interface TenantRepository extends JpaRepository<Tenant, Integer> {
      * Tìm Tenant từ User ID
      */
     Optional<Tenant> findByUserId(Integer userId);
+
+    @Query("SELECT t FROM Tenant t WHERE NOT EXISTS (" +
+            "SELECT c FROM Contract c WHERE c.tenant.id = t.id AND c.status = 'ACTIVE')")
+    List<Tenant> findTenantsWithoutActiveContract();
 }
 

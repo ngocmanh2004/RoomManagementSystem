@@ -1,0 +1,48 @@
+<div class="contract-wrapper">
+ <h3>Danh sách hợp đồng</h3>
+
+    <div class="filter-box">
+    <span class="filter-label">Lọc trạng thái:</span>
+    <select [(ngModel)]="filterStatus" (change)="onFilterChange()">
+        <option value="">Tất cả</option>
+        <option value="PENDING">Đang chờ duyệt</option>
+        <option value="ACTIVE">Đang thuê</option>
+        <option value="EXPIRED">Hết hạn</option>
+        <option value="CANCELLED">Hủy</option>
+    </select>
+    </div>
+
+    <table>
+    <thead>
+        <tr>
+        <th>ID</th>
+        <th>Khách hàng</th>
+        <th>Phòng</th>
+        <th>Ngày bắt đầu</th>
+        <th>Ngày kết thúc</th>
+        <th>Trạng thái</th>
+        <th>Ngày tạo hợp đồng</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let c of contracts">
+        <td>{{ c.id }}</td>
+        <td>{{ c.tenantName }}</td>
+        <td>{{ c.roomName }}</td>
+        <td>{{ c.startDate | date:'yyyy-MM-dd' }}</td>
+        <td>{{ c.endDate | date:'yyyy-MM-dd' }}</td>
+        <td>
+            <span [ngClass]="{
+                'pending': c.status === 'PENDING',
+                'active': c.status === 'ACTIVE',
+                'expired': c.status === 'EXPIRED',
+                'cancelled': c.status === 'CANCELLED'
+            }">
+                {{ convertStatus(c.status) }}
+            </span>
+        </td>
+        <td>{{ c.createdAt | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+        </tr>
+    </tbody>
+    </table>
+</div>

@@ -10,6 +10,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.util.Set;
 import java.util.HashSet;
 
@@ -47,8 +50,13 @@ public class Room {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @CreationTimestamp
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonIgnoreProperties({"room", "hibernateLazyInitializer", "handler"})
@@ -70,18 +78,18 @@ public class Room {
         AVAILABLE("Trong"),
         OCCUPIED("Da thue"),
         REPAIRING("Dang sua");
-        
+
         private final String displayName;
-        
+
         RoomStatus(String displayName) {
             this.displayName = displayName;
         }
-        
+
         public String getDisplayName() {
             return displayName;
         }
     }
-    
+
     public void setStatusFromString(String statusStr) {
         if (statusStr == null) {
             this.status = RoomStatus.AVAILABLE;

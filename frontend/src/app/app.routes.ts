@@ -18,6 +18,11 @@ import { UserManagementComponent } from './features/admin/user-management/user-m
 import { RegisterLandlordComponent } from './features/register-landlord/register-landlord.component';
 import { AdminLandlordApprovalComponent } from './features/admin/admin-landlord-approval/admin-landlord-approval.component';
 import { ContractDetailComponent } from './features/contract-detail/contract-detail.component';
+import { LandlordLayoutComponent } from './shared/layout-landlord/landlord-layout/landlord-layout.component';
+import { DashboardLandlordComponent } from './features/landlord/dashboard-landlord/dashboard-landlord.component';
+import { LandlordBookingComponent } from './features/landlord/landlord-booking/landlord-booking.component';
+import { LandlordBookingDetailComponent } from './features/landlord/landlord-booking-detail/landlord-booking-detail.component';
+import { CreateDirectContractComponent } from './features/landlord/create-direct-contract/create-direct-contract.component';
 
 export const routes: Routes = [
   {
@@ -55,10 +60,14 @@ export const routes: Routes = [
   // LANDLORD ROUTES (role = 1)
   {
     path: 'landlord',
+    component: LandlordLayoutComponent,
     canActivate: [authGuard, roleGuard([1])],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      //{ path: 'dashboard', component: LandlordDashboardComponent }
+      { path: 'dashboard', component: DashboardLandlordComponent },
+      { path: 'bookings', component: LandlordBookingComponent },
+      { path: 'bookings/create', component: CreateDirectContractComponent},
+      { path: 'bookings/:id', component: LandlordBookingDetailComponent},
     ]
   },
 

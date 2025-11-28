@@ -1,0 +1,89 @@
+.contract-wrapper {
+  margin: 0 50px;          /* cách lề trái + phải 40px */
+  padding: 10px 0;
+}
+h3{
+   font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #2c3e50;
+  padding: 5px 0;
+}
+.filter-box {
+  margin-bottom: 10px;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-label {
+  color: #333;
+}
+
+/* Bảng chính */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+  margin-top: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Tiêu đề bảng */
+thead {
+  background-color: #007bff;
+  color: #fff;
+}
+
+thead th {
+  padding: 10px;
+  text-align: left;
+  font-weight: bold;
+  border-bottom: 2px solid #0056b3;
+}
+
+/* Các dòng trong tbody */
+tbody tr {
+  border-bottom: 1px solid #ddd;
+  transition: background-color 0.2s;
+}
+
+/* Màu xen kẽ */
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Hover */
+tbody tr:hover {
+  background-color: #e6f0ff;
+}
+
+/* Các ô trong bảng */
+td {
+  padding: 10px;
+}
+
+/* Select bộ lọc */
+select {
+  padding: 6px 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+/* Khung trạng thái */
+td span {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: normal;
+  display: inline-block;
+  color: white;
+  text-align: center;
+  min-width: 140px;
+}
+.pending { background-color: #ffc107; color: #000; }
+.active { background-color: #28a745; }
+.expired { background-color: #6c757d; }
+.cancelled { background-color: #dc3545; }

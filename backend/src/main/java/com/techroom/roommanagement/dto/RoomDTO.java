@@ -23,6 +23,7 @@ public class RoomDTO {
     private List<RoomImageDTO> images;
     private Set<AmenityDTO> amenities;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public RoomDTO(Room room) {
         this.id = room.getId();
@@ -61,5 +62,6 @@ public class RoomDTO {
                 : Set.of();
 
         this.createdAt = room.getCreatedAt();
+        this.updatedAt = room.getUpdatedAt();
     }
 }

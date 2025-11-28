@@ -1,5 +1,6 @@
 package com.techroom.roommanagement.controller;
 
+import com.techroom.roommanagement.dto.ApiResponse;
 import com.techroom.roommanagement.dto.RegisterRequest;
 import com.techroom.roommanagement.model.Tenant;
 import com.techroom.roommanagement.model.User;
@@ -7,7 +8,10 @@ import com.techroom.roommanagement.repository.TenantRepository;
 import com.techroom.roommanagement.repository.UserRepository;
 import com.techroom.roommanagement.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,13 +51,13 @@ public class TenantController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Lấy tenant theo userId 
+    // Lấy tenant theo userId
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getTenantByUserId(@PathVariable int userId) {
         System.out.println("🔍 getTenantByUserId - userId: " + userId);
-        
+
         Optional<Tenant> tenantOpt = tenantRepository.findByUserId(userId);
-        
+
         if (tenantOpt.isPresent()) {
             Tenant tenant = tenantOpt.get();
             System.out.println("✅ Tenant found: " + tenant);
@@ -61,33 +65,33 @@ public class TenantController {
             System.out.println("  - cccd: " + tenant.getCccd());
             System.out.println("  - address: " + tenant.getAddress());
             System.out.println("  - user.phone: " + (tenant.getUser() != null ? tenant.getUser().getPhone() : "null"));
-            
+
             return ResponseEntity.ok(tenant);
         }
-        
+
         // ❌ Nếu không tìm thấy Tenant → TẠO MỚI
         System.out.println("⚠️ Tenant not found for userId: " + userId);
-        
+
         // Lấy User
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {
             System.out.println("❌ User not found for userId: " + userId);
             return ResponseEntity.notFound().build();
         }
-        
+
         User user = userOpt.get();
         System.out.println("✅ User found: " + user.getFullName());
-        
+
         // ✅ Tạo Tenant mới tự động
         Tenant newTenant = new Tenant();
         newTenant.setUser(user);
         newTenant.setCccd("");
         newTenant.setAddress("");
         newTenant.setDateOfBirth(null);
-        
+
         Tenant savedTenant = tenantRepository.save(newTenant);
         System.out.println("✅ Created new Tenant for userId: " + userId);
-        
+
         return ResponseEntity.ok(savedTenant);
     }
 
@@ -159,7 +163,7 @@ public class TenantController {
         }
     }
 
-    // Xóa tenant 
+    // Xóa tenant
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTenant(@PathVariable int id) {
         Optional<Tenant> tenantOpt = tenantRepository.findById(id);
@@ -202,5 +206,49 @@ public class TenantController {
         System.out.println("SĐT: " + phone);
         System.out.println("Mật khẩu: " + password);
         System.out.println("Nội dung: Chào bạn! Mật khẩu của bạn: " + password);
+    }
+
+    @GetMapping("/available")
+    public ResponseEntity<?> getAvailableTenants() {
+        Integer landlordId = getCurrentLandlordId();
+        if (landlordId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse(false, "Unauthorized", null));
+        }
+
+        try {
+            // Lấy tenant không có hợp đồng ACTIVE
+            List<Tenant> tenants = tenantRepository.findTenantsWithoutActiveContract();
+
+            return ResponseEntity.ok(new ApiResponse(true, "Lấy danh sách khách thuê thành công", tenants));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(false, e.getMessage(), null));
+        }
+    }
+
+    // Method để lấy ID của landlord hiện tại
+    private Integer getCurrentLandlordId() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return null;
+            }
+
+            String username = authentication.getName();
+            Optional<User> userOpt = userRepository.findByUsername(username);
+
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                // Check if user is a landlord (role = 1)
+                if (user.getRole() == 1) {
+                    return user.getId();
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            System.err.println("Error getting current landlord ID: " + e.getMessage());
+            return null;
+        }
     }
 }
