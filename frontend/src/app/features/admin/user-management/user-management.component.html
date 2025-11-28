@@ -2,8 +2,7 @@
   <div class="page-header">
     <div class="header-left">
       <h1>Quản lý tài khoản người dùng</h1>
-      <p class="date-text">{{ currentDate | date:
-        'EEEE, \'ngày\' dd \'tháng\' MM, yyyy' : undefined : 'vi-VN' }}</p>
+      <p class="date-text">{{ currentDate | date: 'EEEE, \'ngày\' dd \'tháng\' MM, yyyy' : undefined : 'vi-VN' }}</p>
     </div>
     <button class="btn btn-primary" (click)="openCreateModal()">
       <i class="fa-solid fa-plus"></i> Thêm người dùng
@@ -13,24 +12,23 @@
   <div class="filters-container">
     <div class="search-wrapper">
       <i class="fa-solid fa-magnifying-glass"></i>
-      <input
-        type="text"
-        placeholder="Tìm kiếm theo tên hoặc email..."
-        (input)="onSearch($event)"
-        class="search-input">
+      <input 
+        type="text" 
+        placeholder="Tìm kiếm theo tên hoặc email..." 
+        (input)="onSearch($event)" 
+        class="search-input"
+      >
     </div>
-
+    
     <div class="filters-actions">
-      <select [(ngModel)]="selectedRole" (change)="onFilterChange()"
-        class="filter-select">
+      <select [(ngModel)]="selectedRole" (change)="onFilterChange()" class="filter-select">
         <option value="ALL">Tất cả vai trò</option>
         <option value="0">Admin</option>
         <option value="1">Chủ trọ</option>
         <option value="2">Người thuê</option>
       </select>
 
-      <select [(ngModel)]="selectedStatus" (change)="onFilterChange()"
-        class="filter-select">
+      <select [(ngModel)]="selectedStatus" (change)="onFilterChange()" class="filter-select">
         <option value="ALL">Tất cả trạng thái</option>
         <option value="ACTIVE">Hoạt động</option>
         <option value="BANNED">Bị khóa</option>
@@ -62,8 +60,7 @@
             <td class="text-muted">#{{ user.id }}</td>
             <td>
               <div class="user-info">
-                <div class="avatar-circle">{{ getInitials(user.fullName)
-                  }}</div>
+                <div class="avatar-circle">{{ getInitials(user.fullName) }}</div>
                 <span class="user-name">{{ user.fullName }}</span>
               </div>
             </td>
@@ -74,8 +71,7 @@
                 <span class="phone" *ngIf="user.phone">{{ user.phone }}</span>
               </div>
             </td>
-            <td><span class="badge role-{{user.role}}">{{ getRoleName(user.role)
-                }}</span></td>
+            <td><span class="badge role-{{user.role}}">{{ getRoleName(user.role) }}</span></td>
             <td>
               <span class="badge status-{{user.status | lowercase}}">
                 {{ user.status === 'ACTIVE' ? 'Hoạt động' : 'Bị khóa' }}
@@ -83,25 +79,23 @@
             </td>
             <td class="text-muted">{{ user.createdAt | date:'yyyy-MM-dd' }}</td>
             <td class="actions">
-              <button class="btn-icon edit" (click)="openEditModal(user)"
-                title="Chỉnh sửa thông tin">
+              <button class="btn-icon edit" (click)="openEditModal(user)" title="Chỉnh sửa thông tin">
                 <i class="fa-regular fa-pen-to-square"></i>
               </button>
-
-              <button
-                class="btn-icon lock"
+              
+              <button 
+                class="btn-icon lock" 
                 [class.disabled-action]="user.role === 0"
-                (click)="user.role !== 0 && toggleStatus(user)"
+                (click)="user.role !== 0 && toggleStatus(user)" 
                 [disabled]="user.role === 0"
                 [title]="user.role === 0 ? 'Không thể khóa Admin' : (user.status === 'ACTIVE' ? 'Khóa tài khoản' : 'Mở khóa tài khoản')">
-                <i class="fa-solid"
-                  [ngClass]="user.status === 'ACTIVE' ? 'fa-lock-open' : 'fa-lock text-danger'"></i>
+                <i class="fa-solid" [ngClass]="user.status === 'ACTIVE' ? 'fa-lock-open' : 'fa-lock text-danger'"></i>
               </button>
 
-              <button
-                class="btn-icon delete"
+              <button 
+                class="btn-icon delete" 
                 [class.disabled-action]="user.role === 0"
-                (click)="user.role !== 0 && openDeleteModal(user)"
+                (click)="user.role !== 0 && openDeleteModal(user)" 
                 [disabled]="user.role === 0"
                 [title]="user.role === 0 ? 'Không thể xóa Admin' : 'Xóa người dùng'">
                 <i class="fa-regular fa-trash-can"></i>
@@ -109,7 +103,7 @@
             </td>
           </tr>
           <tr *ngIf="users.length === 0">
-            <td colspan="8" class="no-data">Không tìm thấy người dùng nào.</td>
+             <td colspan="8" class="no-data">Không tìm thấy người dùng nào.</td>
           </tr>
         </tbody>
       </table>
@@ -117,20 +111,16 @@
 
     <div class="pagination-container" *ngIf="totalElements > 0">
       <span class="page-info">
-        Hiển thị {{ (currentPage * pageSize) + 1 }} -
-        {{ (currentPage + 1) * pageSize > totalElements ? totalElements :
-        (currentPage + 1) * pageSize }}
+        Hiển thị {{ (currentPage * pageSize) + 1 }} - 
+        {{ (currentPage + 1) * pageSize > totalElements ? totalElements : (currentPage + 1) * pageSize }} 
         trong số {{ totalElements }}
       </span>
       <div class="pagination-controls">
-        <button class="btn-page" [disabled]="currentPage === 0"
-          (click)="onPageChange(currentPage - 1)">
+        <button class="btn-page" [disabled]="currentPage === 0" (click)="onPageChange(currentPage - 1)">
           <i class="fa-solid fa-chevron-left"></i>
         </button>
-        <span class="current-page">Trang {{ currentPage + 1 }} / {{ totalPages
-          }}</span>
-        <button class="btn-page" [disabled]="currentPage === totalPages - 1"
-          (click)="onPageChange(currentPage + 1)">
+        <span class="current-page">Trang {{ currentPage + 1 }} / {{ totalPages }}</span>
+        <button class="btn-page" [disabled]="currentPage === totalPages - 1" (click)="onPageChange(currentPage + 1)">
           <i class="fa-solid fa-chevron-right"></i>
         </button>
       </div>
@@ -142,90 +132,95 @@
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h2>{{ isEditMode ? 'Cập nhật thông tin' : 'Thêm người dùng mới' }}</h2>
-      <button class="btn-close" (click)="closeModal()"><i
-          class="fa-solid fa-xmark"></i></button>
+      <button class="btn-close" (click)="closeModal()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="modal-body">
+      
       <div class="form-group">
         <label>Tên đăng nhập <span class="required">*</span></label>
-        <input type="text" formControlName="username"
-          placeholder="Nhập username">
-        <small class="error-text"
-          *ngIf="userForm.get('username')?.invalid && userForm.get('username')?.touched">Bắt
-          buộc nhập</small>
+        <input type="text" formControlName="username" placeholder="Nhập username">
+        <div *ngIf="userForm.get('username')?.invalid && userForm.get('username')?.touched">
+            <small class="error-text">Bắt buộc nhập</small>
+        </div>
       </div>
+
       <div class="form-group" *ngIf="!isEditMode">
         <label>Mật khẩu <span class="required">*</span></label>
-        <input type="password" formControlName="password"
-          placeholder="Nhập mật khẩu">
-        <small class="error-text"
-          *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched">Bắt
-          buộc nhập</small>
+        <input type="password" formControlName="password" placeholder="Nhập mật khẩu">
+        <div *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched">
+            <small class="error-text">Bắt buộc nhập</small>
+        </div>
       </div>
+
       <div class="form-group">
         <label>Họ và tên <span class="required">*</span></label>
-        <input type="text" formControlName="fullName"
-          placeholder="Ví dụ: Nguyễn Văn A">
+        <input type="text" formControlName="fullName" placeholder="Ví dụ: Nguyễn Văn A">
+        <div *ngIf="userForm.get('fullName')?.invalid && userForm.get('fullName')?.touched">
+            <small class="error-text">Bắt buộc nhập</small>
+        </div>
       </div>
+
       <div class="form-row">
-        <div class="form-group col">
-          <label>Email <span class="required">*</span></label>
-          <input type="email" formControlName="email"
-            placeholder="example@email.com">
-        </div>
-        <div class="form-group col">
-          <label>Số điện thoại <span class="required">*</span></label>
-          <input type="text" formControlName="phone" placeholder="0909...">
-        </div>
+          <div class="form-group col">
+            <label>Email <span class="required">*</span></label>
+            <input type="email" formControlName="email" placeholder="example@email.com">
+            <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+                <small class="error-text" *ngIf="userForm.get('email')?.hasError('required')">Email bắt buộc nhập</small>
+                <small class="error-text" *ngIf="userForm.get('email')?.hasError('pattern')">Email không đúng định dạng</small>
+            </div>
+          </div>
+    
+          <div class="form-group col">
+            <label>Số điện thoại <span class="required">*</span></label>
+            <input type="text" formControlName="phone" placeholder="0909...">
+            <div *ngIf="userForm.get('phone')?.invalid && userForm.get('phone')?.touched">
+                <small class="error-text" *ngIf="userForm.get('phone')?.hasError('required')">SĐT bắt buộc nhập</small>
+                <small class="error-text" *ngIf="userForm.get('phone')?.hasError('pattern')">SĐT không hợp lệ (10 số)</small>
+            </div>
+          </div>
       </div>
+
       <div class="form-row">
-        <div class="form-group col">
-          <label>Vai trò</label>
-          <select formControlName="role">
-            <option [value]="0">Admin</option>
-            <option [value]="1">Chủ trọ</option>
-            <option [value]="2">Người thuê</option>
-          </select>
-        </div>
-        <div class="form-group col">
-          <label>Trạng thái</label>
-          <select formControlName="status">
-            <option value="ACTIVE">Hoạt động</option>
-            <option value="BANNED">Bị khóa</option>
-          </select>
-        </div>
+          <div class="form-group col">
+            <label>Vai trò</label>
+            <select formControlName="role">
+                <option [value]="0">Admin</option>
+                <option [value]="1">Chủ trọ</option>
+                <option [value]="2">Người thuê</option>
+            </select>
+          </div>
+          <div class="form-group col">
+            <label>Trạng thái</label>
+            <select formControlName="status">
+                <option value="ACTIVE">Hoạt động</option>
+                <option value="BANNED">Bị khóa</option>
+            </select>
+          </div>
       </div>
+
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary"
-          (click)="closeModal()">Hủy</button>
-        <button type="submit" class="btn btn-primary"
-          [disabled]="userForm.invalid">
-          {{ isEditMode ? 'Lưu thay đổi' : 'Thêm người dùng' }}
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Hủy</button>
+        <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid">
+            {{ isEditMode ? 'Lưu thay đổi' : 'Thêm người dùng' }}
         </button>
       </div>
     </form>
   </div>
 </div>
 
-<div class="modal-overlay" *ngIf="isDeleteModalOpen"
-  (click)="closeDeleteModal()">
+<div class="modal-overlay" *ngIf="isDeleteModalOpen" (click)="closeDeleteModal()">
   <div class="modal-content modal-delete" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h3 class="text-danger">Xác nhận xóa</h3>
-      <button class="btn-close" (click)="closeDeleteModal()"><i
-          class="fa-solid fa-xmark"></i></button>
+      <button class="btn-close" (click)="closeDeleteModal()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body">
-      <p>Bạn có chắc chắn muốn xóa tài khoản <strong>{{ userToDelete?.username
-          }}</strong>?</p>
-      <p class="text-muted-small">Hành động này không thể hoàn tác và sẽ xóa
-        vĩnh viễn dữ liệu liên quan nếu không có ràng buộc.</p>
+      <p>Bạn có chắc chắn muốn xóa tài khoản <strong>{{ userToDelete?.username }}</strong>?</p>
+      <p class="text-muted-small">Hành động này không thể hoàn tác và sẽ xóa vĩnh viễn dữ liệu liên quan nếu không có ràng buộc.</p>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-secondary"
-        (click)="closeDeleteModal()">Hủy</button>
-      <button type="button" class="btn btn-danger" (click)="confirmDelete()">Xóa
-        vĩnh viễn</button>
+      <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">Hủy</button>
+      <button type="button" class="btn btn-danger" (click)="confirmDelete()">Xóa vĩnh viễn</button>
     </div>
   </div>
 </div>

@@ -52,7 +52,7 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  getDashboardLink(): string {
+    getDashboardLink(): string {
     if (!this.currentUser) return '/';
     
     switch(this.currentUser.role) {

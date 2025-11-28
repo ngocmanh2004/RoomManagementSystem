@@ -47,10 +47,21 @@ export class UserManagementComponent implements OnInit {
     
     this.userForm = this.fb.group({
       username: ['', Validators.required],
-      password: [''], 
+      password: [''], // Validator cho password sẽ được thêm/bớt tùy theo mode (Thêm/Sửa)
       fullName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', Validators.required],
+      
+      // Ràng buộc Email: Bắt buộc + Regex chuẩn
+      email: ['', [
+        Validators.required, 
+        Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)
+      ]],
+      
+      // Ràng buộc SĐT: Bắt buộc + Regex SĐT Việt Nam (10 số)
+      phone: ['', [
+        Validators.required,
+        Validators.pattern(/^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$/)
+      ]],
+      
       role: [2, Validators.required],
       status: ['ACTIVE', Validators.required]
     });
@@ -103,7 +114,7 @@ export class UserManagementComponent implements OnInit {
     this.isEditMode = false;
     this.currentUserId = null;
     this.userForm.reset({ role: 2, status: 'ACTIVE' });
-    this.userForm.get('password')?.setValidators([Validators.required]); 
+    this.userForm.get('password')?.setValidators([Validators.required]); // Bắt buộc pass khi tạo mới
     this.userForm.get('username')?.enable(); 
     this.isModalOpen = true;
   }
@@ -120,7 +131,7 @@ export class UserManagementComponent implements OnInit {
       status: user.status,
       password: '' 
     });
-    this.userForm.get('password')?.clearValidators(); 
+    this.userForm.get('password')?.clearValidators(); // Không bắt buộc pass khi sửa
     this.userForm.get('password')?.updateValueAndValidity();
     this.userForm.get('username')?.disable(); 
     this.isModalOpen = true;
@@ -132,18 +143,18 @@ export class UserManagementComponent implements OnInit {
 
   onSubmit() {
     if (this.userForm.invalid) {
-      this.userForm.markAllAsTouched();
+      this.userForm.markAllAsTouched(); // Hiển thị lỗi đỏ nếu người dùng chưa nhập gì mà bấm Lưu
       return;
     }
 
     const formValue = this.userForm.getRawValue(); 
     const userData = {
         ...formValue,
-        role: Number(formValue.role) // Đảm bảo role là số
+        role: Number(formValue.role)
     };
 
     if (this.isEditMode && this.currentUserId) {
-      if (!userData.password) delete userData.password; // Bỏ password nếu trống
+      if (!userData.password) delete userData.password;
 
       this.userService.updateUser(this.currentUserId, userData).subscribe({
         next: () => {
