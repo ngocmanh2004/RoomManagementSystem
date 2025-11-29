@@ -1,0 +1,27 @@
+<div class="sidebar-container" [class.collapsed]="isCollapsed">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <i class="fa-solid fa-building"></i>
+    </div>
+    <span class="logo-text">Quản Lý Trọ</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <ul>
+      <li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <a routerLink="/landlord/dashboard">
+          <i class="fa-solid fa-chart-line"></i>
+          <span class="nav-text">Dashboard</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active">
+        <a routerLink="/landlord/bookings">
+          <i class="fa-solid fa-door-open"></i>
+          <span class="nav-text">Quản lý Hợp đồng</span>
+        </a>
+      </li>
+
+    </ul>
+  </nav>
+</div>

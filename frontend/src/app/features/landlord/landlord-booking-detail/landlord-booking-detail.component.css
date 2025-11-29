@@ -1,0 +1,717 @@
+.contract-detail-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.btn-back {
+  background: #6b7280;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-back:hover {
+  background: #4b5563;
+}
+
+.page-header h1 {
+  font-size: 28px;
+  color: #333;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.contract-detail {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.detail-header {
+  background-color: #5e5e5e;
+  padding: 30px;
+  color: white;
+}
+
+.contract-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.contract-info h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.created-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.9;
+}
+
+.detail-sections {
+  padding: 30px;
+}
+
+.detail-section {
+  margin-bottom: 30px;
+  padding-bottom: 30px;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.detail-section:last-child {
+  border-bottom: none;
+}
+
+.detail-section h3 {
+  color: #374151;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.info-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.info-item label {
+  font-weight: 600;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.info-item span {
+  color: #111827;
+  font-size: 15px;
+}
+
+.highlight {
+  color: #059669;
+  font-weight: 600;
+}
+
+.highlight-large {
+  color: #dc2626;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.rejection-box {
+  background: #fee2e2;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #ef4444;
+}
+
+.rejection-text {
+  color: #991b1b;
+  font-weight: 500;
+}
+
+.action-buttons {
+  padding: 20px 30px;
+  background: #f9fafb;
+  border-top: 2px solid #e5e7eb;
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+}
+
+.btn-success {
+  background: #10b981;
+  color: white;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-success:hover:not(:disabled) {
+  background: #059669;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  padding: 20px 25px;
+  border-bottom: 2px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #111827;
+  font-size: 20px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.close-btn:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.modal-body {
+  padding: 25px;
+}
+
+.modal-body p {
+  margin-bottom: 15px;
+  color: #374151;
+}
+
+.warning-text {
+  background: #fef3c7;
+  padding: 12px;
+  border-radius: 6px;
+  border-left: 3px solid #f59e0b;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.modal-footer {
+  padding: 20px 25px;
+  background: #f9fafb;
+  border-top: 2px solid #e5e7eb;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btn-secondary {
+  background: #6b7280;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #4b5563;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+}
+
+.loading-state i {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.alert {
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.alert-danger {
+  background: #fee2e2;
+  color: #991b1b;
+  border-left: 4px solid #ef4444;
+}
+
+.alert-success {
+  background: #d1fae5;
+  color: #065f46;
+  border-left: 4px solid #10b981;
+}
+/* ===========================
+   Terminate Contract Button
+   =========================== */
+.btn-terminate {
+  background: #e67e22;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(243, 156, 18, 0.2);
+}
+
+.btn-terminate:hover:not(:disabled) {
+  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(243, 156, 18, 0.3);
+}
+
+.btn-terminate:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-terminate i {
+  margin-right: 8px;
+}
+
+/* ===========================
+   Terminate Modal Specific
+   =========================== */
+.terminate-modal {
+  max-width: 600px;
+}
+
+.terminate-modal .modal-body {
+  padding: 24px;
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+
+.form-label i {
+  margin-right: 8px;
+  color: #3498db;
+}
+
+.form-label .required {
+  color: #e74c3c;
+  margin-left: 4px;
+}
+
+/* Radio Group */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.radio-option {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.radio-option:hover {
+  border-color: #3498db;
+  background: #f8f9fa;
+}
+
+.radio-option input[type="radio"] {
+  display: none;
+}
+
+.radio-option input[type="radio"]:checked + .radio-label {
+  color: #3498db;
+  font-weight: 600;
+}
+
+.radio-option input[type="radio"]:checked ~ small {
+  color: #3498db;
+}
+
+.radio-option:has(input[type="radio"]:checked) {
+  border-color: #3498db;
+  background: #e8f4fd;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 4px;
+  position: relative;
+  padding-left: 28px;
+}
+
+.radio-label::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #bdc3c7;
+  border-radius: 50%;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.radio-option input[type="radio"]:checked + .radio-label::before {
+  border-color: #3498db;
+  background: #3498db;
+  box-shadow: inset 0 0 0 4px white;
+}
+
+.radio-label i {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.radio-option small {
+  color: #7f8c8d;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-top: 4px;
+  padding-left: 28px;
+}
+
+/* Form Control */
+.form-control {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  resize: vertical;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-control:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+/* Warning Box */
+.warning-box {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.warning-box > i {
+  font-size: 24px;
+  color: #f39c12;
+  flex-shrink: 0;
+}
+
+.warning-content {
+  flex: 1;
+}
+
+.warning-content strong {
+  display: block;
+  color: #856404;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.warning-content ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #856404;
+}
+
+.warning-content ul li {
+  margin-bottom: 4px;
+  line-height: 1.5;
+}
+
+/* Terminate Confirm Button */
+.btn-terminate-confirm {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  font-weight: 600;
+}
+
+.btn-terminate-confirm:hover:not(:disabled) {
+  background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+}
+
+/* Status Badge Additions */
+.status-cancelled {
+  background: #e74c3c;
+  color: white;
+}
+
+.status-approved {
+  background: #27ae60;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .terminate-modal {
+    max-width: 95%;
+    margin: 20px auto;
+  }
+
+  .radio-group {
+    gap: 10px;
+  }
+
+  .radio-option {
+    padding: 12px;
+  }
+
+  .warning-box {
+    flex-direction: column;
+  }
+}
+/* Thêm vào landlord-booking-detail.component.css */
+
+/* Extend button styling */
+.btn-extend {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-extend:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-extend:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Extend modal specific styles */
+.extend-modal {
+  max-width: 600px;
+}
+
+.extend-modal .info-box {
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  border: 1px solid #667eea40;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.extend-modal .info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.extend-modal .info-row:last-child {
+  border-bottom: none;
+}
+
+.extend-modal .info-row .label {
+  font-weight: 600;
+  color: #555;
+}
+
+.extend-modal .info-row .value {
+  color: #333;
+  font-weight: 500;
+}
+
+.extend-modal .warning-box.info {
+  background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+  border-left: 4px solid #667eea;
+}
+
+.btn-extend-confirm {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-extend-confirm:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-extend-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Form group spacing in extend modal */
+.extend-modal .form-group {
+  margin-bottom: 20px;
+}
+
+.extend-modal .form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.extend-modal .form-label i {
+  margin-right: 6px;
+  color: #667eea;
+}
+
+.extend-modal .required {
+  color: #e74c3c;
+}
+
+.extend-modal .form-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.extend-modal .form-control:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.extend-modal .form-text {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #666;
+}

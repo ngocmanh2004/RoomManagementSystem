@@ -1,0 +1,402 @@
+<div class="contract-detail-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <button class="btn btn-back" (click)="goBack()">
+      <i class="fa-solid fa-arrow-left"></i> Quay lại
+    </button>
+    <h1>
+      Chi tiết yêu cầu thuê phòng
+    </h1>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <i class="fa-solid fa-spinner fa-spin"></i>
+    <p>Đang tải...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage && !isLoading" class="alert alert-danger">
+    <i class="fa-solid fa-circle-exclamation"></i> {{ errorMessage }}
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="fa-solid fa-check-circle"></i> {{ successMessage }}
+  </div>
+
+  <!-- Contract Detail Content -->
+  <div *ngIf="contract && !isLoading" class="contract-detail">
+    <!-- Contract Header -->
+    <div class="detail-header">
+      <div class="contract-info">
+        <h2>{{ contract.contractCodeGenerated }}</h2>
+        <span class="status-badge" [ngClass]="getStatusClass(contract.status)">
+          {{ getStatusLabel(contract.status) }}
+        </span>
+      </div>
+      <div class="created-date">
+        <i class="fa-solid fa-clock"></i>
+        Tạo lúc: {{ formatDate(contract.createdAt) }}
+      </div>
+    </div>
+
+    <div class="detail-sections">
+      <!-- Room Information Section -->
+      <div class="detail-section">
+        <h3><i class="fa-solid fa-building"></i> Thông tin phòng</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Tên phòng:</label>
+            <span>{{ contract.roomName }}</span>
+          </div>
+          <div class="info-item">
+            <label>Tòa nhà:</label>
+            <span>{{ contract.buildingName }}</span>
+          </div>
+          <div class="info-item">
+            <label>Giá thuê:</label>
+            <span class="highlight">{{ formatPrice(contract.monthlyRentCalculated) }}đ/tháng</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tenant Information Section -->
+      <div class="detail-section">
+        <h3><i class="fa-solid fa-user"></i> Thông tin khách thuê</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Họ và tên:</label>
+            <span>{{ contract.fullName }}</span>
+          </div>
+          <div class="info-item">
+            <label>CCCD/CMND:</label>
+            <span>{{ contract.cccd }}</span>
+          </div>
+          <div class="info-item">
+            <label>Số điện thoại:</label>
+            <span>{{ contract.phone }}</span>
+          </div>
+          <div class="info-item full-width">
+            <label>Địa chỉ:</label>
+            <span>{{ contract.address }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contract Information Section -->
+      <div class="detail-section">
+        <h3><i class="fa-solid fa-calendar-check"></i> Thông tin hợp đồng</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Ngày bắt đầu:</label>
+            <span>{{ formatDate(contract.startDate) }}</span>
+          </div>
+          <div class="info-item">
+            <label>Ngày kết thúc:</label>
+            <span>{{ contract.endDate ? formatDate(contract.endDate) : 'Không xác định' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Tiền đặt cọc:</label>
+            <span class="highlight">{{ formatPrice(contract.deposit) }}đ</span>
+          </div>
+          <div class="info-item">
+            <label>Tổng chi phí ban đầu:</label>
+            <span class="highlight-large">{{ formatPrice(contract.totalInitialCost) }}đ</span>
+          </div>
+          <div *ngIf="contract.notes" class="info-item full-width">
+            <label>Ghi chú:</label>
+            <span>{{ contract.notes }}</span>
+          </div>
+          <div *ngIf="contract.rejectionReason" class="info-item full-width rejection-box">
+            <label>Lý do từ chối:</label>
+            <span class="rejection-text">{{ contract.rejectionReason }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons for PENDING -->
+    <div *ngIf="isPending()" class="action-buttons">
+      <button 
+        class="btn btn-success" 
+        (click)="openApproveModal()" 
+        [disabled]="isApproving || isRejecting">
+        <i class="fa-solid fa-check"></i> Duyệt hợp đồng
+      </button>
+      <button 
+        class="btn btn-danger" 
+        (click)="openRejectModal()" 
+        [disabled]="isApproving || isRejecting">
+        <i class="fa-solid fa-times"></i> Từ chối
+      </button>
+    </div>
+
+    <!-- ✅ Action Buttons for ACTIVE (GIA HẠN + THANH LÝ) -->
+    <div *ngIf="isActive()" class="action-buttons">
+      <button 
+        class="btn btn-extend" 
+        (click)="openExtendModal()" 
+        [disabled]="isExtending || isTerminating">
+        <i class="fa-solid fa-calendar-plus"></i> Gia hạn hợp đồng
+      </button>
+      
+      <button 
+        class="btn btn-terminate" 
+        (click)="openTerminateModal()" 
+        [disabled]="isExtending || isTerminating">
+        <i class="fa-solid fa-file-circle-xmark"></i> Thanh lý hợp đồng
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Approve Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showApproveModal" (click)="closeApproveModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Xác nhận duyệt hợp đồng</h3>
+      <button class="close-btn" (click)="closeApproveModal()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Bạn có chắc chắn muốn <strong>duyệt</strong> hợp đồng này không?</p>
+      <p class="warning-text">
+        <i class="fa-solid fa-info-circle"></i>
+        Sau khi duyệt, trạng thái phòng sẽ chuyển sang "Đã thuê" và khách có thể vào ở.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button 
+        class="btn btn-secondary" 
+        (click)="closeApproveModal()" 
+        [disabled]="isApproving">
+        Hủy
+      </button>
+      <button 
+        class="btn btn-success" 
+        (click)="confirmApprove()" 
+        [disabled]="isApproving">
+        <span *ngIf="isApproving">
+          <i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...
+        </span>
+        <span *ngIf="!isApproving">
+          <i class="fa-solid fa-check"></i> Xác nhận duyệt
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Reject Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showRejectModal" (click)="closeRejectModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Từ chối hợp đồng</h3>
+      <button class="close-btn" (click)="closeRejectModal()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Vui lòng nhập lý do từ chối:</p>
+      <textarea 
+        class="form-control" 
+        [(ngModel)]="rejectionReason" 
+        placeholder="Ví dụ: Phòng đã có người thuê, Không đáp ứng yêu cầu..."
+        rows="4"
+        [disabled]="isRejecting">
+      </textarea>
+    </div>
+    <div class="modal-footer">
+      <button 
+        class="btn btn-secondary" 
+        (click)="closeRejectModal()" 
+        [disabled]="isRejecting">
+        Hủy
+      </button>
+      <button 
+        class="btn btn-danger" 
+        (click)="confirmReject()" 
+        [disabled]="isRejecting || !rejectionReason">
+        <span *ngIf="isRejecting">
+          <i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...
+        </span>
+        <span *ngIf="!isRejecting">
+          <i class="fa-solid fa-ban"></i> Xác nhận từ chối
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ EXTEND CONTRACT MODAL -->
+<div class="modal-overlay" *ngIf="showExtendModal" (click)="closeExtendModal()">
+  <div class="modal-content extend-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>
+        <i class="fa-solid fa-calendar-plus"></i> Gia hạn hợp đồng
+      </h3>
+      <button class="close-btn" (click)="closeExtendModal()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <!-- Current contract info -->
+      <div class="info-box">
+        <div class="info-row">
+          <span class="label">Hợp đồng:</span>
+          <span class="value">{{ contract?.contractCodeGenerated }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Khách thuê:</span>
+          <span class="value">{{ contract?.fullName }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Phòng:</span>
+          <span class="value">{{ contract?.roomName }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Ngày kết thúc hiện tại:</span>
+          <span class="value">
+            {{ contract && contract.endDate ? formatDate(contract.endDate) : 'Không xác định' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- New end date input -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fa-solid fa-calendar"></i> Ngày kết thúc mới: <span class="required">*</span>
+        </label>
+        <input 
+          type="date" 
+          class="form-control" 
+          [(ngModel)]="newEndDate"
+          [min]="getMinEndDate()"
+          [disabled]="isExtending"
+          required>
+        <small class="form-text">Ngày kết thúc mới phải lớn hơn ngày kết thúc hiện tại</small>
+      </div>
+
+      <!-- Notes (optional) -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fa-solid fa-note-sticky"></i> Ghi chú (tùy chọn):
+        </label>
+        <textarea 
+          class="form-control" 
+          [(ngModel)]="extendNotes" 
+          placeholder="Ví dụ: Khách yêu cầu gia hạn thêm 6 tháng..."
+          rows="3"
+          [disabled]="isExtending">
+        </textarea>
+      </div>
+
+      <div class="warning-box info">
+        <i class="fa-solid fa-info-circle"></i>
+        <div class="warning-content">
+          <strong>Lưu ý:</strong>
+          <ul>
+            <li>Hợp đồng sẽ tiếp tục hiệu lực với ngày kết thúc mới</li>
+            <li>Trạng thái hợp đồng vẫn giữ nguyên là <strong>ACTIVE</strong></li>
+            <li>Phòng vẫn ở trạng thái <strong>OCCUPIED</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button 
+        class="btn btn-secondary" 
+        (click)="closeExtendModal()" 
+        [disabled]="isExtending">
+        <i class="fa-solid fa-xmark"></i> Hủy
+      </button>
+      <button 
+        class="btn btn-success btn-extend-confirm" 
+        (click)="confirmExtend()" 
+        [disabled]="isExtending || !newEndDate">
+        <span *ngIf="isExtending">
+          <i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...
+        </span>
+        <span *ngIf="!isExtending">
+          <i class="fa-solid fa-check"></i> Xác nhận gia hạn
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Terminate Modal -->
+<div class="modal-overlay" *ngIf="showTerminateModal" (click)="closeTerminateModal()">
+  <div class="modal-content terminate-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Thanh lý hợp đồng</h3>
+      <button class="close-btn" (click)="closeTerminateModal()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fa-solid fa-list"></i> Loại thanh lý: <span class="required">*</span>
+        </label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input 
+              type="radio" 
+              name="terminationType" 
+              value="EXPIRED"
+              [(ngModel)]="terminationType"
+              [disabled]="isTerminating">
+            <span class="radio-label">Hết hạn đúng hạn</span>
+            <small>Hợp đồng kết thúc theo đúng thời hạn đã thỏa thuận</small>
+          </label>
+          
+          <label class="radio-option">
+            <input 
+              type="radio" 
+              name="terminationType" 
+              value="CANCELLED"
+              [(ngModel)]="terminationType"
+              [disabled]="isTerminating">
+            <span class="radio-label">Chấm dứt sớm</span>
+            <small>Hợp đồng kết thúc trước thời hạn (vi phạm, yêu cầu, v.v.)</small>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Lý do chi tiết (tùy chọn):</label>
+        <textarea 
+          class="form-control" 
+          [(ngModel)]="terminationReason" 
+          placeholder="Ví dụ: Khách trả phòng đúng hạn, Vi phạm nội quy, Yêu cầu chấm dứt sớm..."
+          rows="3"
+          [disabled]="isTerminating">
+        </textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button 
+        class="btn btn-secondary" 
+        (click)="closeTerminateModal()" 
+        [disabled]="isTerminating">
+        <i class="fa-solid fa-xmark"></i> Hủy
+      </button>
+      <button 
+        class="btn btn-danger btn-terminate-confirm" 
+        (click)="confirmTerminate()" 
+        [disabled]="isTerminating">
+        <span *ngIf="isTerminating">
+          <i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...
+        </span>
+        <span *ngIf="!isTerminating">
+          <i class="fa-solid fa-check"></i> Xác nhận thanh lý
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

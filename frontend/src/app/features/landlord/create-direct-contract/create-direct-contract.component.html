@@ -1,0 +1,208 @@
+<div class="create-contract-container">
+  <div class="page-header">
+    <h1>Tạo hợp đồng trực tiếp</h1>
+    <p class="subtitle">Tạo hợp đồng cho khách thuê vãng lai</p>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="fa-solid fa-circle-check"></i> {{ successMessage }}
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    <i class="fa-solid fa-circle-exclamation"></i> {{ errorMessage }}
+  </div>
+
+  <div class="form-card">
+    <form [formGroup]="contractForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Chọn phòng -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fa-solid fa-door-open"></i> Thông tin phòng
+        </h3>
+        
+        <div class="form-group">
+          <label for="roomId">Chọn phòng trống <span class="required">*</span></label>
+          <select 
+            id="roomId" 
+            formControlName="roomId" 
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('roomId')">
+            <option [value]="null">-- Chọn phòng --</option>
+            <option *ngFor="let room of availableRooms" [value]="room.id">
+              {{ room.name }} - {{ room.buildingName }} ({{ formatPrice(room.price) }} đ/tháng)
+            </option>
+          </select>
+          <div class="invalid-feedback" *ngIf="isFieldInvalid('roomId')">
+            {{ getErrorMessage('roomId') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Chọn khách thuê -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fa-solid fa-user"></i> Thông tin khách thuê
+        </h3>
+        
+        <div class="form-group">
+          <label for="tenantId">Chọn khách thuê <span class="required">*</span></label>
+          <select 
+            id="tenantId" 
+            formControlName="tenantId" 
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('tenantId')">
+            <option [value]="null">-- Chọn khách thuê --</option>
+            <option *ngFor="let tenant of tenants" [value]="tenant.id">
+              {{ tenant.fullName }} - {{ tenant.phone }}
+            </option>
+          </select>
+          <div class="invalid-feedback" *ngIf="isFieldInvalid('tenantId')">
+            {{ getErrorMessage('tenantId') }}
+          </div>
+          <small class="form-text">Nếu khách thuê chưa có trong danh sách, vui lòng tạo mới ở mục Quản lý khách thuê</small>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fullName">Họ và tên <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="fullName" 
+              formControlName="fullName" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('fullName')">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('fullName')">
+              {{ getErrorMessage('fullName') }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="cccd">CCCD/CMND <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="cccd" 
+              formControlName="cccd" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('cccd')">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('cccd')">
+              {{ getErrorMessage('cccd') }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone">Số điện thoại <span class="required">*</span></label>
+            <input 
+              type="tel" 
+              id="phone" 
+              formControlName="phone" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('phone')">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('phone')">
+              {{ getErrorMessage('phone') }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="deposit">Tiền cọc (VNĐ) <span class="required">*</span></label>
+            <input 
+              type="number" 
+              id="deposit" 
+              formControlName="deposit" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('deposit')">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('deposit')">
+              {{ getErrorMessage('deposit') }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="address">Địa chỉ thường trú <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="address" 
+            formControlName="address" 
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('address')">
+          <div class="invalid-feedback" *ngIf="isFieldInvalid('address')">
+            {{ getErrorMessage('address') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Thời gian hợp đồng -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fa-solid fa-calendar"></i> Thời gian hợp đồng
+        </h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="startDate">Ngày bắt đầu <span class="required">*</span></label>
+            <input 
+              type="date" 
+              id="startDate" 
+              formControlName="startDate" 
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('startDate')">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('startDate')">
+              {{ getErrorMessage('startDate') }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="endDate">Ngày kết thúc (tùy chọn)</label>
+            <input 
+              type="date" 
+              id="endDate" 
+              formControlName="endDate" 
+              class="form-control">
+            <small class="form-text">Để trống nếu chưa xác định thời hạn</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ghi chú -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fa-solid fa-note-sticky"></i> Ghi chú
+        </h3>
+        
+        <div class="form-group">
+          <label for="notes">Ghi chú thêm (tùy chọn)</label>
+          <textarea 
+            id="notes" 
+            formControlName="notes" 
+            class="form-control"
+            rows="4"
+            placeholder="Nhập ghi chú về hợp đồng..."></textarea>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          (click)="onCancel()"
+          [disabled]="isSubmitting">
+          <i class="fa-solid fa-xmark"></i> Hủy
+        </button>
+        
+        <button 
+          type="submit" 
+          class="btn btn-primary" 
+          [disabled]="isSubmitting || contractForm.invalid">
+          <i class="fa-solid fa-spinner fa-spin" *ngIf="isSubmitting"></i>
+          <i class="fa-solid fa-check" *ngIf="!isSubmitting"></i>
+          {{ isSubmitting ? 'Đang tạo...' : 'Tạo hợp đồng' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
