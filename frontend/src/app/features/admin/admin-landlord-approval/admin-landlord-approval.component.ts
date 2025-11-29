@@ -12,15 +12,21 @@ import { LandlordRequest } from '../../../models/landlord.model';
   styleUrls: ['./admin-landlord-approval.component.css']
 })
 export class AdminLandlordApprovalComponent implements OnInit {
-  pendingRequests: LandlordRequest[] = [];
   allRequests: LandlordRequest[] = [];
+  filteredRequests: LandlordRequest[] = [];
   loading = true;
   
   selectedRequest: LandlordRequest | null = null;
   showRejectModal = false;
   rejectionReason = '';
+  searchTerm = '';
+  selectedStatus: string = 'ALL'; // Thêm property này
 
-  statistics: { [key: string]: number } = {};
+  statistics: { [key: string]: number } = {
+    'PENDING': 0,
+    'APPROVED': 0,
+    'REJECTED': 0
+  };
 
   constructor(private landlordService: LandlordService) {}
 
@@ -30,34 +36,64 @@ export class AdminLandlordApprovalComponent implements OnInit {
 
   loadData(): void {
     this.loading = true;
-    
-    // Load pending requests
-    this.landlordService.getPendingRequests().subscribe({
-      next: (response) => {
-        this.pendingRequests = response.data || [];
-      },
-      error: (err) => console.error('Lỗi tải pending:', err)
-    });
 
     // Load all requests
     this.landlordService.getAllRequests().subscribe({
       next: (response) => {
         this.allRequests = response.data || [];
+        this.filteredRequests = [...this.allRequests];
+        this.calculateStatistics();
         this.loading = false;
       },
       error: (err) => {
-        console.error('Lỗi tải all:', err);
+        console.error('Lỗi tải dữ liệu:', err);
         this.loading = false;
       }
     });
+  }
 
-    // Load statistics
-    this.landlordService.getRequestStatistics().subscribe({
-      next: (response) => {
-        this.statistics = response.data || {};
-      },
-      error: (err) => console.error('Lỗi tải stats:', err)
+  calculateStatistics(): void {
+    this.statistics = {
+      'PENDING': 0,
+      'APPROVED': 0,
+      'REJECTED': 0
+    };
+
+    this.allRequests.forEach(request => {
+      if (this.statistics[request.status] !== undefined) {
+        this.statistics[request.status]++;
+      }
     });
+  }
+
+  // CẬP NHẬT method filterRequests() này
+  filterRequests(): void {
+    let filtered = [...this.allRequests];
+
+    // Lọc theo trạng thái
+    if (this.selectedStatus !== 'ALL') {
+      filtered = filtered.filter(request => request.status === this.selectedStatus);
+    }
+
+    // Lọc theo từ khóa tìm kiếm
+    const term = this.searchTerm.toLowerCase().trim();
+    if (term) {
+      filtered = filtered.filter(request => {
+        return (
+          request.user.fullName.toLowerCase().includes(term) ||
+          request.user.email.toLowerCase().includes(term) ||
+          request.cccd.includes(term)
+        );
+      });
+    }
+
+    this.filteredRequests = filtered;
+  }
+
+  // THÊM method filterByStatus() này
+  filterByStatus(status: string): void {
+    this.selectedStatus = status;
+    this.filterRequests();
   }
 
   viewDetail(request: LandlordRequest): void {
@@ -140,15 +176,18 @@ export class AdminLandlordApprovalComponent implements OnInit {
     return texts[status] || status;
   }
 
-  /** Build a URL the frontend can open for a stored file.
-   * Backend stores filenames (or sometimes relative paths). We serve files under `/images/**`.
-   */
+  getDocumentId(request: LandlordRequest): string {
+    // Tạo ID giấy phép dạng GP-KD-2024-001
+    const date = new Date(request.createdAt);
+    const year = date.getFullYear();
+    const id = String(request.id).padStart(3, '0');
+    return `GP-KD-${year}-${id}`;
+  }
+
   getDocumentUrl(filePath: string | undefined | null): string {
     if (!filePath) return '';
-    // If already an absolute URL or starts with /images, return as-is
     if (filePath.startsWith('http://') || filePath.startsWith('https://')) return filePath;
     if (filePath.startsWith('/')) return filePath;
-    // otherwise build the proxied path
     return `/images/${filePath}`;
   }
 

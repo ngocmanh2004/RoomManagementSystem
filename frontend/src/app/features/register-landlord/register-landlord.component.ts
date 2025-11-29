@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { LandlordService } from '../../services/landlord.service';
+import { TenantService } from '../../services/tenant.service';
 import { ProvinceService } from '../../services/province.service';
 import { Province, District } from '../../models/province.model';
 
@@ -24,10 +25,14 @@ export class RegisterLandlordComponent implements OnInit {
   backImagePreview: string | null = null;
   businessLicensePreview: string | null = null;
 
+  // Biến để kiểm tra xem CCCD đã có sẵn hay chưa
+  hasCccdFromTenant = false;
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private landlordService: LandlordService,
+    private tenantService: TenantService,
     private provinceService: ProvinceService,
     private router: Router
   ) {}
@@ -35,6 +40,7 @@ export class RegisterLandlordComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.loadProvinces();
+    this.loadTenantInfo();
   }
 
   initForm(): void {
@@ -54,6 +60,58 @@ export class RegisterLandlordComponent implements OnInit {
     this.provinceService.getAllProvinces().subscribe({
       next: (data) => this.provinces = data,
       error: (err) => console.error('Lỗi tải tỉnh:', err)
+    });
+  }
+
+  loadTenantInfo(): void {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      alert('Vui lòng đăng nhập');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.tenantService.getTenantByUserId(currentUser.id).subscribe({
+      next: (tenantData) => {
+        console.log('Tenant data:', tenantData); // Debug
+        
+        // Nếu có CCCD thì tự động điền và đánh dấu
+        if (tenantData && tenantData.cccd && tenantData.cccd.trim() !== '') {
+          this.hasCccdFromTenant = true;
+          this.registerForm.patchValue({
+            cccd: tenantData.cccd
+          });
+          console.log('CCCD found, setting readonly:', this.hasCccdFromTenant); // Debug
+        } else {
+          this.hasCccdFromTenant = false;
+          console.log('No CCCD, allowing input'); // Debug
+        }
+
+        // Tự động điền các thông tin khác nếu có
+        if (tenantData.address) {
+          this.registerForm.patchValue({ address: tenantData.address });
+        }
+        if (tenantData.provinceCode) {
+          this.registerForm.patchValue({ provinceCode: tenantData.provinceCode });
+          
+          // Load districts nếu có provinceCode
+          this.provinceService.getDistrictsByProvince(tenantData.provinceCode).subscribe({
+            next: (data) => {
+              this.districts = data;
+              if (tenantData.districtCode) {
+                this.registerForm.patchValue({ districtCode: tenantData.districtCode });
+              }
+            },
+            error: (err) => console.error('Lỗi tải quận:', err)
+          });
+        }
+      },
+      error: (err) => {
+        console.error('Không thể tải thông tin tenant:', err);
+        this.hasCccdFromTenant = false; // Đảm bảo cho phép nhập
+        // Không hiển thị alert, chỉ log lỗi
+        // Cho phép người dùng nhập thông tin mới
+      }
     });
   }
 

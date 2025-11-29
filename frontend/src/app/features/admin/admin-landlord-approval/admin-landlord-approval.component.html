@@ -1,7 +1,51 @@
 <div class="approval-container">
+  <!-- Header -->
   <div class="header">
-    <h1>Duyệt đăng ký Chủ trọ</h1>
-    <p class="subtitle">Quản lý các yêu cầu đăng ký trở thành chủ trọ</p>
+    <h1>Yêu cầu đăng ký chủ trọ</h1>
+  </div>
+
+  <!-- Search and Filter -->
+  <div class="filter-section">
+    <div class="search-box">
+      <input 
+        type="text" 
+        placeholder="Tìm kiếm theo tên, email hoặc CCCD..."
+        [(ngModel)]="searchTerm"
+        (input)="filterRequests()"
+        class="search-input"
+      />
+    </div>
+
+    <div class="status-filters">
+      <button 
+        class="filter-btn"
+        [class.active]="selectedStatus === 'ALL'"
+        (click)="filterByStatus('ALL')"
+      >
+        Tất cả ({{ allRequests.length }})
+      </button>
+      <button 
+        class="filter-btn filter-pending"
+        [class.active]="selectedStatus === 'PENDING'"
+        (click)="filterByStatus('PENDING')"
+      >
+        Chờ duyệt ({{ statistics['PENDING'] || 0 }})
+      </button>
+      <button 
+        class="filter-btn filter-approved"
+        [class.active]="selectedStatus === 'APPROVED'"
+        (click)="filterByStatus('APPROVED')"
+      >
+        Đã duyệt ({{ statistics['APPROVED'] || 0 }})
+      </button>
+      <button 
+        class="filter-btn filter-rejected"
+        [class.active]="selectedStatus === 'REJECTED'"
+        (click)="filterByStatus('REJECTED')"
+      >
+        Từ chối ({{ statistics['REJECTED'] || 0 }})
+      </button>
+    </div>
   </div>
 
   <div *ngIf="loading" class="loading">
@@ -9,88 +53,84 @@
     <p>Đang tải dữ liệu...</p>
   </div>
 
+  <!-- Table -->
   <div *ngIf="!loading" class="content">
-    <!-- Danh sách chờ duyệt -->
     <div class="section">
-      <h2>
-        Đang chờ duyệt 
-        <span class="count-badge">{{ pendingRequests.length }}</span>
-      </h2>
+      <h2>Danh sách yêu cầu ({{ filteredRequests.length }})</h2>
       
-      <div *ngIf="pendingRequests.length === 0" class="empty-state">
+      <div *ngIf="filteredRequests.length === 0" class="empty-state">
         <span class="icon">📋</span>
-        <p>Không có yêu cầu nào đang chờ duyệt</p>
+        <p>Không tìm thấy yêu cầu nào</p>
       </div>
 
-      <div class="landlord-grid" *ngIf="pendingRequests.length > 0">
-        <div 
-          *ngFor="let request of pendingRequests" 
-          class="landlord-card"
-          (click)="viewDetail(request)"
-        >
-          <div class="card-header">
-            <div class="avatar">{{ request.user.fullName.charAt(0) }}</div>
-            <div class="user-info">
-              <h3>{{ request.user.fullName }}</h3>
-              <p>{{ request.user.email }}</p>
-              <p class="small">Gửi: {{ request.createdAt | date:'short' }}</p>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="info-item">
-              <span class="label">CCCD:</span>
-              <span class="value">{{ request.cccd }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">Số phòng:</span>
-              <span class="value">{{ request.expectedRoomCount }}</span>
-            </div>
-          </div>
-          <div class="card-footer">
-            <button class="btn-approve" (click)="approveRequest(request.id); $event.stopPropagation()">
-              ✓ Duyệt
-            </button>
-            <button class="btn-reject" (click)="openRejectModal(request); $event.stopPropagation()">
-              ✕ Từ chối
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tất cả đăng ký -->
-    <div class="section">
-      <h2>Tất cả đăng ký</h2>
-      
-      <div class="table-container">
+      <div class="table-container" *ngIf="filteredRequests.length > 0">
         <table class="landlord-table">
           <thead>
             <tr>
               <th>Họ tên</th>
               <th>Email</th>
-              <th>Gửi lúc</th>
               <th>CCCD</th>
-              <th>Số phòng</th>
+              <th>Địa chỉ</th>
+              <th>Giấy phép KD</th>
+              <th>Ngày gửi</th>
               <th>Trạng thái</th>
               <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let request of allRequests">
-              <td>{{ request.user.fullName }}</td>
+            <tr *ngFor="let request of filteredRequests">
+              <td>
+                <div class="user-cell">
+                  <div class="avatar">{{ request.user.fullName.charAt(0) }}</div>
+                  <span>{{ request.user.fullName }}</span>
+                </div>
+              </td>
               <td>{{ request.user.email }}</td>
-              <td>{{ request.createdAt | date:'short' }}</td>
               <td>{{ request.cccd }}</td>
-              <td>{{ request.expectedRoomCount }}</td>
+              <td class="address-cell">{{ request.address }}</td>
+              <td>
+                <a 
+                  *ngIf="request.businessLicensePath" 
+                  href="#" 
+                  (click)="openDocument(request.businessLicensePath); $event.preventDefault()"
+                  class="doc-link"
+                >
+                  {{ getDocumentId(request) }}
+                </a>
+                <span *ngIf="!request.businessLicensePath" class="muted">-</span>
+              </td>
+              <td>{{ request.createdAt | date:'yyyy-MM-dd' }}</td>
               <td>
                 <span class="status-badge" [ngClass]="getStatusBadgeClass(request.status)">
                   {{ getStatusText(request.status) }}
                 </span>
               </td>
               <td>
-                <button class="btn-view" (click)="viewDetail(request)">
-                  Xem chi tiết
-                </button>
+                <div class="action-buttons">
+                  <button 
+                    class="btn-icon btn-view" 
+                    (click)="viewDetail(request)"
+                    title="Xem chi tiết"
+                  >
+                    <span>👁</span>
+                  </button>
+                  <button 
+                    *ngIf="request.status === 'PENDING'"
+                    class="btn-icon btn-approve" 
+                    (click)="approveRequest(request.id)"
+                    title="Duyệt"
+                  >
+                    <span>✓</span>
+                  </button>
+                  <button 
+                    *ngIf="request.status === 'PENDING'"
+                    class="btn-icon btn-reject" 
+                    (click)="openRejectModal(request)"
+                    title="Từ chối"
+                  >
+                    <span>✕</span>
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -122,7 +162,7 @@
           </div>
           <div class="detail-item">
             <span class="label">Số điện thoại:</span>
-            <span class="value">{{ selectedRequest.user.phone }}</span>
+            <span class="value">{{ selectedRequest.user.phone || 'Chưa cập nhật' }}</span>
           </div>
         </div>
       </div>

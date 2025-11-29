@@ -9,6 +9,7 @@
     <div class="form-section">
       <h2>Thông tin cá nhân</h2>
 
+      <!-- CCCD - readonly nếu đã có từ tenant, cho phép nhập nếu chưa có -->
       <div class="form-group">
         <label>CCCD/CMND <span class="required">*</span></label>
         <input 
@@ -16,7 +17,15 @@
           formControlName="cccd"
           class="form-control"
           placeholder="Nhập số CCCD/CMND (9-12 số)"
+          [attr.readonly]="hasCccdFromTenant ? true : null"
+          [ngStyle]="{
+            'background-color': hasCccdFromTenant ? '#f5f5f5' : 'white',
+            'cursor': hasCccdFromTenant ? 'not-allowed' : 'text'
+          }"
         />
+        <small *ngIf="hasCccdFromTenant" class="form-text" style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
+          ℹ️ Thông tin này được lấy từ hồ sơ khách thuê của bạn
+        </small>
         <span *ngIf="registerForm.get('cccd')?.invalid && registerForm.get('cccd')?.touched" 
               class="error-text">
           Vui lòng nhập số CCCD hợp lệ (9-12 số)
