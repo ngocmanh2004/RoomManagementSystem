@@ -23,6 +23,7 @@ import { DashboardLandlordComponent } from './features/landlord/dashboard-landlo
 import { LandlordBookingComponent } from './features/landlord/landlord-booking/landlord-booking.component';
 import { LandlordBookingDetailComponent } from './features/landlord/landlord-booking-detail/landlord-booking-detail.component';
 import { CreateDirectContractComponent } from './features/landlord/create-direct-contract/create-direct-contract.component';
+import { ReportManagementComponent } from './features/admin/report-management/report-management.component';
 
 export const routes: Routes = [
   {
@@ -51,6 +52,10 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardAdminComponent },
       { path: 'users', component: UserManagementComponent },
       { path: 'landlords', component: AdminLandlordApprovalComponent },
+      { path: 'report-management',
+        component: ReportManagementComponent,
+        canActivate: [roleGuard([0])], // nếu có guard cho admin
+      },
     ]
   },
 

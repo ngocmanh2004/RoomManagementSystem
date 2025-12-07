@@ -1,0 +1,146 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-left">
+      <h1>Quản lý báo cáo đánh giá vi phạm</h1>
+    </div>
+  </div>
+
+  <div class="filters-container">
+    <select [(ngModel)]="selectedStatus" (change)="onStatusFilterChange()" class="filter-select">
+      <option value="ALL">Tất cả trạng thái</option>
+      <option value="PENDING">Mới</option>
+      <option value="PROCESSING">Đang xử lý</option>
+      <option value="RESOLVED">Đã xử lý</option>
+    </select>
+    <select [(ngModel)]="selectedReason" (change)="onReasonFilterChange()" class="filter-select">
+      <option value="ALL">Tất cả loại vi phạm</option>
+      <option value="SPAM">Spam</option>
+      <option value="OFFENSIVE">Ngôn từ không phù hợp</option>
+      <option value="FALSE">Sai sự thật</option>
+      <option value="OTHER">Khác</option>
+    </select>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <h3>Danh sách báo cáo ({{ filteredReports.length }})</h3>
+    </div>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Người gửi</th>
+            <th>Đối tượng bị báo cáo</th>
+            <th>Lý do</th>
+            <th>Ngày gửi</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let report of filteredReports">
+            <td>#{{ report.id }}</td>
+            <td>{{ report.reporterName }}</td>
+            <td>{{ report.reportedUserName }}</td>
+            <td>{{ getReasonLabel(report.reason) }}</td>
+            <td>{{ report.createdAt | date:'yyyy-MM-dd HH:mm' }}</td>
+            <td>
+              <span class="badge status-{{report.status | lowercase}}">
+                {{ report.status === 'PENDING' ? 'Mới' : (report.status === 'PROCESSING' ? 'Đang xử lý' : 'Đã xử lý') }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-primary" (click)="openDetailModal(report)">Xem chi tiết</button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredReports.length === 0">
+            <td colspan="7" class="no-data">Không có báo cáo nào.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal chi tiết & xử lý -->
+<div class="modal-overlay" *ngIf="isDetailModalOpen" (click)="closeDetailModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Chi tiết báo cáo #{{ selectedReport?.id }}</h2>
+      <button class="btn-close" (click)="closeDetailModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <p><strong>Người gửi:</strong> {{ selectedReport?.reporterName }}</p>
+      <p><strong>Đối tượng bị báo cáo:</strong> {{ selectedReport?.reportedUserName }}</p>
+      <p><strong>Lý do:</strong> {{ getReasonLabel(selectedReport?.reason) }}</p>
+      <p><strong>Mô tả:</strong> {{ selectedReport?.description }}</p>
+      <p><strong>Ngày gửi:</strong> {{ selectedReport?.createdAt | date:'yyyy-MM-dd HH:mm' }}</p>
+      <p><strong>Nội dung đánh giá:</strong> {{ selectedReport?.reviewContent }}</p>
+      <p>
+        <strong>Số sao:</strong>
+        <span class="badge" style="background:#ffe066;color:#d97706;">
+          {{ selectedReport?.reviewRating }} ★
+        </span>
+      </p>
+      <p><strong>ID phòng:</strong> {{ selectedReport?.reviewRoomId }}</p>
+      <p><strong>Tên phòng:</strong> {{ selectedReport?.reviewRoomName }}</p>
+      <form [formGroup]="processForm" (ngSubmit)="processReport()">
+        <div class="form-group">
+          <label>Trạng thái xử lý</label>
+          <select formControlName="status">
+            <option value="PROCESSING">Đang xử lý</option>
+            <option value="RESOLVED">Đã xử lý</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Ghi chú xử lý</label>
+          <textarea formControlName="note" rows="3" placeholder="Nhập ghi chú xử lý..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeDetailModal()">Đóng</button>
+          <button type="submit" class="btn btn-primary">Lưu xử lý</button>
+        </div>
+      </form>
+      <div class="action-group">
+        <button class="btn btn-danger" (click)="lockAccount(selectedReport?.reportedUserId)">
+          <i class="fa-solid fa-lock"></i> Khóa tài khoản
+        </button>
+        <button class="btn btn-warning" (click)="deleteReview(selectedReport?.reviewId)">
+          <i class="fa-solid fa-trash"></i> Xóa đánh giá
+        </button>
+        <button class="btn btn-info" (click)="editReview(selectedReport?.reviewId)">
+          <i class="fa-solid fa-pen"></i> Sửa đánh giá
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal sửa đánh giá cho admin -->
+<div class="modal-overlay" *ngIf="isEditReviewModalOpen" (click)="closeEditReviewModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Chỉnh sửa đánh giá #{{ editReviewId }}</h3>
+      <button class="btn-close" (click)="closeEditReviewModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form [formGroup]="editReviewForm" (ngSubmit)="submitEditReview()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Số sao</label>
+          <select formControlName="rating">
+            <option *ngFor="let star of [1,2,3,4,5]" [value]="star">{{ star }} ★</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Nội dung đánh giá</label>
+          <textarea formControlName="comment" rows="4" placeholder="Nhập nội dung đánh giá"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeEditReviewModal()">Đóng</button>
+        <button type="submit" class="btn btn-primary">Lưu chỉnh sửa</button>
+      </div>
+    </form>
+  </div>
+</div>
