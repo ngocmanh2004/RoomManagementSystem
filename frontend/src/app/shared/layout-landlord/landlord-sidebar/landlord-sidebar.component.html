@@ -8,7 +8,7 @@
 
   <nav class="sidebar-nav">
     <ul>
-      <li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+      <li routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
         <a routerLink="/landlord/dashboard">
           <i class="fa-solid fa-chart-line"></i>
           <span class="nav-text">Dashboard</span>
@@ -36,6 +36,26 @@
         </a>
       </li>
 
+      <li routerLinkActive="active">
+        <a routerLink="/landlord/electricity">
+          <i class="fa-solid fa-bolt"></i>
+          <span class="nav-text">Quản lý Điện</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active">
+        <a routerLink="/landlord/water">
+          <i class="fa-solid fa-faucet"></i>
+          <span class="nav-text">Quản lý Nước</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active">
+        <a routerLink="/landlord/extra-cost">
+          <i class="fa-solid fa-wallet"></i>
+          <span class="nav-text">Chi phí phát sinh</span>
+        </a>
+      </li>
     </ul>
   </nav>
 </div>
