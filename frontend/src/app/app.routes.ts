@@ -26,6 +26,9 @@ import { CreateDirectContractComponent } from './features/landlord/create-direct
 import { ElectricityManagementComponent } from './features/landlord/electricity-management/electricity-management.component';
 import { WaterManagementComponent } from './features/landlord/water-management/water-management.component';
 import { ExtraCostManagementComponent } from './features/landlord/extra-cost-management/extra-cost-management.component';
+import { InvoiceManagementComponent } from './features/landlord/invoice-management/invoice-management.component';
+import { InvoiceViewComponent } from './features/tenant/invoice-view/invoice-view.component';
+import { TenantLayoutComponent } from './shared/layout-tenant/tenant-layout/tenant-layout.component';
 
 export const routes: Routes = [
   {
@@ -73,16 +76,18 @@ export const routes: Routes = [
       { path: 'electricity', component: ElectricityManagementComponent },
       { path: 'water', component: WaterManagementComponent },
       { path: 'extra-cost', component: ExtraCostManagementComponent },
+      { path: 'invoices', component: InvoiceManagementComponent },
     ],
   },
 
   // TENANT ROUTES (role = 2)
   {
     path: 'tenant',
+    component: TenantLayoutComponent,
     canActivate: [authGuard, roleGuard([2])],
     children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      //{ path: 'dashboard', component: TenantDashboardComponent }
+      { path: '', redirectTo: 'invoices', pathMatch: 'full' },
+      { path: 'invoices', component: InvoiceViewComponent },
     ],
   },
 

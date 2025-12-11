@@ -1,0 +1,170 @@
+<div class="page">
+  <div class="topbar">
+    <div>
+      <h1>Hóa Đơn Của Tôi</h1>
+      <p class="sub">Xem các hóa đơn hàng tháng và trạng thái thanh toán</p>
+    </div>
+
+    <div class="topbar-actions">
+      <button class="btn primary" (click)="loadInvoices()">Làm mới</button>
+    </div>
+  </div>
+
+  <div class="card filters">
+    <div class="filter-grid">
+      <label class="field">
+        <span>Tháng</span>
+        <select [value]="filters().month" (change)="onMonthChange($event)">
+          <option value="">Tất cả tháng</option>
+          <option *ngFor="let month of months()" [value]="month">{{ getMonthDisplay(month) }}</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Trạng Thái</span>
+        <select [value]="filters().status" (change)="onStatusChange($event)">
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="UNPAID">Chưa thanh toán</option>
+          <option value="PAID">Đã thanh toán</option>
+          <option value="OVERDUE">Quá hạn</option>
+        </select>
+      </label>
+
+      <div class="field">
+        <span>Thống kê</span>
+        <div class="muted">
+          <small>Tổng: {{ stats().totalCount }} | Chưa: {{ stats().unpaidCount }} | Tổng tiền: {{ stats().totalAmount | currency:'VND' }}</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Mã hợp đồng</th>
+          <th>Phòng</th>
+          <th>Tháng</th>
+          <th class="text-right">Tiền Phòng</th>
+          <th class="text-right">Tiền Điện</th>
+          <th class="text-right">Tiền Nước</th>
+          <th class="text-right">Chi Phí Khác</th>
+          <th class="text-right">Tổng Tiền</th>
+          <th class="text-center">Trạng Thái</th>
+          <th class="text-center">Hành Động</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let invoice of filteredInvoices()">
+          <td>{{ invoice.contractCode }}</td>
+          <td>{{ invoice.roomName }}</td>
+          <td>{{ getMonthDisplay(invoice.month) }}</td>
+          <td class="text-right">{{ invoice.roomRent | currency: 'VND' }}</td>
+          <td class="text-right">{{ invoice.electricity | currency: 'VND' }}</td>
+          <td class="text-right">{{ invoice.water | currency: 'VND' }}</td>
+          <td class="text-right">{{ invoice.extraCost | currency: 'VND' }}</td>
+          <td class="text-right strong">{{ invoice.totalAmount | currency: 'VND' }}</td>
+          <td class="text-center">
+            <span [ngClass]="getStatusClass(invoice.status)" class="badge">{{ getStatusLabel(invoice.status) }}</span>
+          </td>
+          <td class="text-center nowrap">
+            <button class="act" (click)="viewInvoiceDetail(invoice)">Xem</button>
+            <button class="act primary" title="Thanh toán" (click)="$event.preventDefault()">Thanh toán</button>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredInvoices().length === 0">
+          <td colspan="10" class="empty">Không tìm thấy hóa đơn nào phù hợp</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Invoice Detail Modal -->
+<div *ngIf="isDetailModalOpen() && selectedInvoice()" class="modal-bg">
+  <div class="modal modal-invoice">
+    <!-- Header -->
+    <header class="modal-header">
+      <h2>Chi Tiết Hóa Đơn</h2>
+      <button class="close-btn" (click)="closeDetailModal()">✕</button>
+    </header>
+
+    <!-- Content -->
+    <div class="modal-body">
+      <!-- Invoice Info Section -->
+      <div class="invoice-section">
+        <h3 class="section-title">Thông Tin Hóa Đơn</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Mã Hợp Đồng</span>
+            <span class="info-value">{{ selectedInvoice()?.contractCode }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Tháng</span>
+            <span class="info-value">{{ getMonthDisplay(selectedInvoice()?.month!) }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Phòng</span>
+            <span class="info-value">{{ selectedInvoice()?.roomName }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Ngày Tạo</span>
+            <span class="info-value">{{ selectedInvoice()?.createdAt | date: 'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cost Details Section -->
+      <div class="invoice-section">
+        <h3 class="section-title">Chi Tiết Chi Phí</h3>
+        <div class="cost-list">
+          <div class="cost-item">
+            <span class="cost-label">Tiền Phòng</span>
+            <span class="cost-value">{{ selectedInvoice()?.roomRent | currency: 'VND' }}</span>
+          </div>
+          <div class="cost-item">
+            <span class="cost-label">Tiền Điện</span>
+            <span class="cost-value">{{ selectedInvoice()?.electricity | currency: 'VND' }}</span>
+          </div>
+          <div class="cost-item">
+            <span class="cost-label">Tiền Nước</span>
+            <span class="cost-value">{{ selectedInvoice()?.water | currency: 'VND' }}</span>
+          </div>
+          <div class="cost-item">
+            <span class="cost-label">Chi Phí Khác</span>
+            <span class="cost-value">{{ selectedInvoice()?.extraCost | currency: 'VND' }}</span>
+          </div>
+          <div class="cost-divider"></div>
+          <div class="cost-item total">
+            <span class="cost-label">Tổng Cộng</span>
+            <span class="cost-value total-amount">{{ selectedInvoice()?.totalAmount | currency: 'VND' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Section -->
+      <div class="invoice-section">
+        <h3 class="section-title">Trạng Thái</h3>
+        <div class="status-container">
+          <span [ngClass]="getStatusClass(selectedInvoice()?.status!)" class="badge">{{ getStatusLabel(selectedInvoice()?.status!) }}</span>
+        </div>
+      </div>
+
+      <!-- Notes Section -->
+      <div *ngIf="selectedInvoice()?.notes" class="invoice-section">
+        <h3 class="section-title">Ghi Chú</h3>
+        <div class="notes-box">{{ selectedInvoice()?.notes }}</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="modal-footer">
+      <button class="btn outline" (click)="closeDetailModal()">Đóng</button>
+      <button *ngIf="selectedInvoice()?.status !== 'PAID'" class="btn primary" (click)="$event.preventDefault()">Thanh Toán</button>
+      <button class="btn primary" (click)="downloadInvoice(selectedInvoice()!)">Tải Xuống</button>
+    </footer>
+  </div>
+</div>
