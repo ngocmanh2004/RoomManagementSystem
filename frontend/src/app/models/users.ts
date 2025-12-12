@@ -1,3 +1,4 @@
+import { Landlord } from './landlord.model';
 export interface RegisterRequest {
   username: string;
   fullName: string;
@@ -31,6 +32,7 @@ export interface UserInfo {
   phone: string;
   role: number;
   roleName: string;
+  landlord?: Landlord; // Thêm trường này để fix lỗi
 }
 
 export interface User {

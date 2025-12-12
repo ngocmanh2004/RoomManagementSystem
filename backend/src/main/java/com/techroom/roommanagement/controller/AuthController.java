@@ -2,6 +2,7 @@ package com.techroom.roommanagement.controller;
 
 import com.techroom.roommanagement.dto.*;
 import com.techroom.roommanagement.model.RefreshToken;
+import com.techroom.roommanagement.model.Landlord;
 import com.techroom.roommanagement.model.User;
 import com.techroom.roommanagement.security.JwtTokenProvider;
 import com.techroom.roommanagement.service.RefreshTokenService;
@@ -26,6 +27,9 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private com.techroom.roommanagement.repository.LandlordRepository landlordRepository;
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
@@ -72,12 +76,31 @@ public class AuthController {
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
 
             // Tạo user info
+            UserInfo.LandlordInfo landlordInfo = null;
+            if (user.getRole() == 1) { // LANDLORD
+                Landlord landlord = landlordRepository.findByUserId(user.getId()).orElse(null);
+                if (landlord != null) {
+                    landlordInfo = new UserInfo.LandlordInfo(
+                        landlord.getId(),
+                        landlord.getCccd(),
+                        landlord.getAddress(),
+                        landlord.getExpectedRoomCount(),
+                        landlord.getFrontImagePath(),
+                        landlord.getBackImagePath(),
+                        landlord.getBusinessLicensePath(),
+                        landlord.getApproved() != null ? landlord.getApproved().name() : null,
+                        landlord.getUtilityMode() != null ? landlord.getUtilityMode().name() : null,
+                        landlord.getCreatedAt() != null ? landlord.getCreatedAt().toString() : null
+                    );
+                }
+            }
             UserInfo userInfo = new UserInfo(
                     user.getId(),
                     user.getUsername(),
                     user.getFullName(),
                     user.getEmail(),
-                    getRoleName(user.getRole())
+                    getRoleName(user.getRole()),
+                    landlordInfo
             );
 
             // Tạo response
@@ -179,12 +202,31 @@ public class AuthController {
 
             User user = userService.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
 
+            UserInfo.LandlordInfo landlordInfo = null;
+            if (user.getRole() == 1) { // LANDLORD
+                Landlord landlord = landlordRepository.findByUserId(user.getId()).orElse(null);
+                if (landlord != null) {
+                    landlordInfo = new UserInfo.LandlordInfo(
+                        landlord.getId(),
+                        landlord.getCccd(),
+                        landlord.getAddress(),
+                        landlord.getExpectedRoomCount(),
+                        landlord.getFrontImagePath(),
+                        landlord.getBackImagePath(),
+                        landlord.getBusinessLicensePath(),
+                        landlord.getApproved() != null ? landlord.getApproved().name() : null,
+                        landlord.getUtilityMode() != null ? landlord.getUtilityMode().name() : null,
+                        landlord.getCreatedAt() != null ? landlord.getCreatedAt().toString() : null
+                    );
+                }
+            }
             UserInfo userInfo = new UserInfo(
                     user.getId(),
                     user.getUsername(),
                     user.getFullName(),
                     user.getEmail(),
-                    getRoleName(user.getRole())
+                    getRoleName(user.getRole()),
+                    landlordInfo
             );
 
             return ResponseEntity.ok(userInfo);

@@ -26,6 +26,11 @@ public class TenantService {
         return tenantRepository.findAll();
     }
 
+    // Lấy tất cả tenant thuộc landlord
+    public List<Tenant> getTenantsByLandlord(Integer landlordId) {
+        return tenantRepository.findAllByLandlordId(landlordId);
+    }
+
     public Optional<Tenant> getTenantById(int id) {
         return tenantRepository.findById(id);
     }

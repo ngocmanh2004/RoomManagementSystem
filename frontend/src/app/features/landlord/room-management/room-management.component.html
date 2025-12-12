@@ -115,17 +115,24 @@
 
     <form class="modal-body" [formGroup]="roomForm" (ngSubmit)="onSubmit()">
 
-      <div class="form-group">
+      <div class="form-group" style="position:relative;">
         <label for="building">Tòa nhà *</label>
-        <select id="building" formControlName="buildingId">
-          <option [ngValue]="null" disabled>Chọn một tòa nhà</option>
-          <option *ngFor="let b of buildings" [value]="b.id">
+        <input 
+          id="building" 
+          type="text" 
+          [value]="buildingInput" 
+          #buildingInputRef 
+          (input)="onBuildingInputChange(buildingInputRef.value)" 
+          placeholder="Nhập tên hoặc địa chỉ tòa nhà" 
+          autocomplete="off" 
+          [readonly]="isEditMode"
+        />
+        <ul *ngIf="!isEditMode && buildingInput && filteredBuildings.length" class="autocomplete-list">
+          <li *ngFor="let b of filteredBuildings" (mousedown)="onSelectBuilding(b)">
             {{ b.name }} ({{ b.address }})
-          </option>
-        </select>
-        <div *ngIf="roomForm.get('buildingId')?.invalid && roomForm.get('buildingId')?.touched" class="form-error">
-          Vui lòng chọn tòa nhà.
-        </div>
+          </li>
+        </ul>
+        <!-- Không cần validate buildingId ở đây nữa -->
       </div>
 
       <div class="form-group">
@@ -269,7 +276,7 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="closeModal()">Hủy</button>
-        <button type="submit" class="btn btn-primary" [disabled]="roomForm.invalid">
+        <button type="submit" class="btn btn-primary" [disabled]="roomForm.get('name')?.invalid || roomForm.get('area')?.invalid || roomForm.get('price')?.invalid || roomForm.get('status')?.invalid || !buildingInput.trim()">
           {{ isEditMode ? 'Lưu thay đổi' : 'Thêm phòng' }}
         </button>
       </div>

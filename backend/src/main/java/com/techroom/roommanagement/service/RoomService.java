@@ -1,3 +1,4 @@
+
 package com.techroom.roommanagement.service;
 
 import com.techroom.roommanagement.model.Room;
@@ -17,6 +18,18 @@ import java.util.stream.Collectors;
 
 @Service
 public class RoomService {
+    // Lấy tất cả phòng thuộc landlord
+    @Transactional(readOnly = true)
+    public List<Room> getRoomsByLandlord(Integer landlordId) {
+        List<Room> rooms = roomRepository.findAllByLandlordId(landlordId);
+        rooms.forEach(room -> {
+            if (room.getImages() != null)
+                room.getImages().size();
+            if (room.getAmenities() != null)
+                room.getAmenities().size();
+        });
+        return rooms;
+    }
 
     @Autowired
     private RoomRepository roomRepository;
@@ -26,6 +39,12 @@ public class RoomService {
 
     @Autowired
     private BuildingRepository buildingRepository;
+
+    // Lấy phòng theo landlordId (dùng cho API public dashboard landlord)
+    @Transactional(readOnly = true)
+    public List<Room> getRoomsByLandlordId(Integer landlordId) {
+        return getRoomsByLandlord(landlordId);
+    }
 
     @Transactional(readOnly = true)
     public List<Room> getAllRooms() {
@@ -98,6 +117,22 @@ public class RoomService {
             Building managedBuilding = buildingRepository.findById(room.getBuilding().getId())
                     .orElseThrow(() -> new RuntimeException("Khong tim thay toa nha voi id: " + room.getBuilding().getId()));
             room.setBuilding(managedBuilding);
+        } else if (room.getBuilding() != null && (room.getBuilding().getId() == null || room.getBuilding().getId() == 0)) {
+            // Nếu không có id, tạo mới building
+            Building newBuilding = new Building();
+            newBuilding.setName(room.getBuilding().getName());
+            newBuilding.setAddress(room.getBuilding().getAddress());
+            newBuilding.setDescription(room.getBuilding().getDescription());
+            newBuilding.setProvinceCode(room.getBuilding().getProvinceCode());
+            newBuilding.setDistrictCode(room.getBuilding().getDistrictCode());
+            // Gán landlord cho building mới
+            if (room.getBuilding().getLandlord() != null) {
+                newBuilding.setLandlord(room.getBuilding().getLandlord());
+            } else {
+                throw new RuntimeException("Thiếu landlord khi tạo building mới");
+            }
+            Building savedBuilding = buildingRepository.save(newBuilding);
+            room.setBuilding(savedBuilding);
         }
 
         if (room.getAmenities() != null && !room.getAmenities().isEmpty()) {
