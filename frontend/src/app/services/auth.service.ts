@@ -1,3 +1,7 @@
+  /**
+   * Lấy landlordId từ user hiện tại (nếu có)
+   */
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
@@ -106,6 +110,14 @@ export class AuthService {
   getCurrentUserId(): number | null {
     const user = this.getCurrentUser();
     return user ? user.id : null;
+  }
+
+    getCurrentLandlordId(): number | null {
+    const user = this.getCurrentUser();
+    if (user && user.landlord && user.landlord.id) {
+      return user.landlord.id;
+    }
+    return null;
   }
 
   /**

@@ -1,3 +1,4 @@
+
 package com.techroom.roommanagement.repository;
 
 import com.techroom.roommanagement.model.Building;
@@ -16,5 +17,7 @@ public interface BuildingRepository extends JpaRepository<Building, Integer> {
 
     boolean existsByProvinceCode(Integer provinceCode);
 
+    // Lấy danh sách building theo landlordId
+    List<Building> findByLandlordId(Integer landlordId);
     // ... (Các hàm khác của bạn nếu có) ...
 }

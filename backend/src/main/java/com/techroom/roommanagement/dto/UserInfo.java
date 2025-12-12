@@ -14,5 +14,22 @@ public class UserInfo {
     private String email;
     private String role; // "ADMIN", "LANDLORD", "TENANT"
 
+    // Thêm trường landlord (có thể null nếu không phải landlord)
+    private LandlordInfo landlord;
 
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class LandlordInfo {
+        private Integer id;
+        private String cccd;
+        private String address;
+        private Integer expectedRoomCount;
+        private String frontImagePath;
+        private String backImagePath;
+        private String businessLicensePath;
+        private String approved;
+        private String utilityMode;
+        private String createdAt;
+    }
 }
