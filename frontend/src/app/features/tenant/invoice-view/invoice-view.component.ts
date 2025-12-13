@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Invoice } from '../../../models/invoice.model';
 import { InvoiceService } from '../../../services/invoice.service';
 import { AuthService } from '../../../services/auth.service';
@@ -34,6 +35,7 @@ export class InvoiceViewComponent implements OnInit {
   private invoiceService = inject(InvoiceService);
   private authService = inject(AuthService);
   private tenantService = inject(TenantService);
+  private http = inject(HttpClient);
 
   // ===============================
   // STATE SIGNALS
@@ -200,6 +202,32 @@ Ngày Tạo: ${new Date(invoice.createdAt).toLocaleDateString('vi-VN')}
     link.click();
     URL.revokeObjectURL(url);
   }
+
+  payInvoice(invoice: Invoice) {
+  if (!invoice || !invoice.id) return;
+  
+  this.isLoading.set(true);
+  
+  this.http.post('/api/payments/create', { invoiceId: invoice.id }).subscribe({
+    next: (res: any) => {
+      this.isLoading.set(false);
+      const url = res?.data?.paymentUrl;
+      if (url) {
+        console.log('VNPay payment URL:', url);
+        // Mở VNPay trong tab mới
+        window.open(url, '_blank');
+      } else {
+        console.error('Không lấy được URL thanh toán', res);
+        alert('Không thể tạo link thanh toán. Vui lòng thử lại!');
+      }
+    },
+    error: (err: any) => {
+      this.isLoading.set(false);
+      console.error('Lỗi tạo thanh toán:', err);
+      alert('Có lỗi xảy ra. Vui lòng thử lại!');
+    }
+  });
+}
 
   // ===============================
   // UTILITIES

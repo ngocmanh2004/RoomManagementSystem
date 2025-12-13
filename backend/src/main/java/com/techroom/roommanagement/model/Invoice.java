@@ -101,4 +101,18 @@ public class Invoice {
         return contract != null && contract.getRoom() != null
                 ? contract.getRoom().getId() : null;
     }
+
+    /**
+     * Lấy mã hợp đồng (Contract Code) để hiển thị trong payment
+     */
+    // ==================== BỔ SUNG CHO VNPAY ====================
+    @Transient
+    public String getContractCode() {
+        return "INV-" + this.id;
+    }
+
+    @Transient
+    public void updateStatusToPaid() {
+        this.status = InvoiceStatus.PAID;
+    }
 }

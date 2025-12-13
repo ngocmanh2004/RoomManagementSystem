@@ -71,7 +71,7 @@
           </td>
           <td class="text-center nowrap">
             <button class="act" (click)="viewInvoiceDetail(invoice)">Xem</button>
-            <button class="act primary" title="Thanh toán" (click)="$event.preventDefault()">Thanh toán</button>
+            <button class="act primary" title="Thanh toán" (click)="payInvoice(invoice)">Thanh toán</button>
           </td>
         </tr>
 
@@ -163,7 +163,7 @@
     <!-- Footer -->
     <footer class="modal-footer">
       <button class="btn outline" (click)="closeDetailModal()">Đóng</button>
-      <button *ngIf="selectedInvoice()?.status !== 'PAID'" class="btn primary" (click)="$event.preventDefault()">Thanh Toán</button>
+      <button *ngIf="selectedInvoice()?.status !== 'PAID'" class="btn primary" (click)="payInvoice(selectedInvoice()!)">Thanh Toán</button>
       <button class="btn primary" (click)="downloadInvoice(selectedInvoice()!)">Tải Xuống</button>
     </footer>
   </div>
