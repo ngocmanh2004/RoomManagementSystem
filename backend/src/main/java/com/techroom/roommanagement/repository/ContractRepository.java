@@ -98,4 +98,8 @@ public interface ContractRepository extends JpaRepository<Contract, Integer> {
     );
 
     boolean existsByTenantIdAndStatus(Integer tenantId, ContractStatus status);
+
+    Optional<Contract> findByTenantIdAndStatus(Integer tenantId, ContractStatus status);
+    List<Contract> findByRoomIdAndStatus(Integer roomId, ContractStatus status);
+    List<Contract> findByStatus(ContractStatus status);
 }

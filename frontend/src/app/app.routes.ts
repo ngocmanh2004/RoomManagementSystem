@@ -23,6 +23,10 @@ import { DashboardLandlordComponent } from './features/landlord/dashboard-landlo
 import { LandlordBookingComponent } from './features/landlord/landlord-booking/landlord-booking.component';
 import { LandlordBookingDetailComponent } from './features/landlord/landlord-booking-detail/landlord-booking-detail.component';
 import { CreateDirectContractComponent } from './features/landlord/create-direct-contract/create-direct-contract.component';
+import { SendNotificationComponent } from './features/landlord/send-notification/send-notification.component';
+import { TenantFeedbackComponent } from './features/review/tenant-feedback/tenant-feedback.component';
+import { LandlordFeedbackComponent } from './features/review/landlord-feedback/landlord-feedback.component';
+import { TenantNotificationComponent } from './features/tenant-notification/tenant-notification.component';
 
 export const routes: Routes = [
   {
@@ -38,7 +42,10 @@ export const routes: Routes = [
       { path: 'register-landlord', component: RegisterLandlordComponent},
       { path: 'tenant-profile', component: TenantProfileComponent },
       { path: 'contract-detail', component: ContractDetailComponent },
-
+      { path: 'notification', component: SendNotificationComponent},
+      { path: 'tenant-feedback', component: TenantFeedbackComponent},
+      { path: 'landlord/landlord-feedback', component: LandlordFeedbackComponent},
+      { path: 'tenant-notification', component: TenantNotificationComponent}
     ]
   },
   // ADMIN ROUTES (role = 0)

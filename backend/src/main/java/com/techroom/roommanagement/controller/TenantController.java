@@ -10,6 +10,7 @@ import com.techroom.roommanagement.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,10 +40,21 @@ public class TenantController {
 
     // Lấy tất cả tenant
     @GetMapping
-    public List<Tenant> getAllTenants() {
-        return tenantRepository.findAll();
-    }
+    public ResponseEntity<?> getAllTenants() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
 
+        User landlord = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+
+        if (landlord.getRole() != 1) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Chỉ chủ trọ mới được xem danh sách khách thuê");
+        }
+
+        List<User> tenants = userRepository.findAllByRole(2);
+        return ResponseEntity.ok(tenants);
+    }
     // Lấy tenant theo ID
     @GetMapping("/{id}")
     public ResponseEntity<Tenant> getTenantById(@PathVariable int id) {

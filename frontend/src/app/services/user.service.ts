@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-
+import { Observable, map } from 'rxjs';
 export interface User {
   id: number;
   username: string;
@@ -53,5 +52,10 @@ export class UserService {
 
   deleteUser(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+  getTenants(): Observable<User[]> { 
+    return this.http.get<PageResponse<User>>('/api/users?role=2').pipe(
+      map((response: PageResponse<User>) => response.content)
+    );
   }
 }
