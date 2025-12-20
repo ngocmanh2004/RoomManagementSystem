@@ -74,6 +74,10 @@ public class Room {
     )
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Set<Amenity> amenities = new HashSet<>();
+    // Room.java
+    @ManyToOne
+    @JoinColumn(name = "landlord_id")
+    private Landlord landlord;
 
     public enum RoomStatus {
         AVAILABLE("Trong"),

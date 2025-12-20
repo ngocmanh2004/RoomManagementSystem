@@ -1,9 +1,9 @@
 import { Landlord } from './landlord.model';
 export interface RegisterRequest {
-  username: string;
-  fullName: string;
+  username?: string;
+  fullName?: string;
   email: string;
-  phone: string;
+  phone?: string;
   password: string;
   confirmPassword?: string;
   address: string;
@@ -40,7 +40,7 @@ export interface User {
   username: string;
   fullName: string;
   email: string;
-  phone: string;
+  phone?: string;
   role: number;
   status: string;
 }

@@ -1,0 +1,507 @@
+/* ====================== QUẢN LÝ PHẢN HỒI – ĐẸP NHƯ ẢNH BẠN GỬI – 2025 ====================== */
+
+.alert {
+  position: fixed !important;
+  bottom: 120px !important;                 /* hiện ngay dưới bảng */
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 9999 !important;
+  background: transparent !important;       /* không khung */
+  border: none !important;
+  box-shadow: none !important;
+  padding: 1rem 2rem !important;
+  border-radius: 2rem !important;
+  font-weight: 800 !important;
+  font-size: 1.1rem !important;
+  text-align: center;
+  animation: textPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  backdrop-filter: blur(12px) !important;   /* hiệu ứng mờ nhẹ đẹp */
+  min-width: 320px !important;
+}
+
+/* Hiệu ứng hiện lên mượt + phóng to nhẹ */
+@keyframes textPop {
+  0%   { transform: translate(-50%, 60px) scale(0.8); opacity: 0; }
+  60%  { transform: translate(-50%, -12px) scale(1.06); }
+  100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+}
+
+/* Màu chữ + nền mờ nhẹ */
+.alert-success {
+  color: #166534 !important;
+  background: rgba(220, 252, 231, 0.6) !important;
+}
+.alert-error {
+  color: #991b1b !important;
+  background: rgba(254, 226, 226, 0.6) !important;
+}
+.alert-info {
+  color: #1e40af !important;
+  background: rgba(219, 234, 254, 0.6) !important;
+}
+
+/* Icon nhỏ xinh bên trái (tùy chọn) */
+.alert svg {
+  width: 28px !important;
+  height: 28px !important;
+  opacity: 0.9;
+}
+/* Tiêu đề */
+h2 { 
+  text-align: center !important; 
+  font-size: 40px !important; 
+  font-weight: 900 !important;
+  background: linear-gradient(90deg, #2178f1, #2b6bea);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 2rem !important;
+}
+
+/* Card bảng – có viền trắng bao quanh */
+.bg-base-100 {
+  background: white !important;
+  border-radius: 1.8rem !important;
+  border: 4px solid white !important;
+  box-shadow: 0 25px 80px rgba(33, 120, 241, 0.25) !important;
+  overflow: hidden;
+}
+
+/* Header bảng – xanh đậm đẹp */
+.table thead {
+  background: linear-gradient(90deg, #1e40af, #3b82f6) !important;
+}
+.table thead th {
+  color: white !important;
+  font-weight: 700 !important;
+  font-size: 1.05rem !important;
+  letter-spacing: 1px;
+  padding: 1.5rem 1rem !important;
+  text-transform: uppercase;
+}
+
+/* Cột Phòng rộng hơn */
+.table th:nth-child(1),
+.table td:nth-child(1) { 
+  min-width: 180px !important; 
+  width: 180px !important; 
+}
+
+/* Dòng bảng hover */
+.table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.08) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15) !important;
+  transition: all 0.3s ease;
+}
+
+/* Badge trạng thái */
+.badge {
+  padding: 0.75rem 1.6rem !important;
+  border-radius: 2rem !important;
+  font-weight: 800 !important;
+  font-size: 0.95rem !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+}
+
+/* ====================== CỘT HÀNH ĐỘNG – TẤT CẢ NÚT ĐỀU NHAU, ĐẸP CỰC ====================== */
+.table .flex.flex-col.gap-2 {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 0.8rem !important;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 0.6rem 0;
+}
+
+/* Tất cả nút & trạng thái đều cùng kiểu, cùng size */
+.table .btn-sm,
+.table .flex.flex-col.gap-2 > div,
+.table .text-success,
+.table .text-xs.text-success {
+  flex: 1 1 160px !important;
+  max-width: 190px !important;
+  min-height: 52px !important;
+  border-radius: 2rem !important;
+  font-weight: 800 !important;
+  font-size: 0.96rem !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  transition: all 0.35s ease;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.16);
+  white-space: nowrap;
+  border: 3px solid transparent !important;
+}
+
+/* NÚT "BẮT ĐẦU XỬ LÝ" – XANH DƯƠNG */
+.btn-info.btn-outline {
+  background: #dbeafe !important;
+  border-color: #3b82f6 !important;
+  color: #1e40af !important;
+}
+.btn-info.btn-outline:hover {
+  background: #3b82f6 !important;
+  color: white !important;
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px rgba(59,130,246,0.5) !important;
+}
+
+/* NÚT "HỦY" – ĐỎ */
+.btn-ghost.text-error {
+  background: #fee2e2 !important;
+  border-color: #f87171 !important;
+  color: #dc2626 !important;
+}
+.btn-ghost.text-error:hover {
+  background: #ef4444 !important;
+  color: white !important;
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px rgba(239,68,68,0.5) !important;
+}
+
+/* NÚT "ĐÃ XỬ LÝ XONG" – XANH LÁ + ICON CHECK */
+.btn-success {
+  background: #dcfce7 !important;
+  border-color: #22c55e !important;
+  color: #166534 !important;
+}
+.btn-success:hover {
+  background: #22c55e !important;
+  color: white !important;
+  transform: translateY(-5px);
+  box-shadow: 0 16px 36px rgba(34,197,94,0.55) !important;
+}
+
+/* TRẠNG THÁI "ĐANG CHỜ XÁC NHẬN" & "HOÀN TẤT" – CŨNG LÀ NÚT ĐẸP */
+.table .text-success,
+.table .text-xs.text-success {
+  background: #f0fdf4 !important;
+  border-color: #86efac !important;
+  color: #166534 !important;
+}
+
+/* Phân trang */
+.join .btn { 
+  border-radius: 1.8rem !important; 
+  padding: 0.9rem 2.2rem !important; 
+  font-weight: 700; 
+  min-height: 56px; 
+}
+.join .btn-active { 
+  background: linear-gradient(135deg,#1e40af,#3b82f6)!important; 
+  color: white!important; 
+}
+
+/* Modal */
+.modal-box { 
+  border-radius: 2.4rem!important; 
+  padding: 2.8rem!important; 
+  background: white!important; 
+  box-shadow: 0 40px 100px rgba(0,0,0,0.35)!important; 
+  border: 3px solid white!important;
+}
+.modal-box .textarea { 
+  border-radius: 1.8rem!important; 
+  border: 3px solid #e0e7ff!important; 
+  padding: 1.4rem!important; 
+  font-size: 1.1rem; 
+}
+.modal-action .btn-success { 
+  border-radius: 2rem!important; 
+  padding: 1rem 3.5rem!important; 
+  font-weight: 800; 
+}
+
+/* Responsive – mobile vẫn đẹp */
+@media (max-width: 768px) {
+  .table .flex.flex-col.gap-2 { 
+    flex-wrap: wrap !important; 
+    gap: 0.6rem !important; 
+  }
+  .table .btn-sm,
+  .table .flex.flex-col.gap-2 > div {
+    flex: 1 1 100% !important;
+    max-width: none !important;
+  }
+}
+/* Cột "Nội dung" – rộng hơn, cách xa cột Hành động */
+.table th:nth-child(4),
+.table td:nth-child(4) {
+  min-width: 260px !important;
+  max-width: 320px !important;
+  padding-right: 2.5rem !important;   /* đẩy nội dung ra xa cột Hành động */
+}
+
+/* Cột "Hành động" – cách xa cột Nội dung, căn giữa đẹp */
+.table th:nth-child(6),
+.table td:nth-child(6) {
+  padding-left: 2.5rem !important;    /* tạo khoảng cách lớn với cột Nội dung */
+  padding-right: 1.8rem !important;
+  min-width: 250px !important;        /* đủ chỗ cho 2 nút ngang nhau */
+}
+/* ====================== MODAL "ĐÃ XỬ LÝ XONG" – ĐẸP NHƯ ẢNH BẠN GỬI – CỰC KỲ HOÀN HẢO ====================== */
+
+/* Ẩn dấu tick đen (bắt buộc) */
+.modal-toggle,
+#resolve-modal {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0,0,0,0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Modal căn giữa, to hơn, đẹp như ảnh */
+.modal-box {
+  max-width: 560px !important;
+  width: 92vw !important;
+  border-radius: 2.8rem !important;
+  padding: 3rem 2.5rem !important;
+  background: white !important;
+  box-shadow: 0 50px 130px rgba(0,0,0,0.35) !important;
+  border: 4px solid white !important;
+  animation: modalPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Hiệu ứng bật modal mượt */
+@keyframes modalPop {
+  0%   { transform: scale(0.85); opacity: 0; }
+  70%  { transform: scale(1.03); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Tiêu đề + icon check xanh lá đẹp */
+.modal-box h3 {
+  font-size: 2.1rem !important;
+  font-weight: 900 !important;
+  color: #166534 !important;
+  display: flex !important;
+  align-items: center;
+  gap: 1.2rem !important;
+  margin-bottom: 1.8rem !important;
+  justify-content: center !important;
+  text-align: center;
+}
+
+.modal-box h3 svg {
+  width: 56px !important;
+  height: 56px !important;
+  padding: 10px;
+  background: #dcfce7;
+  border-radius: 50%;
+  stroke-width: 3.5;
+  color: #166534;
+  flex-shrink: 0;
+}
+
+/* Textarea đẹp */
+.modal-box .textarea {
+  min-height: 170px !important;
+  border-radius: 2rem !important;
+  border: 3px solid #e0e7ff !important;
+  padding: 1.6rem !important;
+  font-size: 1.1rem !important;
+  resize: none !important;
+  background: #f8faff;
+}
+.modal-box .textarea:focus {
+  border-color: #22c55e !important;
+  box-shadow: 0 0 0 6px rgba(34,197,94,0.2) !important;
+  background: white;
+}
+
+/* ====================== SỬA NÚT "HỦY" CĂN GIỮA ====================== */
+
+.modal-action {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 1.5rem !important;
+  margin-top: 2.5rem !important;
+  padding: 0 !important;
+}
+
+/* Ép cả 2 nút cùng chiều cao, căn giữa chữ */
+.modal-action .btn,
+.modal-action .btn-ghost,
+.modal-action .btn-success {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  min-height: 62px !important;
+  line-height: 1.2 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.modal-action .btn {
+  min-height: 62px !important;
+  padding: 0 3.5rem !important;
+  border-radius: 2rem !important;
+  font-weight: 800 !important;
+  font-size: 1.1rem !important;
+  transition: all 0.35s ease !important;
+}
+
+/* Nút Hủy – trắng viền xám */
+.modal-action .btn-ghost {
+  background: white !important;
+  border: 3px solid #e5e7eb !important;
+  color: #6b7280 !important;
+}
+.modal-action .btn-ghost:hover {
+  background: #f3f4f6 !important;
+  border-color: #9ca3af !important;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15) !important;
+}
+
+/* Nút Xác nhận – xanh lá gradient đẹp */
+.modal-action .btn-success {
+  background: linear-gradient(135deg, #22c55e, #16a34a) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 14px 36px rgba(34,197,94,0.5) !important;
+}
+.modal-action .btn-success:hover {
+  background: linear-gradient(135deg, #16a34a, #15803d) !important;
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 20px 45px rgba(34,197,94,0.6) !important;
+}
+.modal-action .btn-success:disabled {
+  background: #9ca3af !important;
+  opacity: 0.7;
+  transform: none !important;
+}
+/* ====================== ÉP MODAL VÀO CHÍNH GIỮA MÀN HÌNH – 100% HOÀN HẢO ====================== */
+
+.modal {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 2rem !important;
+}
+
+.modal-box {
+  position: relative !important;
+  margin: 0 !important;
+  transform: none !important;
+  max-width: 560px !important;
+  width: 92vw !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  border-radius: 2.8rem !important;
+  padding: 3rem 2.5rem !important;
+  background: white !important;
+  box-shadow: 0 50px 130px rgba(0,0,0,0.38) !important;
+  border: 4px solid white !important;
+}
+
+/* Đảm bảo không bị lệch dù có scrollbar */
+.modal::before {
+  content: none !important;
+}
+/* ====================== CỘT HÀNH ĐỘNG ĐẸP NHƯ ẢNH 2025 – CỰC CHUẨN ====================== */
+.action-buttons-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 0.8rem;
+  border-radius: 1.8rem;
+  font-weight: 800;
+  font-size: 0.95rem;
+  min-height: 84px;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  border: 3px solid transparent;
+}
+
+.action-btn.info    { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+.action-btn.error   { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+.action-btn.success { background: #dcfce7; color: #166534; border-color: #86efac; }
+.action-btn.warning { background: #fffbeb; color: #d97706; border-color: #fcd34d; }
+
+.action-btn:hover {
+  transform: translateY(-6px) scale(1.05);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+}
+
+.action-btn.single {
+  grid-column: 1 / -1;
+  min-height: 90px;
+  font-size: 1.05rem;
+}
+/* ====================== CỘT HÀNH ĐỘNG ĐẸP NHƯ ẢNH – SIÊU CHUẨN 2025 ====================== */
+
+/* Nút nhỏ bo tròn – giống hệt ảnh */
+.pill-btn {
+  @apply font-bold text-sm py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pill-btn.blue    { @apply bg-blue-100 text-blue-700 border-2 border-blue-300; }
+.pill-btn.red     { @apply bg-red-100 text-red-700 border-2 border-red-300; }
+.pill-btn.orange  { @apply bg-amber-100 text-amber-800 border-2 border-amber-300; }
+
+/* Nút to có tick xanh – chính là cái vuông xanh trong ảnh */
+.big-tick-btn {
+  @apply bg-green-50 text-green-700 border-4 border-green-300 rounded-3xl font-black text-lg;
+  width: 160px;
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 15px 35px rgba(34,197,94,0.3);
+  transition: all 0.4s ease;
+}
+
+.big-tick-btn:hover {
+  @apply bg-green-100 scale-1055;
+  box-shadow: 0 25px 50px rgba(34,197,94,0.45);
+}
+
+/* Các trạng thái nhỏ bo tròn */
+.pill-status {
+  @apply font-bold text-sm py-3 px-6 rounded-full text-center min-h-12 flex items-center justify-center;
+}
+
+.pill-status.yellow { @apply bg-yellow-100 text-amber-800 border-2 border-amber-200; }
+.pill-status.green  { @apply bg-green-100 text-green-800 border-2 border-green-200 font-black; }
+.pill-status.gray   { @apply bg-gray-100 text-gray-600 border-2 border-gray-200; }
+.pill-status.red    { @apply bg-red-100 text-red-700 border-2 border-red-200 font-bold; }
+
+/* Đảm bảo cột Hành động rộng đẹp, không tràn */
+.table th:nth-child(6),
+.table td:nth-child(6) {
+  width: 280px !important;
+  min-width: 320px !important;
+  max-width: 280px !important;
+  padding: 1.5rem 1rem !important;
+}

@@ -1,0 +1,40 @@
+<div class="container mx-auto p-6 max-w-4xl">
+  <h2 class="text-3xl font-bold text-primary mb-8">🔔 Thông báo của bạn</h2>
+
+  <div *ngIf="loading" class="text-center py-10">
+    <span class="loading loading-spinner loading-lg text-primary"></span>
+    <p>Đang tải thông báo...</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
+
+  <div *ngIf="!loading && notifications.length === 0" class="text-center py-20 bg-base-100 rounded-lg shadow">
+    <p class="text-xl text-gray-500">🎉 Bạn không có thông báo nào mới.</p>
+  </div>
+
+  <ul *ngIf="!loading && notifications.length > 0" class="space-y-2">
+    <li *ngFor="let notif of notifications"
+        class="notification-item"
+        [ngClass]="notif.isRead ? 'notification-read' : 'notification-unread'"
+        (click)="markAsRead(notif)">
+        
+        <div class="flex justify-between items-center">
+            <h3 class="notification-title font-bold">
+                {{ notif.title }}
+                <span *ngIf="!notif.isRead" class="notification-badge">MỚI</span>
+            </h3>
+            <span class="notification-time text-xs">{{ timeAgo(notif.createdAt) }}</span>
+        </div>
+        
+        <p class="notification-message text-sm mt-1 mb-2">{{ notif.message }}</p>
+
+        <div class="flex justify-end mt-2">
+            <button *ngIf="!notif.isRead" 
+                    class="mark-read-btn"
+                    (click)="markAsRead(notif); $event.stopPropagation()">
+                Đánh dấu đã đọc
+            </button>
+        </div>
+    </li>
+  </ul>
+</div>

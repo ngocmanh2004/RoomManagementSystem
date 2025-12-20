@@ -18,8 +18,8 @@ export interface Room {
   buildingId?: number;
   building?: Building;  // ← THÊM CÁI NÀY
   name: string;
-  price: number;
-  area: number;
+  price?: number;
+  area?: number;
   status: RoomStatus;
   description?: string;
   images?: RoomImage[];  // ← CẬP NHẬT TYPE

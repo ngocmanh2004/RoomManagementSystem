@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface TenantRepository extends JpaRepository<Tenant, Integer> {
     @Query("SELECT t FROM Tenant t WHERE t.user.id = :userId")
-    Optional<Tenant> findByUserId(@Param("userId") int userId);
+    //Optional<Tenant> findByUserId(@Param("userId") int userId);
     Optional<Tenant> findByCccd(String cccd);
 
     /**
