@@ -224,7 +224,7 @@ export class WaterManagementComponent
           maintainAspectRatio: false,
           plugins: {
             legend: { display: true, position: 'top' },
-            tooltip: { callbacks: { label: (c) => ` ${c.formattedValue} m³` } },
+            tooltip: { callbacks: { label: (c: any) => ` ${c.formattedValue} m³` } },
           },
           scales: {
             y: { beginAtZero: true },

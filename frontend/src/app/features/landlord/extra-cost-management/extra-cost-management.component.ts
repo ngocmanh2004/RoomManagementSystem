@@ -270,7 +270,7 @@ export class ExtraCostManagementComponent
             legend: { display: false },
             tooltip: {
               callbacks: {
-                label: (c) =>
+                label: (c: any) =>
                   ` ${new Intl.NumberFormat('vi-VN').format(
                     c.raw as number
                   )} đ`,
@@ -297,7 +297,7 @@ export class ExtraCostManagementComponent
             legend: { display: true, position: 'top' },
             tooltip: {
               callbacks: {
-                label: (c) =>
+                label: (c: any) =>
                   ` ${c.dataset.label}: ${new Intl.NumberFormat('vi-VN').format(
                     c.raw as number
                   )} đ`,
@@ -309,7 +309,7 @@ export class ExtraCostManagementComponent
             y: {
               stacked: true,
               beginAtZero: true,
-              ticks: { callback: (v) => (v as number) / 1000 + 'k' },
+              ticks: { callback: (v: any) => (v as number) / 1000 + 'k' },
             },
           },
         },
