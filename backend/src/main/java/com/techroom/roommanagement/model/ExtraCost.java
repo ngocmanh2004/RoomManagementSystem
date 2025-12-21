@@ -9,7 +9,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "extra_costs")
+@Table(
+  name = "extra_costs",
+  uniqueConstraints = {
+    @UniqueConstraint(
+      columnNames = {"room_id", "month", "type"}
+    )
+  }
+)
 @Data
 @Builder
 @NoArgsConstructor
@@ -23,18 +30,20 @@ public class ExtraCost {
   @Column(name = "room_id", nullable = false)
   private Integer roomId;
 
+  @Column(name = "name", nullable = false)
+  private String name;
+
   @Column(name = "code", nullable = false, unique = true)
-  private String code; // Mã chi phí (VD: EXP-123456)
+  private String code;
 
   @Enumerated(EnumType.STRING)
-  // 👇 Thêm thuộc tính length = 50 vào đây
   @Column(name = "type", nullable = false, length = 50)
   private CostType type;
 
   @Column(name = "amount", nullable = false)
   private BigDecimal amount;
 
-  @Column(name = "month", nullable = false, length = 7) // YYYY-MM
+  @Column(name = "month", nullable = false, length = 7)
   private String month;
 
   @Column(name = "description", columnDefinition = "TEXT")

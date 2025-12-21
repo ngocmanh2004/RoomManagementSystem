@@ -3,7 +3,9 @@ package com.techroom.roommanagement.service;
 import com.techroom.roommanagement.dto.ElectricityRequest;
 import com.techroom.roommanagement.dto.ElectricityResponse;
 import com.techroom.roommanagement.model.ElectricityRecord;
+import com.techroom.roommanagement.repository.ContractRepository;
 import com.techroom.roommanagement.repository.ElectricityRepository;
+import com.techroom.roommanagement.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -17,8 +19,9 @@ import java.util.stream.Collectors;
 public class ElectricityService {
 
   private final ElectricityRepository repository;
+  private final RoomRepository roomRepository;
+  private final ContractRepository contractRepository;
 
-  // Get all with optional filter
   public List<ElectricityResponse> getAll(String month, ElectricityRecord.UtilityStatus status) {
     List<ElectricityRecord> records;
 
@@ -44,14 +47,21 @@ public class ElectricityService {
   public ElectricityResponse create(ElectricityRequest request) {
     validateRequest(request);
 
-    // Check duplicate room + month
     repository.findByRoomIdAndMonth(request.getRoomId(), request.getMonth())
       .ifPresent(r -> {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Record for this room and month already exists");
       });
 
+    String roomName = roomRepository.findById(request.getRoomId())
+      .orElseThrow(() -> new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Room not found"
+      ))
+      .getName();
+
     ElectricityRecord record = ElectricityRecord.builder()
       .roomId(request.getRoomId())
+      .name(roomName)
       .oldIndex(request.getOldIndex())
       .newIndex(request.getNewIndex())
       .unitPrice(request.getUnitPrice())
@@ -100,6 +110,7 @@ public class ElectricityService {
     ElectricityResponse res = new ElectricityResponse();
     res.setId(record.getId());
     res.setRoomId(record.getRoomId());
+    res.setName(record.getName());
     res.setOldIndex(record.getOldIndex());
     res.setNewIndex(record.getNewIndex());
     res.setUsage(record.getNewIndex() - record.getOldIndex());
@@ -108,6 +119,9 @@ public class ElectricityService {
     res.setMonth(record.getMonth());
     res.setStatus(record.getStatus());
     res.setSource(record.getSource());
+    contractRepository
+      .findActiveTenantFullNameByRoomId(record.getRoomId())
+      .ifPresent(res::setFullName);
     return res;
   }
 

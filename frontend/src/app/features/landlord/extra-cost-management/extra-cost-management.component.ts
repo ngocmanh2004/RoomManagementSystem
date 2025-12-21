@@ -5,20 +5,16 @@ import {
   computed,
   OnInit,
   inject,
-  ViewChild, // Thêm
-  ElementRef, // Thêm
-  AfterViewInit, // Thêm
-  OnDestroy, // Thêm
-  effect, // Thêm
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  OnDestroy,
+  effect,
 } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-// Import Chart.js
 import { Chart, registerables, ChartConfiguration } from 'chart.js';
 Chart.register(...registerables);
-
-// Import Models & Services
 import { Room } from '../../../models/room.model';
 import { RoomService } from '../../../services/room.service';
 import { ExtraCostService } from '../../../services/extra-cost.service';
@@ -55,10 +51,10 @@ export class ExtraCostManagementComponent
   chart: any;
 
   readonly CHART_COLORS: Record<string, string> = {
-    INTERNET: '#f97316', 
-    GARBAGE: '#3b82f6', 
-    MAINTENANCE: '#ef4444', 
-    OTHERS: '#9ca3af', 
+    INTERNET: '#f97316',
+    GARBAGE: '#3b82f6',
+    MAINTENANCE: '#ef4444',
+    OTHERS: '#9ca3af',
   };
 
   // ===============================
@@ -66,8 +62,10 @@ export class ExtraCostManagementComponent
   // ===============================
   currentDateTime = new Date();
   months = signal<string[]>([]);
+  maxMonth: string = '';
   roomList = signal<Room[]>([]);
   records = signal<ExtraCost[]>([]);
+  currentName = signal<string>('');
 
   filters = signal<{
     month: string;
@@ -86,6 +84,7 @@ export class ExtraCostManagementComponent
   form = signal<ExtraCost>({
     id: 0,
     roomId: 0,
+    name: '',
     type: CostType.OTHERS,
     amount: 0,
     month: '',
@@ -96,11 +95,12 @@ export class ExtraCostManagementComponent
   isModalOpen = signal(false);
   isEditMode = signal(false);
   isConfirmModalOpen = signal(false);
+  isDeleteMode = signal(false);
   recordToConfirm = signal<ExtraCost | null>(null);
   actionType = signal<'DELETE' | 'PAY' | null>(null);
 
   // ===============================
-  // CONSTRUCTOR: CẬP NHẬT LOGIC CHART MỚI
+  // CONSTRUCTOR
   // ===============================
   constructor() {
     effect(() => {
@@ -111,10 +111,11 @@ export class ExtraCostManagementComponent
     });
   }
 
-  // ===============================
-  // LIFECYCLE
-  // ===============================
   ngOnInit() {
+    const now = new Date();
+    this.maxMonth = `${now.getFullYear()}-${(now.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}`;
     this.loadRooms();
     this.loadData();
   }
@@ -131,9 +132,14 @@ export class ExtraCostManagementComponent
   // LOAD DATA
   // ===============================
   loadRooms() {
-    this.roomService.getAllRooms().subscribe({
-      next: (rooms) => this.roomList.set(rooms),
-      error: (err) => console.error('Lỗi tải phòng:', err),
+    this.roomService.getMyRooms().subscribe({
+      next: (rooms: Room[]) => {
+        this.roomList.set(rooms.filter((r) => r.status === 'OCCUPIED'));
+      },
+      error: (err) => {
+        console.error('Failed to load rooms', err);
+        this.roomList.set([]);
+      },
     });
   }
 
@@ -151,23 +157,49 @@ export class ExtraCostManagementComponent
     });
   }
 
+  removeAccents(str: string): string {
+    if (!str) return '';
+    return str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'D')
+      .toLowerCase()
+      .trim();
+  }
+
   // ===============================
   // COMPUTED LOGIC
   // ===============================
 
   filteredRecords = computed(() => {
     const f = this.filters();
-    const keyword = f.keyword.toLowerCase().trim();
+    const keyword = this.removeAccents(f.keyword);
+    const rooms = this.roomList();
 
     return this.records().filter((r) => {
       const matchMonth = !f.month || r.month === f.month;
       const matchRoom = f.roomId === 0 || r.roomId === f.roomId;
       const matchStatus = f.status === 'ALL' || r.status === f.status;
+
+      const roomInfo = this.roomList().find((room) => room.id === r.roomId);
+      const roomName = roomInfo ? roomInfo.name : `Phòng ${r.roomId}`;
+
+      const normalizedRoomName = this.removeAccents(roomName);
+      const normalizedTenantName = this.removeAccents(r.fullName || '');
+      const roomIdStr = r.roomId.toString();
+      const formattedCode = 'p' + r.roomId.toString().padStart(3, '0');
       const matchType = f.type === 'ALL' || r.type === f.type;
       const matchSearch =
-        !keyword ||
-        r.code?.toLowerCase().includes(keyword) ||
-        r.roomName?.toLowerCase().includes(keyword);
+        keyword === '' ||
+        (r.roomId != null && r.roomId.toString().includes(keyword)) ||
+        (r.roomId != null &&
+          ('p' + r.roomId.toString().padStart(3, '0')).includes(keyword)) ||
+        normalizedRoomName.includes(keyword) ||
+        normalizedTenantName.includes(keyword);
+
+      r.code?.toLowerCase().includes(keyword) ||
+        r.name.toLowerCase().includes(keyword);
 
       return matchMonth && matchRoom && matchStatus && matchType && matchSearch;
     });
@@ -223,8 +255,8 @@ export class ExtraCostManagementComponent
           icon: this.getCostTypeIcon(type),
           colorClass: this.getCostTypeColorClass(type),
           colorHex: this.CHART_COLORS[type],
-
           trendBars: trendBars,
+          trendMonths: allMonths,
         };
       })
       .sort((a, b) => b.amount - a.amount);
@@ -265,7 +297,7 @@ export class ExtraCostManagementComponent
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          cutout: '75%', 
+          cutout: '75%',
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -280,8 +312,7 @@ export class ExtraCostManagementComponent
         },
       };
       config = doughnutConfig;
-    }
-    else {
+    } else {
       const chartData = this.prepareStackedData(this.filteredRecords());
 
       const barConfig: ChartConfiguration<'bar'> = {
@@ -385,16 +416,17 @@ export class ExtraCostManagementComponent
   // ===============================
   // EVENT HANDLERS (FILTER & FORM)
   // ===============================
-  updateRoomId(val: string) {
-    const rId = +val;
-    const selectedRoom = this.roomList().find((r) => r.id === rId);
-    const roomName = selectedRoom ? selectedRoom.name : '';
 
+  updateRoomId(value: string) {
+    const roomId = +value;
+    const selectedRoom = this.roomList().find((r) => r.id === roomId);
+    const name = selectedRoom?.name || '';
     this.form.update((f) => ({
       ...f,
-      roomId: rId,
-      roomName: roomName,
+      roomId: roomId,
+      name: name,
     }));
+    this.currentName.set(name);
   }
 
   updateType(val: string) {
@@ -462,6 +494,20 @@ export class ExtraCostManagementComponent
       return;
     }
 
+    if (!this.isEditMode()) {
+      const isDuplicate = this.records().some(
+        (r) =>
+          r.roomId === data.roomId &&
+          r.month === data.month &&
+          r.type === data.type
+      );
+
+      if (isDuplicate) {
+        alert('Loại chi phí này đã tồn tại trong tháng cho phòng này!');
+        return;
+      }
+    }
+
     if (this.isEditMode()) {
       this.extraCostService.update(data.id, data).subscribe({
         next: () => {
@@ -469,7 +515,10 @@ export class ExtraCostManagementComponent
           this.closeModal();
           alert('Cập nhật thành công!');
         },
-        error: (err) => console.error(err),
+        error: (err) => {
+          console.error(err);
+          alert('Có lỗi xảy ra khi cập nhật!');
+        },
       });
     } else {
       this.extraCostService.create(data).subscribe({
@@ -478,28 +527,48 @@ export class ExtraCostManagementComponent
           this.closeModal();
           alert('Thêm mới thành công!');
         },
-        error: (err) => console.error(err),
+        error: (err) => {
+          console.error(err);
+          alert('Có lỗi xảy ra khi thêm hóa đơn!');
+        },
       });
     }
+  }
+
+  confirmPayment() {
+    const id = this.recordToConfirm()?.id;
+    if (!id) return;
+
+    this.extraCostService.markPaid(id).subscribe({
+      next: () => {
+        this.loadData();
+        this.closeConfirmModal();
+        alert('Đã xác nhận thanh toán!');
+      },
+      error: (err) => {
+        console.error(err);
+        alert('Có lỗi khi xác nhận thanh toán!');
+      },
+    });
   }
 
   onConfirmAction() {
-    const record = this.recordToConfirm();
-    if (!record) return;
-
-    if (this.actionType() === 'DELETE') {
-      this.extraCostService.delete(record.id).subscribe(() => {
-        this.loadData();
-        this.closeConfirmModal();
-      });
-    } else if (this.actionType() === 'PAY') {
-      this.extraCostService.markPaid(record.id).subscribe(() => {
-        this.loadData();
-        this.closeConfirmModal();
-      });
+    if (this.isDeleteMode()) {
+      this.deleteRecord();
+    } else {
+      this.confirmPayment();
     }
   }
+  deleteRecord() {
+    const id = this.recordToConfirm()?.id;
+    if (!id) return;
 
+    this.extraCostService.delete(id).subscribe(() => {
+      this.loadData();
+      this.closeConfirmModal();
+      alert('Đã xóa bản ghi!');
+    });
+  }
   // ===============================
   // MODAL LOGIC
   // ===============================
@@ -511,18 +580,26 @@ export class ExtraCostManagementComponent
     this.form.set({
       id: 0,
       roomId: 0,
+      name: '',
       type: CostType.OTHERS,
       amount: 0,
       month: currentMonth,
       description: '',
       status: ExtraCostStatus.UNPAID,
+      fullName: '',
     });
+    this.currentName.set('');
     this.isEditMode.set(false);
     this.isModalOpen.set(true);
   }
 
   openEditModal(record: ExtraCost) {
     this.form.set({ ...record });
+    if (record.status === ExtraCostStatus.PAID) {
+      alert('Bản ghi đã thanh toán, không thể chỉnh sửa!');
+      return;
+    }
+    this.currentName.set(record.fullName || '');
     this.isEditMode.set(true);
     this.isModalOpen.set(true);
   }
@@ -533,20 +610,19 @@ export class ExtraCostManagementComponent
 
   openDeleteModal(record: ExtraCost) {
     this.recordToConfirm.set(record);
-    this.actionType.set('DELETE');
+    this.isDeleteMode.set(true);
     this.isConfirmModalOpen.set(true);
   }
 
   openConfirmPaymentModal(record: ExtraCost) {
     this.recordToConfirm.set(record);
-    this.actionType.set('PAY');
+    this.isDeleteMode.set(false);
     this.isConfirmModalOpen.set(true);
   }
 
   closeConfirmModal() {
     this.isConfirmModalOpen.set(false);
     this.recordToConfirm.set(null);
-    this.actionType.set(null);
   }
 
   // ===============================
@@ -561,9 +637,9 @@ export class ExtraCostManagementComponent
       data
         .map(
           (r) =>
-            `${r.code},${r.roomName},${this.getCostTypeName(r.type)},"${
-              r.description || ''
-            }",${r.amount},${r.month},${r.status}`
+            `${r.code},${r.name},,${r.fullName || '---'},${this.getCostTypeName(
+              r.type
+            )},"${r.description || ''}",${r.amount},${r.month},${r.status}`
         )
         .join('\n');
 

@@ -1,9 +1,12 @@
 package com.techroom.roommanagement.service;
 
+import com.techroom.roommanagement.dto.ElectricityResponse;
 import com.techroom.roommanagement.dto.WaterRequest;
 import com.techroom.roommanagement.dto.WaterResponse;
+import com.techroom.roommanagement.model.ElectricityRecord;
 import com.techroom.roommanagement.model.WaterRecord;
 import com.techroom.roommanagement.model.Room;
+import com.techroom.roommanagement.repository.ContractRepository;
 import com.techroom.roommanagement.repository.WaterRepository;
 import com.techroom.roommanagement.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +22,8 @@ import java.util.stream.Collectors;
 public class WaterService {
 
   private final WaterRepository repository;
-  private final RoomRepository roomRepository; // Cần Repository này để lấy tên phòng
+  private final RoomRepository roomRepository;
+  private final ContractRepository contractRepository;
 
   public List<WaterResponse> getAll(String month, WaterRecord.UtilityStatus status) {
     List<WaterRecord> records;
@@ -41,19 +45,27 @@ public class WaterService {
     return toResponse(record);
   }
 
+
   public WaterResponse create(WaterRequest request) {
     validateRequest(request);
 
-    // ⚠️ roomId là Integer
     repository.findByRoomIdAndMonth(request.getRoomId(), request.getMonth())
       .ifPresent(r -> {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Phòng này đã có số liệu nước của tháng này rồi!");
       });
 
+    String roomName = roomRepository.findById(request.getRoomId())
+      .orElseThrow(() -> new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Room not found"
+      ))
+      .getName();
+
     BigDecimal total = calculateTotal(request.getOldIndex(), request.getNewIndex(), request.getUnitPrice());
 
     WaterRecord record = WaterRecord.builder()
       .roomId(request.getRoomId())
+      .name(roomName)
       .oldIndex(request.getOldIndex())
       .newIndex(request.getNewIndex())
       .unitPrice(request.getUnitPrice())
@@ -96,33 +108,22 @@ public class WaterService {
   }
 
   // --- HELPERS ---
-
-  private WaterResponse toResponse(WaterRecord record) {
-    // Lấy tên phòng
-    String roomName = "Phòng " + record.getRoomId();
-    String tenantName = "---"; // Mặc định không có khách
-
-    // Tìm Room bằng Integer ID (Room.id là int)
-    Room room = roomRepository.findById(record.getRoomId()).orElse(null);
-    if (room != null) {
-      roomName = room.getName();
-      // ⚠️ ĐÃ BỎ: room.getTenantName() vì Room không có field này
-      // Nếu bạn muốn lấy tên khách, bạn cần join bảng Hợp đồng (Contract) ở đây
-    }
-
-    return WaterResponse.builder()
-      .id(record.getId())
-      .roomId(record.getRoomId()) // Integer
-      .roomName(roomName)
-      .tenantName(tenantName)
-      .oldIndex(record.getOldIndex())
-      .newIndex(record.getNewIndex())
-      .usage(record.getNewIndex() - record.getOldIndex())
-      .unitPrice(record.getUnitPrice())
-      .totalAmount(record.getTotalAmount())
-      .month(record.getMonth())
-      .status(record.getStatus())
-      .build();
+  private WaterResponse toResponse (WaterRecord record) {
+    WaterResponse res = new WaterResponse();
+    res.setId(record.getId());
+    res.setRoomId(record.getRoomId());
+    res.setName(record.getName());
+    res.setOldIndex(record.getOldIndex());
+    res.setNewIndex(record.getNewIndex());
+    res.setUsage(record.getNewIndex() - record.getOldIndex());
+    res.setUnitPrice(record.getUnitPrice());
+    res.setTotalAmount(record.getTotalAmount());
+    res.setMonth(record.getMonth());
+    res.setStatus(record.getStatus());
+    contractRepository
+      .findActiveTenantFullNameByRoomId(record.getRoomId())
+      .ifPresent(res::setFullName);
+    return res;
   }
 
   private BigDecimal calculateTotal(int oldIndex, int newIndex, BigDecimal unitPrice) {

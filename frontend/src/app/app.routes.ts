@@ -35,6 +35,7 @@ import { InvoiceViewComponent } from './features/tenant/invoice-view/invoice-vie
 import { VnpayReturnComponent } from './features/tenant/vnpay-return/vnpay-return.component';
 import { TenantLayoutComponent } from './shared/layout-tenant/tenant-layout/tenant-layout.component';
 
+import { ReportManagementComponent } from './features/admin/report-management/report-management.component';
 
 export const routes: Routes = [
   {
@@ -66,7 +67,12 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardAdminComponent },
       { path: 'users', component: UserManagementComponent },
       { path: 'landlords', component: AdminLandlordApprovalComponent },
-    ]
+      {
+        path: 'report-management',
+        component: ReportManagementComponent,
+        canActivate: [roleGuard([0])], // nếu có guard cho admin
+      },
+    ],
   },
 
   // LANDLORD ROUTES (role = 1)

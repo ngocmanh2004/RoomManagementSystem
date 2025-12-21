@@ -12,7 +12,8 @@ export enum UtilitySource {
 export interface ElectricRecord {
   id: number;
   roomId: number;
-  tenantName?: string;
+  name: string;
+  fullName: string;
   oldIndex: number;
   newIndex: number;
   unitPrice: number;

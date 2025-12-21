@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Failed suite [TenantSuite]" guice-stage="DEVELOPMENT">
+  <test thread-count="5" name="TenantTests(failed)">
+    <parameter name="startUrl" value="http://localhost:4200/login"/>
+    <classes>
+      <class name="tests.tenants.EditTenantTests">
+        <methods>
+          <include name="setUp"/>
+          <include name="tearDown"/>
+          <include name="testEditTenant"/>
+        </methods>
+      </class> <!-- tests.tenants.EditTenantTests -->
+      <class name="tests.tenants.DeleteTenantTests">
+        <methods>
+          <include name="setUp"/>
+          <include name="tearDown"/>
+          <include name="testDeleteTenant"/>
+        </methods>
+      </class> <!-- tests.tenants.DeleteTenantTests -->
+      <class name="tests.tenants.AddTenantTests">
+        <methods>
+          <include name="setUp"/>
+          <include name="tearDown"/>
+          <include name="testAddTenant"/>
+        </methods>
+      </class> <!-- tests.tenants.AddTenantTests -->
+      <class name="tests.tenants.ViewTenantTests">
+        <methods>
+          <include name="setUp"/>
+          <include name="tearDown"/>
+          <include name="testViewTenant"/>
+        </methods>
+      </class> <!-- tests.tenants.ViewTenantTests -->
+    </classes>
+  </test> <!-- TenantTests(failed) -->
+</suite> <!-- Failed suite [TenantSuite] -->

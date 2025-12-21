@@ -6,6 +6,8 @@ public class ElectricityResponse {
 
   private Integer id;
   private Integer roomId;
+  private String name;
+  private String fullName;
   private Integer oldIndex;
   private Integer newIndex;
   private Integer usage;
@@ -15,34 +17,99 @@ public class ElectricityResponse {
   private ElectricityRecord.UtilityStatus status;
   private ElectricityRecord.UtilitySource source;
 
-  // Getters and setters
-  public Integer getId() { return id; }
-  public void setId(Integer id) { this.id = id; }
+  public Integer getId() {
+    return id;
+  }
 
-  public Integer getRoomId() { return roomId; }
-  public void setRoomId(Integer roomId) { this.roomId = roomId; }
+  public void setId(Integer id) {
+    this.id = id;
+  }
 
-  public Integer getOldIndex() { return oldIndex; }
-  public void setOldIndex(Integer oldIndex) { this.oldIndex = oldIndex; }
+  public Integer getRoomId() {
+    return roomId;
+  }
 
-  public Integer getNewIndex() { return newIndex; }
-  public void setNewIndex(Integer newIndex) { this.newIndex = newIndex; }
+  public void setRoomId(Integer roomId) {
+    this.roomId = roomId;
+  }
 
-  public Integer getUsage() { return usage; }
-  public void setUsage(Integer usage) { this.usage = usage; }
+  public String getName() {
+    return name;
+  }
 
-  public Double getUnitPrice() { return unitPrice; }
-  public void setUnitPrice(Double unitPrice) { this.unitPrice = unitPrice; }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-  public Double getTotalAmount() { return totalAmount; }
-  public void setTotalAmount(Double totalAmount) { this.totalAmount = totalAmount; }
+  public String getFullName() {
+    return fullName;
+  }
 
-  public String getMonth() { return month; }
-  public void setMonth(String month) { this.month = month; }
+  public void setFullName(String fullName) {
+    this.fullName = fullName;
+  }
 
-  public ElectricityRecord.UtilityStatus getStatus() { return status; }
-  public void setStatus(ElectricityRecord.UtilityStatus status) { this.status = status; }
+  public Integer getOldIndex() {
+    return oldIndex;
+  }
 
-  public ElectricityRecord.UtilitySource getSource() { return source; }
-  public void setSource(ElectricityRecord.UtilitySource source) { this.source = source; }
+  public void setOldIndex(Integer oldIndex) {
+    this.oldIndex = oldIndex;
+  }
+
+  public Integer getNewIndex() {
+    return newIndex;
+  }
+
+  public void setNewIndex(Integer newIndex) {
+    this.newIndex = newIndex;
+  }
+
+  public Integer getUsage() {
+    return usage;
+  }
+
+  public void setUsage(Integer usage) {
+    this.usage = usage;
+  }
+
+  public Double getUnitPrice() {
+    return unitPrice;
+  }
+
+  public void setUnitPrice(Double unitPrice) {
+    this.unitPrice = unitPrice;
+  }
+
+  public Double getTotalAmount() {
+    return totalAmount;
+  }
+
+  public void setTotalAmount(Double totalAmount) {
+    this.totalAmount = totalAmount;
+  }
+
+  public String getMonth() {
+    return month;
+  }
+
+  public void setMonth(String month) {
+    this.month = month;
+  }
+
+  public ElectricityRecord.UtilityStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(ElectricityRecord.UtilityStatus status) {
+    this.status = status;
+  }
+
+  public ElectricityRecord.UtilitySource getSource() {
+    return source;
+  }
+
+  public void setSource(ElectricityRecord.UtilitySource source) {
+    this.source = source;
+  }
 }

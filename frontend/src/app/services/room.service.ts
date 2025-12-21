@@ -123,6 +123,12 @@ export class RoomService {
   }
 
   getRoomsByLandlord(landlordId: number): Observable<Room[]> {
-    return this.http.get<Room[]>(`${this.apiBase}/rooms/by-landlord/${landlordId}`);
+    return this.http.get<Room[]>(
+      `${this.apiBase}/rooms/by-landlord/${landlordId}`
+    );
+  }
+
+  getMyRooms(): Observable<Room[]> {
+    return this.http.get<Room[]>(`${this.apiBase}/rooms/my`);
   }
 }

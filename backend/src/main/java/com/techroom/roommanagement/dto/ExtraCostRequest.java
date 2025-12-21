@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 
 @Data
 public class ExtraCostRequest {
-  @NotNull(message = "Vui lòng chọn phòng")
+  @NotNull
   private Integer roomId;
 
   @NotNull(message = "Vui lòng chọn loại chi phí")
@@ -25,4 +25,5 @@ public class ExtraCostRequest {
   private String month;
 
   private String description;
+
 }

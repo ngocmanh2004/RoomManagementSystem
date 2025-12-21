@@ -373,7 +373,7 @@
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1000px;
+  min-width: 900px;
 }
 
 thead th {
@@ -455,16 +455,13 @@ tbody tr:hover {
   gap: 8px;
 }
 .btn-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
   background: transparent;
+  border: none;
   cursor: pointer;
-  transition: all 0.2s;
+  padding: 6px;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  transition: background 0.2s;
 }
 .btn-icon:hover {
   background-color: #f1f5f9;
@@ -478,7 +475,14 @@ tbody tr:hover {
 .text-danger {
   color: #ef4444;
 }
-
+.ellipsis {
+  max-width: 120px;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
 /* =========================================
      6. MODAL STYLES (FIXED LAYOUT)
      ========================================= */

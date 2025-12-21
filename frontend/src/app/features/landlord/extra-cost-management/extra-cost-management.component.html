@@ -89,7 +89,7 @@
               class="trend-bar"
               [style.height.%]="barHeight"
               [style.backgroundColor]="cat.colorHex"
-              [title]="'Tháng ' + ($index + 1)"
+              [title]="'Tháng ' + cat.trendMonths[$index]"
             ></div>
             }
           </div>
@@ -156,7 +156,8 @@
       <thead>
         <tr>
           <th>Mã CP</th>
-          <th>Phòng</th>
+          <th>Tên Phòng</th>
+          <th>Khách thuê</th>
           <th>Loại chi phí</th>
           <th>Mô tả</th>
           <th>Số tiền</th>
@@ -171,10 +172,17 @@
           <td class="text-muted text-sm font-mono">{{ record.code }}</td>
 
           <td>
-            <strong>P{{ record.roomId | number : "3.0-0" }}</strong>
-            @if(record.tenantName && record.tenantName !== '---') {
-            <div class="text-xs text-muted">{{ record.tenantName }}</div>
-            }
+            <strong class="ellipsis" title="{{ record.name }}">
+              {{ record.name }}
+            </strong>
+          </td>
+
+          <td>
+            <div class="tenant-info">
+              <span class="ellipsis" title="{{ record.fullName || '---' }}">
+                {{ record.fullName || "---" }}
+              </span>
+            </div>
           </td>
 
           <td>
@@ -215,6 +223,15 @@
           </td>
 
           <td class="actions">
+            @if (record.status === UtilityStatus.UNPAID) {
+            <button
+              class="btn-icon text-success"
+              (click)="openConfirmPaymentModal(record)"
+              title="Thanh toán"
+            >
+              <i class="fa-solid fa-credit-card"></i>
+            </button>
+            }
             <button
               class="btn-icon text-blue"
               (click)="openEditModal(record)"
@@ -224,6 +241,7 @@
             </button>
             <button
               class="btn-icon text-danger"
+              [disabled]="record.status === UtilityStatus.PAID"
               (click)="openDeleteModal(record)"
               title="Xóa"
             >
@@ -267,20 +285,23 @@
               (change)="updateRoomId($any($event.target).value)"
               [disabled]="isEditMode()"
             >
-              <option value="0" disabled selected>-- Chọn phòng --</option>
+              <option value="0" disabled selected>
+                -- Chọn phòng đang thuê --
+              </option>
               @for (room of roomList(); track room.id) {
               <option [value]="room.id">
-                P{{ room.id | number : "3.0-0" }} - {{ room.name }}
+                {{ room.name }}
               </option>
               }
             </select>
           </div>
           <div class="form-group">
-            <label>Tháng <span class="required">*</span></label>
+            <label>Tháng ghi <span class="required">*</span></label>
             <input
               type="month"
               class="form-control"
               [value]="form().month"
+              [max]="maxMonth"
               (input)="updateMonth($any($event.target).value)"
             />
           </div>
@@ -343,8 +364,16 @@
     <div class="icon-warning">
       <i class="fa-solid fa-triangle-exclamation"></i>
     </div>
-    <h3>Xác nhận xóa?</h3>
-    <p>Hành động này sẽ xóa khoản chi phí này khỏi hệ thống.</p>
+    <h3>
+      {{ isDeleteMode() ? "Xác nhận xóa?" : "Xác nhận thanh toán?" }}
+    </h3>
+    <p>
+      {{
+        isDeleteMode()
+          ? "Hành động này sẽ xóa khoản chi phí này khỏi hệ thống."
+          : "Xác nhận đã thanh toán khoản chi phí?"
+      }}
+    </p>
     <div class="modal-footer center">
       <button class="btn btn-secondary" (click)="closeConfirmModal()">
         Hủy
