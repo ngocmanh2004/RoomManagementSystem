@@ -79,6 +79,9 @@ public class Room {
     @JoinColumn(name = "landlord_id")
     private Landlord landlord;
 
+    @Transient
+    private String tenantName;
+
     public enum RoomStatus {
         AVAILABLE("Trong"),
         OCCUPIED("Da thue"),

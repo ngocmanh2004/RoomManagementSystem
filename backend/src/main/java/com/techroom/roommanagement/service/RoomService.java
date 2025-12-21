@@ -5,6 +5,7 @@ import com.techroom.roommanagement.model.Room;
 import com.techroom.roommanagement.model.Building;
 import com.techroom.roommanagement.model.Amenity;
 import com.techroom.roommanagement.repository.AmenityRepository;
+import com.techroom.roommanagement.repository.ContractRepository;
 import com.techroom.roommanagement.repository.RoomRepository;
 import com.techroom.roommanagement.repository.BuildingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,11 @@ public class RoomService {
                 room.getImages().size();
             if (room.getAmenities() != null)
                 room.getAmenities().size();
+            if (room.getStatus() == Room.RoomStatus.OCCUPIED) {
+                // Hàm này đã có sẵn trong ContractRepository bạn gửi
+                contractRepository.findActiveTenantFullNameByRoomId(room.getId())
+                        .ifPresent(fullName -> room.setTenantName(fullName));
+            }
         });
         return rooms;
     }
@@ -39,6 +45,9 @@ public class RoomService {
 
     @Autowired
     private BuildingRepository buildingRepository;
+
+    @Autowired
+    private ContractRepository contractRepository;
 
     // Lấy phòng theo landlordId (dùng cho API public dashboard landlord)
     @Transactional(readOnly = true)
@@ -55,6 +64,11 @@ public class RoomService {
                 room.getImages().size();
             if (room.getAmenities() != null)
                 room.getAmenities().size();
+            if (room.getStatus() == Room.RoomStatus.OCCUPIED) {
+                // Hàm này đã có sẵn trong ContractRepository bạn gửi
+                contractRepository.findActiveTenantFullNameByRoomId(room.getId())
+                        .ifPresent(fullName -> room.setTenantName(fullName));
+            }
         });
 
         return rooms;
