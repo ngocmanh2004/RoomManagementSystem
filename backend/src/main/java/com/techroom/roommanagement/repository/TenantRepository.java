@@ -12,7 +12,6 @@ import java.util.Optional;
 @Repository
 public interface TenantRepository extends JpaRepository<Tenant, Integer> {
     @Query("SELECT t FROM Tenant t WHERE t.user.id = :userId")
-    //Optional<Tenant> findByUserId(@Param("userId") int userId);
     Optional<Tenant> findByCccd(String cccd);
 
     /**
@@ -20,9 +19,20 @@ public interface TenantRepository extends JpaRepository<Tenant, Integer> {
      */
     Optional<Tenant> findByUserId(Integer userId);
 
-    @Query("SELECT t FROM Tenant t WHERE NOT EXISTS (" +
+    /*@Query("SELECT t FROM Tenant t WHERE NOT EXISTS (" +
             "SELECT c FROM Contract c WHERE c.tenant.id = t.id AND c.status = 'ACTIVE')")
-    List<Tenant> findTenantsWithoutActiveContract();
+    List<Tenant> findTenantsWithoutActiveContract();*/
+    @Query("SELECT DISTINCT t " +
+        " FROM Tenant t " +
+        " JOIN Contract c ON c.tenant.id = t.id " +
+        " JOIN Room r ON c.room.id = r.id " +
+        " WHERE r.landlord.id = :landlordId " +
+        " AND NOT EXISTS ( " +
+          " SELECT c2 FROM Contract c2 " +
+          " WHERE c2.tenant.id = t.id " +
+            " AND c2.status = 'ACTIVE' )")
+    List<Tenant> findAvailableTenantsByLandlord(@Param("landlordId") Integer landlordId);
+
 
     // Lấy tất cả tenant thuộc landlord (qua hợp đồng và phòng)
     @Query("SELECT DISTINCT t FROM Tenant t " +
