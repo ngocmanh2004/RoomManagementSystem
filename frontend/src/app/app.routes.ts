@@ -26,6 +26,7 @@ import { CreateDirectContractComponent } from './features/landlord/create-direct
 import { ElectricityManagementComponent } from './features/landlord/electricity-management/electricity-management.component';
 import { WaterManagementComponent } from './features/landlord/water-management/water-management.component';
 import { ExtraCostManagementComponent } from './features/landlord/extra-cost-management/extra-cost-management.component';
+import { ReportManagementComponent } from './features/admin/report-management/report-management.component';
 
 export const routes: Routes = [
   {
@@ -54,6 +55,11 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardAdminComponent },
       { path: 'users', component: UserManagementComponent },
       { path: 'landlords', component: AdminLandlordApprovalComponent },
+      {
+        path: 'report-management',
+        component: ReportManagementComponent,
+        canActivate: [roleGuard([0])], // nếu có guard cho admin
+      },
     ],
   },
 

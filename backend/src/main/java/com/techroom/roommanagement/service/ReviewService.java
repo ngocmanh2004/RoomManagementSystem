@@ -133,19 +133,16 @@ public class ReviewService {
             throw new ForbiddenException("Bạn phải đăng nhập để chỉnh sửa đánh giá");
         }
 
-        // ✅ Validate rating is not null
-        if (requestDTO.getRating() == null) {
-            throw new BadRequestException("Đánh giá không được để trống");
-        }
-        if (requestDTO.getRating() < 1 || requestDTO.getRating() > 5) {
-            throw new BadRequestException("Đánh giá phải từ 1 đến 5 sao");
-        }
-
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException("Đánh giá không tồn tại"));
 
-        if (review.getTenant().getId() != currentUserId) {
-            throw new ForbiddenException("Bạn chỉ có thể chỉnh sửa đánh giá của chính mình");
+        // Cho phép admin sửa bất kỳ đánh giá nào
+        boolean isAdmin = userRepository.findById(currentUserId)
+                .map(u -> u.getRole() == 0) // 0 = Admin
+                .orElse(false);
+
+        if (review.getTenant().getId() != currentUserId && !isAdmin) {
+            throw new ForbiddenException("Bạn chỉ có thể chỉnh sửa đánh giá của chính mình hoặc với quyền admin");
         }
 
         // ✅ Only update if rating is provided and valid
@@ -168,8 +165,13 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException("Đánh giá không tồn tại"));
 
-        if (review.getTenant().getId() != currentUserId) {
-            throw new ForbiddenException("Bạn chỉ có thể xóa đánh giá của chính mình");
+        // Cho phép admin xóa bất kỳ đánh giá nào
+        boolean isAdmin = userRepository.findById(currentUserId)
+                .map(u -> u.getRole() == 0)
+                .orElse(false);
+
+        if (review.getTenant().getId() != currentUserId && !isAdmin) {
+            throw new ForbiddenException("Bạn chỉ có thể xóa đánh giá của chính mình hoặc với quyền admin");
         }
 
         // ✅ Actually delete
@@ -196,5 +198,9 @@ public class ReviewService {
                 .canEdit(isOwner)
                 .canDelete(isOwner)
                 .build();
+    }
+
+    public Review getReviewById(Integer id) {
+        return reviewRepository.findById(id).orElse(null);
     }
 }

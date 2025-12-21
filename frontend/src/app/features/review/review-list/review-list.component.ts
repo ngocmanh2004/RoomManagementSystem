@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Review, ReviewRequest, ReviewResponse } from '../../../models/review.model';
 import { ReviewService } from '../../../services/review.service';
 import { AuthService } from '../../../services/auth.service';
@@ -11,7 +12,12 @@ import { takeUntil } from 'rxjs/operators';
 @Component({
   selector: 'app-review-list',
   standalone: true,
-  imports: [CommonModule, ReviewCardComponent, ReviewFormComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReviewCardComponent,
+    ReviewFormComponent
+  ],
   templateUrl: './review-list.component.html',
   styleUrl: './review-list.component.css'
 })
@@ -29,6 +35,11 @@ export class ReviewListComponent implements OnInit, OnDestroy, OnChanges {
   errorMessage = '';
   currentUserId?: number;
   currentUserReview?: Review;
+
+  isReportModalOpen = false;
+  reportReason: string = 'SPAM';
+  reportDescription: string = '';
+  reportReviewId: number | null = null;
 
   private destroy$ = new Subject<void>();
 
@@ -230,6 +241,34 @@ export class ReviewListComponent implements OnInit, OnDestroy, OnChanges {
     console.log('Editing review - roomId:', this.roomId, 'review:', this.editingReview);
   }
 
+  openReportModal(review: Review) {
+    this.reportReviewId = review.id;
+    this.reportReason = 'SPAM';
+    this.reportDescription = '';
+    this.isReportModalOpen = true;
+  }
+
+  closeReportModal() {
+    this.isReportModalOpen = false;
+    this.reportReviewId = null;
+  }
+
+  submitReport() {
+    if (!this.reportReviewId) return;
+    this.reviewService.reportReview(this.reportReviewId, {
+      reason: this.reportReason,
+      description: this.reportDescription
+    }).subscribe({
+      next: () => {
+        alert('Đã gửi báo cáo, quản trị viên sẽ xem xét.');
+        this.closeReportModal();
+      },
+      error: err => {
+        alert('Lỗi gửi báo cáo: ' + err.message);
+      }
+    });
+  }
+
   getPaginationPages(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i);
   }
@@ -240,5 +279,9 @@ export class ReviewListComponent implements OnInit, OnDestroy, OnChanges {
 
   isReviewOwner(review: Review): boolean {
     return this.isLoggedIn && this.currentUserId === review.tenantId;
+  }
+
+  onReportReview(review: Review) {
+    this.openReportModal(review);
   }
 }
