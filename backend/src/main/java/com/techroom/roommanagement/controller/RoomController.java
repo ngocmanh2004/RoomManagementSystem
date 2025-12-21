@@ -7,6 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.techroom.roommanagement.security.CustomUserDetails;
+import com.techroom.roommanagement.repository.LandlordRepository;
+import com.techroom.roommanagement.model.Landlord;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
@@ -19,10 +24,53 @@ public class RoomController {
     @Autowired
     private RoomService roomService;
 
+    @Autowired
+    private LandlordRepository landlordRepository;
+
+    // Lấy landlordId từ user đăng nhập
+    private Integer getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof CustomUserDetails) {
+            return ((CustomUserDetails) auth.getPrincipal()).getId();
+        }
+        return null;
+    }
+
+    private Integer getCurrentLandlordId() {
+        Integer userId = getCurrentUserId();
+        if (userId == null) return null;
+        return landlordRepository.findByUserId(userId)
+                .map(Landlord::getId)
+                .orElse(null);
+    }
+
+    // API lấy phòng theo landlordId (dùng cho dashboard chủ trọ)
+    @GetMapping("/by-landlord/{landlordId}")
+    public ResponseEntity<List<Room>> getRoomsByLandlordId(@PathVariable Integer landlordId) {
+        if (landlordId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        List<Room> rooms = roomService.getRoomsByLandlord(landlordId);
+        return ResponseEntity.ok(rooms);
+    }
+
+    // API public: trả về toàn bộ phòng (trang chủ, tìm kiếm...)
     @GetMapping
     public ResponseEntity<List<Room>> getAllRooms() {
         List<Room> rooms = roomService.getAllRooms();
         return ResponseEntity.ok(rooms);
+    }
+
+    // API riêng cho landlord: chỉ trả về phòng của landlord đang đăng nhập
+    @GetMapping("/my")
+    public ResponseEntity<List<Room>> getMyRooms() {
+        Integer landlordId = getCurrentLandlordId();
+        if (landlordId != null) {
+            List<Room> rooms = roomService.getRoomsByLandlord(landlordId);
+            return ResponseEntity.ok(rooms);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     @GetMapping("/search")
@@ -64,6 +112,16 @@ public class RoomController {
         try {
             if (room.getStatus() == null) {
                 room.setStatus(Room.RoomStatus.AVAILABLE);
+            }
+            // Nếu là building mới (không có id), tự động gán landlord hiện tại
+            if (room.getBuilding() != null && (room.getBuilding().getId() == null || room.getBuilding().getId() == 0)) {
+                Integer landlordId = getCurrentLandlordId();
+                if (landlordId != null) {
+                    Landlord landlord = landlordRepository.findById(landlordId).orElse(null);
+                    if (landlord != null) {
+                        room.getBuilding().setLandlord(landlord);
+                    }
+                }
             }
             Room newRoom = roomService.saveRoom(room);
             return ResponseEntity.status(HttpStatus.CREATED).body(newRoom);

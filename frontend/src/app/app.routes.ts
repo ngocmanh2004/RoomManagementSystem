@@ -27,10 +27,14 @@ import { SendNotificationComponent } from './features/landlord/send-notification
 import { TenantFeedbackComponent } from './features/review/tenant-feedback/tenant-feedback.component';
 import { LandlordFeedbackComponent } from './features/review/landlord-feedback/landlord-feedback.component';
 import { TenantNotificationComponent } from './features/tenant-notification/tenant-notification.component';
+import { ElectricityManagementComponent } from './features/landlord/electricity-management/electricity-management.component';
+import { WaterManagementComponent } from './features/landlord/water-management/water-management.component';
+import { ExtraCostManagementComponent } from './features/landlord/extra-cost-management/extra-cost-management.component';
 
 export const routes: Routes = [
   {
-    path: '', component: PublicLayoutComponent,
+    path: '',
+    component: PublicLayoutComponent,
     children: [
       { path: '', component: HomeComponent },
       { path: 'rooms', component: RoomsComponent },
@@ -39,14 +43,14 @@ export const routes: Routes = [
       { path: 'contact', component: ContactComponent },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
-      { path: 'register-landlord', component: RegisterLandlordComponent},
+      { path: 'register-landlord', component: RegisterLandlordComponent },
       { path: 'tenant-profile', component: TenantProfileComponent },
       { path: 'contract-detail', component: ContractDetailComponent },
       { path: 'notification', component: SendNotificationComponent},
       { path: 'tenant-feedback', component: TenantFeedbackComponent},
       { path: 'landlord/landlord-feedback', component: LandlordFeedbackComponent},
       { path: 'tenant-notification', component: TenantNotificationComponent}
-    ]
+    ],
   },
   // ADMIN ROUTES (role = 0)
   {
@@ -58,7 +62,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardAdminComponent },
       { path: 'users', component: UserManagementComponent },
       { path: 'landlords', component: AdminLandlordApprovalComponent },
-    ]
+    ],
   },
 
   // LANDLORD ROUTES (role = 1)
@@ -72,9 +76,12 @@ export const routes: Routes = [
       { path: 'tenants', component: TenantManagementComponent },
       { path: 'rooms', component: RoomManagementComponent },
       { path: 'bookings', component: LandlordBookingComponent },
-      { path: 'bookings/create', component: CreateDirectContractComponent},
-      { path: 'bookings/:id', component: LandlordBookingDetailComponent},
-    ]
+      { path: 'bookings/create', component: CreateDirectContractComponent },
+      { path: 'bookings/:id', component: LandlordBookingDetailComponent },
+      { path: 'electricity', component: ElectricityManagementComponent },
+      { path: 'water', component: WaterManagementComponent },
+      { path: 'extra-cost', component: ExtraCostManagementComponent },
+    ],
   },
 
   // TENANT ROUTES (role = 2)
@@ -84,8 +91,8 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       //{ path: 'dashboard', component: TenantDashboardComponent }
-    ]
+    ],
   },
 
-  { path: '**', redirectTo: '' }
+  { path: '**', redirectTo: '' },
 ];

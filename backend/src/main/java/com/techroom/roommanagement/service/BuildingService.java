@@ -1,3 +1,4 @@
+
 package com.techroom.roommanagement.service;
 
 import com.techroom.roommanagement.model.Building;
@@ -33,5 +34,10 @@ public class BuildingService {
         });
 
         return rooms;
+    }
+    // Lấy danh sách building theo landlordId
+    @Transactional(readOnly = true)
+    public List<Building> getBuildingsByLandlord(Integer landlordId) {
+        return buildingRepository.findByLandlordId(landlordId);
     }
 }

@@ -1,0 +1,358 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-left">
+      <h2>Quản lý Chi phí Phát sinh</h2>
+      <p class="text-sm text-gray-500">
+        <i class="fa-regular fa-calendar me-1"></i>
+        {{
+          currentDateTime
+            | date : "EEEE, 'ngày' dd 'tháng' MM, yyyy" : undefined : "vi-VN"
+        }}
+      </p>
+      <p class="text-xs text-muted mt-1">
+        Quản lý các chi phí như Internet, Rác thải, Bảo trì, v.v.
+      </p>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-secondary" (click)="onExportExcel()">
+        <i class="fa-solid fa-file-excel text-success"></i> Xuất Excel kiểm kê
+      </button>
+      <button class="btn btn-primary" (click)="openAddModal()">
+        <i class="fa-solid fa-plus"></i> Thêm Chi phí
+      </button>
+    </div>
+  </div>
+
+  <div class="stat-cards">
+    <div class="card card-revenue">
+      <div class="card-icon orange-bg"><i class="fa-solid fa-coins"></i></div>
+      <div class="card-content">
+        <strong>{{
+          stats().totalRevenue | currency : "VND" : "đ" : "1.0-0"
+        }}</strong>
+        <span>Tổng chi phí tháng</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="analysis-section">
+    <div class="chart-header">
+      <h3>Phân tích Chi phí</h3>
+      <span class="text-sm text-muted">Tháng hiện tại</span>
+    </div>
+
+    <div class="analysis-grid">
+      <div class="chart-wrapper">
+        <canvas #costTypeChart id="costTypeChart"></canvas>
+        <div class="chart-center-text">
+          <span class="text-muted text-xs">Tổng chi</span>
+          <strong class="text-xl">{{
+            stats().totalRevenue | currency : "VND" : "đ" : "1.0-0"
+          }}</strong>
+        </div>
+      </div>
+
+      <div class="category-list modern-list">
+        @for (cat of costAnalysis(); track cat.type) {
+        <div class="cat-item-modern">
+          <div class="cat-header">
+            <div class="cat-left">
+              <div class="icon-box" [ngClass]="cat.colorClass">
+                <i [class]="cat.icon"></i>
+              </div>
+              <span class="cat-name">{{ cat.label }}</span>
+            </div>
+            <div class="cat-right">
+              <span class="cat-value">{{
+                cat.amount | currency : "VND" : "đ"
+              }}</span>
+            </div>
+          </div>
+
+          @if (filters().month) {
+          <div class="progress-bg">
+            <div
+              class="progress-fill"
+              [style.width.%]="cat.percentage"
+              [style.backgroundColor]="cat.colorHex"
+            ></div>
+          </div>
+          <div class="cat-footer">
+            <span class="text-xs text-muted"
+              >{{ cat.percentage }}% tổng chi phí tháng</span
+            >
+          </div>
+          } @else {
+          <div class="mini-trend-chart">
+            @for (barHeight of cat.trendBars; track $index) {
+            <div
+              class="trend-bar"
+              [style.height.%]="barHeight"
+              [style.backgroundColor]="cat.colorHex"
+              [title]="'Tháng ' + ($index + 1)"
+            ></div>
+            }
+          </div>
+          <div class="cat-footer">
+            <span class="text-xs text-muted">Xu hướng theo tháng</span>
+          </div>
+          }
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar-container">
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input
+        type="text"
+        placeholder="Tìm phòng hoặc mã chi phí..."
+        [value]="filters().keyword"
+        (input)="onSearch($any($event.target).value)"
+        class="search-input"
+      />
+    </div>
+
+    <div class="filter-group">
+      <select
+        [value]="filters().month"
+        (change)="onFilterMonth($event)"
+        class="form-select"
+      >
+        <option value="">-- Tất cả các tháng --</option>
+        @for (m of months(); track m) {
+        <option [value]="m">{{ m }}</option>
+        }
+      </select>
+
+      <select
+        [value]="filters().type"
+        (change)="onFilterType($event)"
+        class="form-select"
+      >
+        <option value="ALL">Tất cả loại</option>
+        <option value="INTERNET">Internet</option>
+        <option value="GARBAGE">Rác thải</option>
+        <option value="MAINTENANCE">Bảo trì</option>
+        <option value="OTHERS">Khác</option>
+      </select>
+
+      <select
+        [value]="filters().status"
+        (change)="onFilterStatus($event)"
+        class="form-select"
+      >
+        <option value="ALL">Trạng thái</option>
+        <option [value]="UtilityStatus.PAID">Đã thanh toán</option>
+        <option [value]="UtilityStatus.UNPAID">Chưa thanh toán</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>Mã CP</th>
+          <th>Phòng</th>
+          <th>Loại chi phí</th>
+          <th>Mô tả</th>
+          <th>Số tiền</th>
+          <th>Tháng</th>
+          <th>Trạng thái</th>
+          <th>Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (record of filteredRecords(); track record.id) {
+        <tr>
+          <td class="text-muted text-sm font-mono">{{ record.code }}</td>
+
+          <td>
+            <strong>P{{ record.roomId | number : "3.0-0" }}</strong>
+            @if(record.tenantName && record.tenantName !== '---') {
+            <div class="text-xs text-muted">{{ record.tenantName }}</div>
+            }
+          </td>
+
+          <td>
+            <div
+              class="cost-type-badge"
+              [ngClass]="getCostTypeClass(record.type)"
+            >
+              <i [class]="getCostTypeIcon(record.type)"></i>
+              <span>{{ getCostTypeName(record.type) }}</span>
+            </div>
+          </td>
+
+          <td
+            class="text-muted text-sm"
+            style="max-width: 200px; white-space: normal"
+          >
+            {{ record.description || "---" }}
+          </td>
+
+          <td class="text-primary text-bold">
+            {{ record.amount | currency : "VND" : "đ" }}
+          </td>
+
+          <td>{{ record.month }}</td>
+
+          <td>
+            <span
+              class="badge"
+              [class.badge-paid]="record.status === UtilityStatus.PAID"
+              [class.badge-unpaid]="record.status === UtilityStatus.UNPAID"
+            >
+              {{
+                record.status === UtilityStatus.PAID
+                  ? "Đã thanh toán"
+                  : "Chưa thanh toán"
+              }}
+            </span>
+          </td>
+
+          <td class="actions">
+            <button
+              class="btn-icon text-blue"
+              (click)="openEditModal(record)"
+              title="Sửa"
+            >
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            <button
+              class="btn-icon text-danger"
+              (click)="openDeleteModal(record)"
+              title="Xóa"
+            >
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </td>
+        </tr>
+        } @empty {
+        <tr>
+          <td colspan="8" class="text-center py-4 text-muted">
+            <i class="fa-solid fa-box-open fa-2x mb-2"></i>
+            <p>Không có dữ liệu chi phí nào</p>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+@if (isModalOpen()) {
+<div class="modal-backdrop">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>
+        {{ isEditMode() ? "Cập nhật chi phí" : "Thêm chi phí phát sinh" }}
+      </h3>
+      <button class="btn-close" (click)="closeModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <form (submit)="submitForm()">
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Phòng <span class="required">*</span></label>
+            <select
+              class="form-control"
+              [value]="form().roomId"
+              (change)="updateRoomId($any($event.target).value)"
+              [disabled]="isEditMode()"
+            >
+              <option value="0" disabled selected>-- Chọn phòng --</option>
+              @for (room of roomList(); track room.id) {
+              <option [value]="room.id">
+                P{{ room.id | number : "3.0-0" }} - {{ room.name }}
+              </option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tháng <span class="required">*</span></label>
+            <input
+              type="month"
+              class="form-control"
+              [value]="form().month"
+              (input)="updateMonth($any($event.target).value)"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Loại chi phí <span class="required">*</span></label>
+            <select
+              class="form-control"
+              [value]="form().type"
+              (change)="updateType($any($event.target).value)"
+            >
+              <option value="INTERNET">Internet / Wifi</option>
+              <option value="GARBAGE">Rác thải</option>
+              <option value="MAINTENANCE">Bảo trì</option>
+              <option value="OTHERS">Khác</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Số tiền (VND) <span class="required">*</span></label>
+            <input
+              type="number"
+              class="form-control"
+              [value]="form().amount"
+              (input)="updateAmount($any($event.target).value)"
+              min="0"
+              step="100"
+              placeholder="0"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Mô tả chi tiết</label>
+          <textarea
+            class="form-control"
+            rows="3"
+            [value]="form().description"
+            (input)="updateDescription($any($event.target).value)"
+            placeholder="Ví dụ: Thay bóng đèn, phí dọn vệ sinh..."
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+          Hủy
+        </button>
+        <button type="submit" class="btn btn-primary">
+          <i class="fa-solid fa-save"></i> Lưu thông tin
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+} @if (isConfirmModalOpen()) {
+<div class="modal-backdrop">
+  <div class="modal-confirm">
+    <div class="icon-warning">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+    </div>
+    <h3>Xác nhận xóa?</h3>
+    <p>Hành động này sẽ xóa khoản chi phí này khỏi hệ thống.</p>
+    <div class="modal-footer center">
+      <button class="btn btn-secondary" (click)="closeConfirmModal()">
+        Hủy
+      </button>
+      <button class="btn btn-primary" (click)="onConfirmAction()">
+        Xác nhận
+      </button>
+    </div>
+  </div>
+</div>
+}

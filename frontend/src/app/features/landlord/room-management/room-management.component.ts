@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe, DecimalPipe } from '@angular/common';
 import { Room, RoomImage, RoomService, RoomStatus } from '../../../services/room.service';
+import { AuthService } from '../../../services/auth.service';
 import { registerLocaleData } from '@angular/common';
 import localeVi from '@angular/common/locales/vi';
 import {
@@ -77,16 +78,20 @@ export class RoomManagementComponent implements OnInit {
   imagePreviews: string[] = [];
   currentRoomForEdit: Room | null = null;
 
+  buildingInput = '';
+  filteredBuildings: Building[] = [];
+
   constructor(
     private roomService: RoomService,
     private buildingService: BuildingService,
     private amenityService: AmenityService,
+    private authService: AuthService,
     private fb: FormBuilder
   ) {
     registerLocaleData(localeVi, 'vi-VN');
     this.roomForm = this.fb.group({
       name: ['', Validators.required],
-      buildingId: [null, Validators.required],
+      buildingId: [null], // KHÔNG required nữa
       area: [0, [Validators.required, Validators.min(1), Validators.max(999.99)]],
       price: [0, [Validators.required, Validators.min(100000)]],
       status: ['AVAILABLE', Validators.required],
@@ -100,10 +105,52 @@ export class RoomManagementComponent implements OnInit {
     this.loadAmenities();
   }
 
+  // Nếu người dùng nhập tên tòa nhà mới, cho phép tạo mới
+  getBuildingIdOrName(): any {
+    const input = this.buildingInput?.trim() || '';
+    const building = this.buildings.find((b: any) => (b.name + ' (' + b.address + ')') === input);
+    if (building) return { id: building.id };
+    if (input) {
+      const match = input.match(/^(.*)\((.*)\)$/);
+      if (match) {
+        return { name: match[1].trim(), address: match[2].trim() };
+      }
+      return { name: input, address: input };
+    }
+    return null;
+  }
+
   loadBuildings(): void {
-    this.buildingService.getAllBuildings().subscribe(data => {
+    const landlordId = this.authService.getCurrentLandlordId();
+    console.log('DEBUG loadBuildings landlordId:', landlordId);
+    if (!landlordId) {
+      this.buildings = [];
+      this.filteredBuildings = [];
+      return;
+    }
+    this.buildingService.getBuildingsByLandlord(landlordId).subscribe(data => {
       this.buildings = data;
+      this.filteredBuildings = data;
     });
+  }
+
+  onBuildingInputChange(value: string): void {
+    this.buildingInput = value;
+    // Chỉ lọc gợi ý khi ở chế độ Thêm phòng mới
+    if (!this.isEditMode) {
+      const lower = value.toLowerCase();
+      this.filteredBuildings = this.buildings.filter(b =>
+        b.name.toLowerCase().includes(lower) || b.address.toLowerCase().includes(lower)
+      );
+    } else {
+      this.filteredBuildings = [];
+    }
+  }
+
+  onSelectBuilding(building: Building): void {
+    this.buildingInput = building.name + ' (' + building.address + ')';
+    this.roomForm.patchValue({ buildingId: building.id });
+    this.filteredBuildings = [];
   }
 
   loadAmenities(): void {
@@ -113,20 +160,37 @@ export class RoomManagementComponent implements OnInit {
   }
 
   loadRooms(): void {
-    this.roomService.getAllRooms().subscribe((data) => {
-      this.allRooms = data.map(room => {
-        let tenantName = '-';
-        if (room.status === 'OCCUPIED') {
-          if(room.name.includes('A101')) tenantName = 'Nguyễn Văn B';
-          if(room.name.includes('B201')) tenantName = 'Trần Thị C';
-          if(room.name.includes('B203')) tenantName = 'Lê Văn D';
-          if(room.name.includes('C302')) tenantName = 'Phạm Thị E';
-        }
-        return { ...room, tenantName };
-      });
-
+    const landlordId = this.authService.getCurrentLandlordId();
+    console.log('DEBUG loadRooms landlordId:', landlordId);
+    if (!landlordId) {
+      this.allRooms = [];
       this.applyFilters();
       this.updateStats();
+      return;
+    }
+    this.roomService.getRoomsByLandlord(landlordId).subscribe((data) => {
+      console.log('DEBUG API response:', data);
+      // Map lại dữ liệu từ API về đúng Room model
+      this.allRooms = data.map((room: any) => ({
+        id: room.id,
+        name: room.name,
+        price: room.price,
+        area: room.area,
+        status: room.status,
+        description: room.description,
+        building: room.building ? {
+          id: room.building.id,
+          name: room.building.name,
+          address: room.building.address
+        } : null,
+        images: room.images || [],
+        amenities: room.amenities || [],
+        tenantName: room.tenantName || ''
+      }));
+      console.log('DEBUG allRooms:', this.allRooms);
+      this.applyFilters();
+      this.updateStats();
+      console.log('DEBUG filteredRooms:', this.filteredRooms);
     });
   }
 
@@ -218,6 +282,7 @@ export class RoomManagementComponent implements OnInit {
       status: 'AVAILABLE',
       description: ''
     });
+    this.buildingInput = '';
     this.isModalOpen = true;
   }
 
@@ -231,7 +296,7 @@ export class RoomManagementComponent implements OnInit {
     
     // Đảm bảo buildingId được set đúng
     const buildingId = room.building?.id || null;
-    
+    this.buildingInput = room.building ? `${room.building.name} (${room.building.address})` : '';
     this.roomForm.patchValue({
       name: room.name,
       buildingId: buildingId,
@@ -256,21 +321,33 @@ export class RoomManagementComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.roomForm.invalid) {
+    if (this.roomForm.invalid || !this.buildingInput.trim()) {
       this.roomForm.markAllAsTouched();
+      this.formError = 'Vui lòng nhập tòa nhà.';
+      // Hiển thị log ra UI nếu lỗi
+      (window as any).lastRoomFormError = this.formError;
       return;
     }
-
     this.formError = null;
     const { buildingId, ...otherData } = this.roomForm.value;
-    
-    // ✅ CHỈ GỬI ID CỦA AMENITIES, KHÔNG GỬI TOÀN BỘ OBJECT
+    const buildingObj = this.getBuildingIdOrName();
+    if (!buildingObj) {
+      this.formError = 'Vui lòng nhập tòa nhà.';
+      (window as any).lastRoomFormError = this.formError;
+      return;
+    }
     const roomData: any = {
       ...otherData,
-      building: { id: buildingId },
+      building: buildingObj,
       amenities: this.selectedAmenities.map(a => ({ id: a.id }))
     };
-
+    // Log dữ liệu form trước khi gửi
+    (window as any).lastRoomFormValue = this.roomForm.value;
+    (window as any).lastRoomBuildingInput = this.buildingInput;
+    // Xóa buildingId vì backend không cần
+    delete roomData.buildingId;
+    // Log dữ liệu gửi lên
+    (window as any).lastRoomDataSent = roomData;
     if (this.isEditMode && this.currentRoomId) {
       // SỬA PHÒNG
       this.roomService.updateRoom(this.currentRoomId, roomData).pipe(
@@ -300,7 +377,6 @@ export class RoomManagementComponent implements OnInit {
           }
         }
       });
-
     } else {
       // THÊM PHÒNG MỚI
       this.roomService.addRoom(roomData).pipe(

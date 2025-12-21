@@ -23,5 +23,13 @@ public interface TenantRepository extends JpaRepository<Tenant, Integer> {
     @Query("SELECT t FROM Tenant t WHERE NOT EXISTS (" +
             "SELECT c FROM Contract c WHERE c.tenant.id = t.id AND c.status = 'ACTIVE')")
     List<Tenant> findTenantsWithoutActiveContract();
+
+    // Lấy tất cả tenant thuộc landlord (qua hợp đồng và phòng)
+    @Query("SELECT DISTINCT t FROM Tenant t " +
+           "JOIN Contract c ON c.tenant.id = t.id " +
+           "JOIN Room r ON c.room.id = r.id " +
+           "JOIN Building b ON r.building.id = b.id " +
+           "WHERE b.landlord.id = :landlordId")
+    List<Tenant> findAllByLandlordId(@Param("landlordId") Integer landlordId);
 }
 
