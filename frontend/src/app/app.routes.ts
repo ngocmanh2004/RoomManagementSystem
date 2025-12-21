@@ -30,11 +30,15 @@ import { TenantNotificationComponent } from './features/tenant-notification/tena
 import { ElectricityManagementComponent } from './features/landlord/electricity-management/electricity-management.component';
 import { WaterManagementComponent } from './features/landlord/water-management/water-management.component';
 import { ExtraCostManagementComponent } from './features/landlord/extra-cost-management/extra-cost-management.component';
+import { InvoiceManagementComponent } from './features/landlord/invoice-management/invoice-management.component';
+import { InvoiceViewComponent } from './features/tenant/invoice-view/invoice-view.component';
+import { VnpayReturnComponent } from './features/tenant/vnpay-return/vnpay-return.component';
+import { TenantLayoutComponent } from './shared/layout-tenant/tenant-layout/tenant-layout.component';
+
 
 export const routes: Routes = [
   {
-    path: '',
-    component: PublicLayoutComponent,
+    path: '', component: PublicLayoutComponent,
     children: [
       { path: '', component: HomeComponent },
       { path: 'rooms', component: RoomsComponent },
@@ -43,7 +47,7 @@ export const routes: Routes = [
       { path: 'contact', component: ContactComponent },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
-      { path: 'register-landlord', component: RegisterLandlordComponent },
+      { path: 'register-landlord', component: RegisterLandlordComponent},
       { path: 'tenant-profile', component: TenantProfileComponent },
       { path: 'contract-detail', component: ContractDetailComponent },
       { path: 'notification', component: SendNotificationComponent},
@@ -62,37 +66,42 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardAdminComponent },
       { path: 'users', component: UserManagementComponent },
       { path: 'landlords', component: AdminLandlordApprovalComponent },
-    ],
+    ]
   },
 
   // LANDLORD ROUTES (role = 1)
-  {
-    path: 'landlord',
-    component: LandlordLayoutComponent,
-    canActivate: [authGuard, roleGuard([1])],
-    children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: DashboardLandlordComponent },
-      { path: 'tenants', component: TenantManagementComponent },
-      { path: 'rooms', component: RoomManagementComponent },
-      { path: 'bookings', component: LandlordBookingComponent },
-      { path: 'bookings/create', component: CreateDirectContractComponent },
-      { path: 'bookings/:id', component: LandlordBookingDetailComponent },
-      { path: 'electricity', component: ElectricityManagementComponent },
-      { path: 'water', component: WaterManagementComponent },
-      { path: 'extra-cost', component: ExtraCostManagementComponent },
-    ],
-  },
+  // LANDLORD ROUTES (role = 1)
+{
+  path: 'landlord',
+  component: LandlordLayoutComponent,
+  canActivate: [authGuard, roleGuard([1])],
+  children: [
+    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+    { path: 'dashboard', component: DashboardLandlordComponent },
+    { path: 'tenants', component: TenantManagementComponent },
+    { path: 'rooms', component: RoomManagementComponent },
+    { path: 'bookings', component: LandlordBookingComponent },
+    { path: 'bookings/create', component: CreateDirectContractComponent },
+    { path: 'bookings/:id', component: LandlordBookingDetailComponent },
+    { path: 'electricity', component: ElectricityManagementComponent },
+    { path: 'water', component: WaterManagementComponent },
+    { path: 'extra-cost', component: ExtraCostManagementComponent },
+    { path: 'invoices', component: InvoiceManagementComponent },
+  ],
+},
 
-  // TENANT ROUTES (role = 2)
-  {
-    path: 'tenant',
-    canActivate: [authGuard, roleGuard([2])],
-    children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      //{ path: 'dashboard', component: TenantDashboardComponent }
-    ],
-  },
+// TENANT ROUTES (role = 2)
+{
+  path: 'tenant',
+  component: TenantLayoutComponent,
+  canActivate: [authGuard, roleGuard([2])],
+  children: [
+    { path: '', redirectTo: 'invoices', pathMatch: 'full' },
+    { path: 'invoices', component: InvoiceViewComponent },
+    { path: 'vnpay-return', component: VnpayReturnComponent },
+  ],
+},
 
-  { path: '**', redirectTo: '' },
+
+  { path: '**', redirectTo: '' }
 ];

@@ -17,6 +17,7 @@ export class ReviewCardComponent {
   
   @Output() edit = new EventEmitter<Review>();
   @Output() delete = new EventEmitter<number>();
+  @Output() report = new EventEmitter<Review>();
 
   editReview() {
     this.edit.emit(this.review);
@@ -24,6 +25,10 @@ export class ReviewCardComponent {
 
   deleteReview() {
     this.delete.emit(this.review.id);
+  }
+
+  reportReview() {
+    this.report.emit(this.review);
   }
 
   formatDate(dateStr: string): string {

@@ -7,8 +7,9 @@ import {
   ReviewRequest, 
   ReviewResponse, 
   ApiResponse,
-  ErrorResponse 
+  ErrorResponse
 } from '../models/review.model';
+import { ReviewReport } from '../models/review-report.model';
 
 @Injectable({
   providedIn: 'root'
@@ -126,5 +127,21 @@ export class ReviewService {
         return throwError(() => new Error(message));
       })
     );
+  }
+
+  reportReview(reviewId: number, payload: { reason: string, description?: string }): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/${reviewId}/report`,
+      payload,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  getReviewReports(): Observable<ReviewReport[]> {
+    return this.http.get<ReviewReport[]>('/api/admin/review-reports', { headers: this.getHeaders() });
+  }
+
+  updateReviewReport(id: number, payload: { status: string, note?: string }): Observable<any> {
+    return this.http.put(`/api/admin/review-reports/${id}`, payload, { headers: this.getHeaders() });
   }
 }

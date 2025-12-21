@@ -2,8 +2,10 @@ package com.techroom.roommanagement.controller;
 
 import com.techroom.roommanagement.dto.ApiResponse;
 import com.techroom.roommanagement.dto.RegisterRequest;
+import com.techroom.roommanagement.model.Landlord;
 import com.techroom.roommanagement.model.Tenant;
 import com.techroom.roommanagement.model.User;
+import com.techroom.roommanagement.repository.LandlordRepository;
 import com.techroom.roommanagement.repository.TenantRepository;
 import com.techroom.roommanagement.repository.UserRepository;
 import com.techroom.roommanagement.service.TenantService;
@@ -14,9 +16,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import com.techroom.roommanagement.security.CustomUserDetails;
-import com.techroom.roommanagement.repository.LandlordRepository;
-import com.techroom.roommanagement.model.Landlord;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,53 +43,17 @@ public class TenantController {
     @Autowired
     private LandlordRepository landlordRepository;
 
-    // Lấy landlordId từ user đăng nhập
-    private Integer getCurrentUserId() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof CustomUserDetails) {
-            return ((CustomUserDetails) auth.getPrincipal()).getId();
-        }
-        return null;
-    }
-
-    private Integer getCurrentLandlordId() {
-        Integer userId = getCurrentUserId();
-        if (userId == null) return null;
-        return landlordRepository.findByUserId(userId)
-                .map(Landlord::getId)
-                .orElse(null);
-    }
-
     // Lấy tất cả tenant
     @GetMapping
-/*<<<<<<< HEAD
-    public ResponseEntity<?> getAllTenants() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-=======*/
     public List<Tenant> getAllTenants() {
         Integer landlordId = getCurrentLandlordId();
         if (landlordId != null) {
-            // Nếu là landlord, chỉ trả về tenant của landlord đó
             return tenantService.getTenantsByLandlord(landlordId);
-        } else {
-            // Nếu không phải landlord (admin, v.v.), trả về toàn bộ tenant
+        }
+        else {
             return tenantService.getAllTenants();
         }
     }
-/*>>>>>>> aa57b0dd27595f4fb95e3031be89b7b6adca788d
-
-        User landlord = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
-
-        if (landlord.getRole() != 1) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Chỉ chủ trọ mới được xem danh sách khách thuê");
-        }
-
-        List<User> tenants = userRepository.findAllByRole(2);
-        return ResponseEntity.ok(tenants);
-    }*/
     // Lấy tenant theo ID
     @GetMapping("/{id}")
     public ResponseEntity<Tenant> getTenantById(@PathVariable int id) {
@@ -266,7 +229,7 @@ public class TenantController {
 
         try {
             // Lấy tenant không có hợp đồng ACTIVE
-            List<Tenant> tenants = tenantRepository.findTenantsWithoutActiveContract();
+            List<Tenant> tenants = tenantRepository.findAvailableTenantsByLandlord(landlordId);
 
             return ResponseEntity.ok(new ApiResponse(true, "Lấy danh sách khách thuê thành công", tenants));
         } catch (Exception e) {
@@ -275,4 +238,23 @@ public class TenantController {
         }
     }
 
+    // Method để lấy ID của landlord hiện tại
+    private Integer getCurrentLandlordId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElse(null);
+
+        if (user == null || user.getRole() != 1) {
+            return null;
+        }
+
+        return landlordRepository.findByUserId(user.getId())
+                .map(Landlord::getId)   // ✅ landlords.id
+                .orElse(null);
+    }
 }
