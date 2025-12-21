@@ -52,9 +52,10 @@ export class WaterManagementComponent
   // ===============================
   currentDateTime = new Date();
   months = signal<string[]>([]);
+  maxMonth: string = '';
   roomList = signal<Room[]>([]);
   records = signal<WaterRecord[]>([]);
-  currentTenantName = signal<string>('');
+  currentName = signal<string>('');
 
   filters = signal<{
     month: string;
@@ -71,7 +72,7 @@ export class WaterManagementComponent
   form = signal<WaterRecord>({
     id: 0,
     roomId: 0,
-    roomName: '',
+    name: '',
     oldIndex: 0,
     newIndex: 0,
     usage: 0,
@@ -79,16 +80,17 @@ export class WaterManagementComponent
     totalAmount: 0,
     month: '',
     status: UtilityStatus.UNPAID,
-    tenantName: '',
+    fullName: '',
   });
 
   isModalOpen = signal(false);
   isEditMode = signal(false);
   isConfirmModalOpen = signal(false);
+  isDeleteMode = signal(false);
   recordToConfirm = signal<WaterRecord | null>(null);
 
   // ===============================
-  // CONSTRUCTOR: THEO DÕI THAY ĐỔI
+  // CONSTRUCTOR
   // ===============================
   constructor() {
     effect(() => {
@@ -103,6 +105,10 @@ export class WaterManagementComponent
   // LIFECYCLE
   // ===============================
   ngOnInit() {
+    const now = new Date();
+    this.maxMonth = `${now.getFullYear()}-${(now.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}`;
     this.loadData();
     this.loadRooms();
   }
@@ -135,14 +141,19 @@ export class WaterManagementComponent
   }
 
   loadRooms() {
-    this.roomService.getAllRooms().subscribe({
-      next: (rooms) => this.roomList.set(rooms),
-      error: (err) => console.error('Lỗi tải phòng:', err),
+    this.roomService.getMyRooms().subscribe({
+      next: (rooms: Room[]) => {
+        this.roomList.set(rooms.filter((r) => r.status === 'OCCUPIED'));
+      },
+      error: (err) => {
+        console.error('Failed to load rooms', err);
+        this.roomList.set([]);
+      },
     });
   }
 
   // ===============================
-  // SMART CHART LOGIC (TỰ ĐỘNG THAY ĐỔI)
+  // SMART CHART LOGIC
   // ===============================
   renderSmartChart(records: WaterRecord[], currentFilters: any) {
     if (!this.chartRef) return;
@@ -158,13 +169,13 @@ export class WaterManagementComponent
 
     if (isViewingSingleMonth) {
       const sortedByRoom = [...records].sort((a, b) => {
-        const nameA = a.roomName || '';
-        const nameB = b.roomName || '';
+        const nameA = a.name || '';
+        const nameB = b.name || '';
         return nameA.localeCompare(nameB, 'vi', { numeric: true });
       });
 
       const labels = sortedByRoom.map((r) => {
-        let label = r.roomName || `P.${r.roomId}`;
+        let label = r.name || `P.${r.roomId}`;
         label = label.replace(/^(Phòng|Phong|P\.|P)\s*/i, '');
         return `P.${label}`;
       });
@@ -179,7 +190,7 @@ export class WaterManagementComponent
             {
               label: `Tiêu thụ T${currentFilters.month.split('-')[1]} (m³)`,
               data: data,
-              backgroundColor: 'rgba(6, 182, 212, 0.7)', // Cyan đậm
+              backgroundColor: 'rgba(6, 182, 212, 0.7)',
               borderColor: '#06b6d4',
               borderWidth: 1,
               borderRadius: 4,
@@ -189,7 +200,7 @@ export class WaterManagementComponent
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { display: false } }, 
+          plugins: { legend: { display: false } },
           scales: {
             x: {
               ticks: { autoSkip: true, maxRotation: 90 },
@@ -198,11 +209,10 @@ export class WaterManagementComponent
         },
       };
     } else {
-
       const groupedData = this.groupDataByMonth(records);
 
       config = {
-        type: 'line', 
+        type: 'line',
         data: {
           labels: groupedData.labels,
           datasets: [
@@ -276,21 +286,27 @@ export class WaterManagementComponent
 
   filteredRecords = computed(() => {
     const f = this.filters();
-    const keyword = this.removeAccents(f.keyword).replace(/\s/g, '');
+    const keyword = this.removeAccents(f.keyword);
+    const rooms = this.roomList();
 
     return this.records().filter((r) => {
       const matchMonth = !f.month || r.month === f.month;
       const matchStatus = f.status === 'ALL' || r.status === f.status;
       const matchRoomIdDropdown = f.roomId === 0 || r.roomId == f.roomId;
 
-      // Search Logic
-      const normalizedRoomName = this.removeAccents(r.roomName || '');
-      const normalizedTenantName = this.removeAccents(r.tenantName || '');
+      const roomInfo = this.roomList().find((room) => room.id === r.roomId);
+      const roomName = roomInfo ? roomInfo.name : `Phòng ${r.roomId}`;
+
+      const normalizedRoomName = this.removeAccents(roomName);
+      const normalizedTenantName = this.removeAccents(r.fullName || '');
       const roomIdStr = r.roomId.toString();
       const formattedCode = 'p' + r.roomId.toString().padStart(3, '0');
 
       const matchSearch =
         keyword === '' ||
+        (r.roomId != null && r.roomId.toString().includes(keyword)) ||
+        (r.roomId != null &&
+          ('p' + r.roomId.toString().padStart(3, '0')).includes(keyword)) ||
         roomIdStr.includes(keyword) ||
         formattedCode.includes(keyword) ||
         normalizedRoomName.includes(keyword) ||
@@ -330,17 +346,18 @@ export class WaterManagementComponent
     this.form.update((f) => ({ ...f, unitPrice: +val }));
     this.recalculate();
   }
-  updateRoomId(val: string) {
-    const rId = +val;
-    const room = this.roomList().find((r) => r.id === rId);
+  updateRoomId(value: string) {
+    const roomId = +value;
+    const selectedRoom = this.roomList().find((r) => r.id === roomId);
+    const name = selectedRoom?.name || '';
     this.form.update((f) => ({
       ...f,
-      roomId: rId,
-      roomName: room?.name || '',
-      tenantName: room?.tenantName || '',
+      roomId: roomId,
+      name: name,
     }));
-    this.currentTenantName.set(room?.tenantName || '');
+    this.currentName.set(name);
   }
+
   updateMonth(val: string) {
     this.form.update((f) => ({ ...f, month: val }));
   }
@@ -362,8 +379,17 @@ export class WaterManagementComponent
       alert('Lỗi: Chỉ số mới phải >= chỉ số cũ!');
       return;
     }
+    if (!this.isEditMode() && data.newIndex === data.oldIndex) {
+      alert('Chỉ số mới bằng chỉ số cũ, không cần tạo bản ghi mới.');
+      return;
+    }
     if (!data.roomId) {
-      alert('Chưa chọn phòng!');
+      alert('Vui lòng chọn phòng!');
+      return;
+    }
+
+    if (!data.month) {
+      alert('Vui lòng chọn tháng!');
       return;
     }
 
@@ -375,7 +401,11 @@ export class WaterManagementComponent
       next: () => {
         this.loadData();
         this.closeModal();
-        alert(this.isEditMode() ? 'Cập nhật xong!' : 'Thêm mới xong!');
+        alert(
+          this.isEditMode()
+            ? 'Cập nhật hóa đơn nước thành công!'
+            : 'Thêm hóa đơn nước thành công!'
+        );
       },
       error: (err) => {
         if (!this.isEditMode() && err.status === 400)
@@ -386,12 +416,39 @@ export class WaterManagementComponent
   }
 
   onConfirmAction() {
-    const rec = this.recordToConfirm();
-    if (rec)
-      this.waterService.delete(rec.id).subscribe(() => {
+    if (this.isDeleteMode()) {
+      this.deleteRecord();
+    } else {
+      this.confirmPayment();
+    }
+  }
+
+  confirmPayment() {
+    const id = this.recordToConfirm()?.id;
+    if (!id) return;
+
+    this.waterService.markPaid(id).subscribe({
+      next: () => {
         this.loadData();
         this.closeConfirmModal();
-      });
+        alert('Đã xác nhận thanh toán!');
+      },
+      error: (err) => {
+        console.error(err);
+        alert('Có lỗi khi xác nhận thanh toán!');
+      },
+    });
+  }
+
+  deleteRecord() {
+    const id = this.recordToConfirm()?.id;
+    if (!id) return;
+
+    this.waterService.delete(id).subscribe(() => {
+      this.loadData();
+      this.closeConfirmModal();
+      alert('Đã xóa bản ghi!');
+    });
   }
 
   onFilterMonth(e: Event) {
@@ -424,7 +481,7 @@ export class WaterManagementComponent
     this.form.set({
       id: 0,
       roomId: 0,
-      roomName: '',
+      name: '',
       oldIndex: 0,
       newIndex: 0,
       usage: 0,
@@ -432,16 +489,20 @@ export class WaterManagementComponent
       totalAmount: 0,
       month: m,
       status: UtilityStatus.UNPAID,
-      tenantName: '',
+      fullName: '',
     });
-    this.currentTenantName.set('');
+    this.currentName.set('');
     this.isEditMode.set(false);
     this.isModalOpen.set(true);
   }
 
-  openEditModal(r: WaterRecord) {
-    this.form.set({ ...r });
-    this.currentTenantName.set(r.tenantName || '');
+  openEditModal(record: WaterRecord) {
+    if (record.status === UtilityStatus.PAID) {
+      alert('Bản ghi đã thanh toán, không thể chỉnh sửa!');
+      return;
+    }
+    this.form.set({ ...record });
+    this.currentName.set(record.fullName || '');
     this.isEditMode.set(true);
     this.isModalOpen.set(true);
   }
@@ -449,10 +510,18 @@ export class WaterManagementComponent
   closeModal() {
     this.isModalOpen.set(false);
   }
-  openDeleteModal(r: WaterRecord) {
-    this.recordToConfirm.set(r);
+  openConfirmPaymentModal(record: WaterRecord) {
+    this.recordToConfirm.set(record);
+    this.isDeleteMode.set(false);
     this.isConfirmModalOpen.set(true);
   }
+
+  openDeleteModal(record: WaterRecord) {
+    this.recordToConfirm.set(record);
+    this.isDeleteMode.set(true);
+    this.isConfirmModalOpen.set(true);
+  }
+
   closeConfirmModal() {
     this.isConfirmModalOpen.set(false);
     this.recordToConfirm.set(null);
@@ -462,14 +531,16 @@ export class WaterManagementComponent
     const data = this.filteredRecords();
     if (!data.length) return alert('Không có dữ liệu!');
     const header =
-      'Phòng,Khách thuê,Tháng,Chỉ số cũ,Chỉ số mới,Tiêu thụ,Đơn giá,Thành tiền,Trạng thái\n';
+      'Tên Phòng,Khách thuê,Tháng,Chỉ số cũ,Chỉ số mới,Tiêu thụ,Đơn giá,Thành tiền,Trạng thái\n';
     const rows = data
       .map(
         (r) =>
-          `${r.roomName},"${r.tenantName || '--'}",${r.month},${r.oldIndex},${
+          `${r.name},"${r.fullName || '--'}",${r.month},${r.oldIndex},${
             r.newIndex
           },${r.newIndex - r.oldIndex},${r.unitPrice},${r.totalAmount},${
-            r.status === UtilityStatus.PAID ? 'Đã thu' : 'Chưa thu'
+            r.status === UtilityStatus.PAID
+              ? 'Đã thanh toán'
+              : 'Chưa thanh toán'
           }`
       )
       .join('\n');

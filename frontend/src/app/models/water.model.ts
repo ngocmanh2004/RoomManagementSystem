@@ -3,8 +3,8 @@ import { UtilityStatus, UtilitySource } from './electricity.model';
 export interface WaterRecord {
   id: number;
   roomId: number;
-  roomName?: string;
-  tenantName?: string;
+  name: string;
+  fullName: string;
   oldIndex: number;
   newIndex: number;
   usage?: number;

@@ -16,8 +16,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class WaterRequest {
 
-  @NotNull(message = "Vui lòng chọn phòng")
-  private Integer roomId; // Dùng Long chuẩn hơn Integer cho ID DB
+  @NotNull
+  private Integer roomId;
 
   @NotNull(message = "Chỉ số cũ không được để trống")
   @Min(value = 0, message = "Chỉ số cũ phải >= 0")
@@ -29,7 +29,7 @@ public class WaterRequest {
 
   @NotNull(message = "Đơn giá không được để trống")
   @Min(value = 0, message = "Đơn giá phải >= 0")
-  private BigDecimal unitPrice; // Dùng BigDecimal để tính tiền chính xác
+  private BigDecimal unitPrice;
 
   @NotNull(message = "Tháng không được để trống")
   @Pattern(regexp = "^\\d{4}-\\d{2}$", message = "Định dạng tháng phải là YYYY-MM")

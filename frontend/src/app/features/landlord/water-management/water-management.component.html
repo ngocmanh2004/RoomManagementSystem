@@ -124,7 +124,7 @@
     <table>
       <thead>
         <tr>
-          <th>Phòng</th>
+          <th>Tên Phòng</th>
           <th>Khách thuê</th>
           <th>Chỉ số cũ (m³)</th>
           <th>Chỉ số mới (m³)</th>
@@ -140,27 +140,27 @@
         @for (record of filteredRecords(); track record.id) {
         <tr>
           <td>
-            <strong>P{{ record.roomId | number : "3.0-0" }}</strong>
+            <strong class="ellipsis" title="{{ record.name }}">
+              {{ record.name }}
+            </strong>
           </td>
-
           <td>
             <div class="tenant-info">
-              <i class="fa-regular fa-user text-muted"></i>
-              <span>{{ record.tenantName || "---" }}</span>
+              <span class="ellipsis" title="{{ record.fullName || '---' }}">
+                {{ record.fullName || "---" }}
+              </span>
             </div>
           </td>
-
           <td>{{ record.oldIndex }}</td>
           <td>{{ record.newIndex }}</td>
           <td class="text-bold">{{ record.newIndex - record.oldIndex }}</td>
 
-          <td>{{ record.unitPrice | currency : "VND" : "" }}</td>
+          <td>{{ record.unitPrice | currency : "VND" : "đ" }}</td>
 
           <td class="text-primary">
             {{ record.totalAmount | currency : "VND" : "đ" }}
           </td>
           <td>{{ record.month }}</td>
-
           <td>
             <span
               class="badge"
@@ -176,6 +176,15 @@
           </td>
 
           <td class="actions">
+            @if (record.status === UtilityStatus.UNPAID) {
+            <button
+              class="btn-icon text-success"
+              (click)="openConfirmPaymentModal(record)"
+              title="Thanh toán"
+            >
+              <i class="fa-solid fa-credit-card"></i>
+            </button>
+            }
             <button
               class="btn-icon text-blue"
               (click)="openEditModal(record)"
@@ -185,6 +194,7 @@
             </button>
             <button
               class="btn-icon text-danger"
+              [disabled]="record.status === UtilityStatus.PAID"
               (click)="openDeleteModal(record)"
               title="Xóa"
             >
@@ -226,31 +236,29 @@
               (change)="updateRoomId($any($event.target).value)"
               [disabled]="isEditMode()"
             >
-              <option value="0" disabled selected>-- Chọn phòng --</option>
+              <option value="0" disabled selected>
+                -- Chọn phòng đang thuê --
+              </option>
               @for (room of roomList(); track room.id) {
               <option [value]="room.id">
                 {{ room.name }}
-                {{ room.status === "OCCUPIED" ? "(Đang thuê)" : "(Trống)" }}
               </option>
               }
             </select>
-            @if (form().roomId) { @if (currentTenantName()) {
-            <div class="mt-2 text-sm text-primary">
-              <i class="fa-solid fa-user-check me-1"></i> Khách:
-              <strong>{{ currentTenantName() }}</strong>
-            </div>
-            } @else {
-            <div class="mt-2 text-sm text-muted">
-              <i class="fa-solid fa-triangle-exclamation me-1"></i> Phòng trống
-            </div>
-            } }
+            @if (roomList().length === 0) {
+            <small class="text-muted d-block mt-1">
+              Hiện không có phòng nào đang được thuê
+            </small>
+            } @if (form().roomId && currentName()) { }
           </div>
+
           <div class="form-group">
             <label>Tháng ghi <span class="required">*</span></label>
             <input
               type="month"
               class="form-control"
               [value]="form().month"
+              [max]="maxMonth"
               (input)="updateMonth($any($event.target).value)"
             />
           </div>
@@ -323,10 +331,15 @@
     <div class="icon-warning">
       <i class="fa-solid fa-triangle-exclamation"></i>
     </div>
-    <h3>Xác nhận xóa?</h3>
+    <h3>
+      {{ isDeleteMode() ? "Xác nhận xóa?" : "Xác nhận thanh toán?" }}
+    </h3>
     <p>
-      Bạn có chắc chắn muốn xóa bản ghi nước này không? Hành động này không thể
-      hoàn tác.
+      {{
+        isDeleteMode()
+          ? "Bạn có chắc chắn muốn xóa bản ghi này không?"
+          : "Xác nhận đã thanh toán hóa đơn nước này?"
+      }}
     </p>
     <div class="modal-footer center">
       <button class="btn btn-secondary" (click)="closeConfirmModal()">

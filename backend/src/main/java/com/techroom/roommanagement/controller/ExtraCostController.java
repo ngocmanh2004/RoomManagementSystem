@@ -22,12 +22,11 @@ public class ExtraCostController {
 
   // ==========================================
   // 1. GET ALL (Hỗ trợ bộ lọc đa năng)
-  // URL: /api/utilities/extra-costs?month=2025-12&roomId=1&type=INTERNET
   // ==========================================
   @GetMapping
   public ResponseEntity<List<ExtraCostResponse>> getAll(
     @RequestParam(required = false) String month,
-    @RequestParam(required = false) Integer roomId, // ⚠️ Đã sửa thành Integer để khớp với Room.id
+    @RequestParam(required = false) Integer roomId,
     @RequestParam(required = false) ExtraCost.CostType type,
     @RequestParam(required = false) ExtraCost.ExtraCostStatus status
   ) {
@@ -35,7 +34,7 @@ public class ExtraCostController {
   }
 
   // ==========================================
-  // 2. GET BY ID (ID của chi phí vẫn là Long)
+  // 2. GET BY ID
   // ==========================================
   @GetMapping("/{id}")
   public ResponseEntity<ExtraCostResponse> getById(@PathVariable Long id) {
@@ -72,7 +71,6 @@ public class ExtraCostController {
 
   // ==========================================
   // 6. MARK PAID (Xác nhận thanh toán)
-  // URL: /api/utilities/extra-costs/1/mark-paid
   // ==========================================
   @PutMapping("/{id}/mark-paid")
   public ResponseEntity<Void> markPaid(@PathVariable Long id) {

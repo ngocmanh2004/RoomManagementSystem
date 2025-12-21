@@ -120,4 +120,14 @@ export class RoomService {
   deleteImage(imageId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiBase}/images/${imageId}`);
   }
+
+  getRoomsByLandlord(landlordId: number): Observable<Room[]> {
+    return this.http.get<Room[]>(
+      `${this.apiBase}/rooms/by-landlord/${landlordId}`
+    );
+  }
+
+  getMyRooms(): Observable<Room[]> {
+    return this.http.get<Room[]>(`${this.apiBase}/rooms/my`);
+  }
 }

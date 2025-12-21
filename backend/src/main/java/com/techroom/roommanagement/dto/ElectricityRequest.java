@@ -28,22 +28,51 @@ public class ElectricityRequest {
 
   private ElectricityRecord.UtilitySource source = ElectricityRecord.UtilitySource.SYSTEM;
 
-  // Getters and setters
-  public Integer getRoomId() { return roomId; }
-  public void setRoomId(Integer roomId) { this.roomId = roomId; }
+  public Integer getRoomId() {
+    return roomId;
+  }
 
-  public Integer getOldIndex() { return oldIndex; }
-  public void setOldIndex(Integer oldIndex) { this.oldIndex = oldIndex; }
+  public void setRoomId(Integer roomId) {
+    this.roomId = roomId;
+  }
 
-  public Integer getNewIndex() { return newIndex; }
-  public void setNewIndex(Integer newIndex) { this.newIndex = newIndex; }
+  public Integer getOldIndex() {
+    return oldIndex;
+  }
 
-  public Double getUnitPrice() { return unitPrice; }
-  public void setUnitPrice(Double unitPrice) { this.unitPrice = unitPrice; }
+  public void setOldIndex(Integer oldIndex) {
+    this.oldIndex = oldIndex;
+  }
 
-  public String getMonth() { return month; }
-  public void setMonth(String month) { this.month = month; }
+  public Integer getNewIndex() {
+    return newIndex;
+  }
 
-  public ElectricityRecord.UtilitySource getSource() { return source; }
-  public void setSource(ElectricityRecord.UtilitySource source) { this.source = source; }
+  public void setNewIndex(Integer newIndex) {
+    this.newIndex = newIndex;
+  }
+
+  public Double getUnitPrice() {
+    return unitPrice;
+  }
+
+  public void setUnitPrice(Double unitPrice) {
+    this.unitPrice = unitPrice;
+  }
+
+  public String getMonth() {
+    return month;
+  }
+
+  public void setMonth(String month) {
+    this.month = month;
+  }
+
+  public ElectricityRecord.UtilitySource getSource() {
+    return source;
+  }
+
+  public void setSource(ElectricityRecord.UtilitySource source) {
+    this.source = source;
+  }
 }

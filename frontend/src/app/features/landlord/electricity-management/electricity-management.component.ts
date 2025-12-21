@@ -17,6 +17,7 @@ import {
 import { Room } from '../../../models/room.model';
 import { RoomService } from '../../../services/room.service';
 import { UtilityService } from '../../../services/utility.service';
+import { AuthService } from '../../../services/auth.service';
 
 const DEFAULT_UNIT_PRICE = 3500;
 
@@ -29,16 +30,14 @@ const DEFAULT_UNIT_PRICE = 3500;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ElectricityManagementComponent implements OnInit {
-  // ===============================
-  // CONSTANTS
-  // ===============================
   readonly UtilityStatus = UtilityStatus;
   readonly FIXED_UNIT_PRICE = DEFAULT_UNIT_PRICE;
 
   currentDateTime = new Date();
   months = signal<string[]>([]);
+  maxMonth: string = '';
   roomList = signal<Room[]>([]);
-  currentTenantName = signal<string>('');
+  currentName = signal<string>('');
 
   records = signal<ElectricRecord[]>([]);
 
@@ -55,6 +54,7 @@ export class ElectricityManagementComponent implements OnInit {
   form = signal<ElectricRecord>({
     id: 0,
     roomId: 0,
+    name: '',
     oldIndex: 0,
     newIndex: 0,
     unitPrice: DEFAULT_UNIT_PRICE,
@@ -62,7 +62,7 @@ export class ElectricityManagementComponent implements OnInit {
     month: '',
     status: UtilityStatus.UNPAID,
     source: UtilitySource.SYSTEM,
-    tenantName: '',
+    fullName: '',
   });
 
   isModalOpen = signal(false);
@@ -73,10 +73,16 @@ export class ElectricityManagementComponent implements OnInit {
 
   constructor(
     private utilityService: UtilityService,
+    private authService: AuthService,
     private roomService: RoomService
   ) {}
 
   ngOnInit() {
+    const now = new Date();
+    this.maxMonth = `${now.getFullYear()}-${(now.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}`;
+
     this.loadData();
     this.loadRooms();
   }
@@ -98,17 +104,17 @@ export class ElectricityManagementComponent implements OnInit {
   }
 
   loadRooms() {
-    this.roomService.getAllRooms().subscribe({
+    this.roomService.getMyRooms().subscribe({
       next: (rooms: Room[]) => {
-        this.roomList.set(rooms);
+        this.roomList.set(rooms.filter((r) => r.status === 'OCCUPIED'));
       },
-      error: (err: any) => console.error('Failed to load rooms', err),
+      error: (err) => {
+        console.error('Failed to load rooms', err);
+        this.roomList.set([]);
+      },
     });
   }
 
-  // ===============================
-  // UTILITY: XÓA DẤU TIẾNG VIỆT
-  // ===============================
   removeAccents(str: string): string {
     if (!str) return '';
     return str
@@ -126,8 +132,11 @@ export class ElectricityManagementComponent implements OnInit {
   filteredRecords = computed(() => {
     const f = this.filters();
     const keyword = this.removeAccents(f.keyword);
+    const rooms = this.roomList();
 
     return this.records().filter((r) => {
+      if (r.roomId == null) return false;
+
       const matchMonth = !f.month || r.month === f.month;
       const matchStatus = f.status === 'ALL' || r.status === f.status;
 
@@ -135,15 +144,15 @@ export class ElectricityManagementComponent implements OnInit {
       const roomName = roomInfo ? roomInfo.name : `Phòng ${r.roomId}`;
 
       const normalizedRoomName = this.removeAccents(roomName);
-      const normalizedTenantName = this.removeAccents(r.tenantName || '');
+      const normalizedTenantName = this.removeAccents(r.fullName || '');
       const roomIdStr = r.roomId.toString();
-
       const formattedCode = 'p' + r.roomId.toString().padStart(3, '0');
 
       const matchSearch =
         keyword === '' ||
-        roomIdStr.includes(keyword) ||
-        formattedCode.includes(keyword) ||
+        (r.roomId != null && r.roomId.toString().includes(keyword)) ||
+        (r.roomId != null &&
+          ('p' + r.roomId.toString().padStart(3, '0')).includes(keyword)) ||
         normalizedRoomName.includes(keyword) ||
         normalizedTenantName.includes(keyword);
 
@@ -194,32 +203,32 @@ export class ElectricityManagementComponent implements OnInit {
   // ===============================
   recalculate() {
     const f = this.form();
-    if (f.newIndex < f.oldIndex) return;
-
+    if (f.newIndex < f.oldIndex) {
+      this.form.update((curr) => ({ ...curr, totalAmount: 0 }));
+      return;
+    }
     const usage = f.newIndex - f.oldIndex;
     const total = usage * f.unitPrice;
 
     this.form.update((curr) => ({ ...curr, totalAmount: total }));
   }
+
   updateUnitPrice(value: string) {
     const price = +value;
     this.form.update((f) => ({ ...f, unitPrice: price }));
     this.recalculate();
   }
 
-  // ===============================
-  // FORM UPDATERS
-  // ===============================
   updateRoomId(value: string) {
     const roomId = +value;
     const selectedRoom = this.roomList().find((r) => r.id === roomId);
-    const tenantName = selectedRoom?.tenantName || '';
+    const name = selectedRoom?.name || '';
     this.form.update((f) => ({
       ...f,
       roomId: roomId,
-      tenantName: tenantName,
+      name: name,
     }));
-    this.currentTenantName.set(tenantName);
+    this.currentName.set(name);
   }
 
   updateMonth(value: string) {
@@ -247,40 +256,75 @@ export class ElectricityManagementComponent implements OnInit {
       return;
     }
 
+    if (!this.isEditMode() && data.newIndex === data.oldIndex) {
+      alert('Chỉ số mới bằng chỉ số cũ, không cần tạo bản ghi mới.');
+      return;
+    }
+
     if (data.roomId === 0) {
       alert('Vui lòng chọn phòng!');
       return;
     }
 
+    if (!data.month) {
+      alert('Vui lòng chọn tháng!');
+      return;
+    }
+
     if (this.isEditMode()) {
-      this.utilityService.update(data.id, data).subscribe(() => {
-        this.loadData();
-        this.closeModal();
+      this.utilityService.update(data.id, data).subscribe({
+        next: () => {
+          this.loadData();
+          this.closeModal();
+          alert('Cập nhật hóa đơn điện thành công!');
+        },
+        error: (err) => {
+          console.error(err);
+          alert('Có lỗi xảy ra khi cập nhật!');
+        },
       });
     } else {
-      this.utilityService.create(data).subscribe(() => {
-        this.loadData();
-        this.closeModal();
+      this.utilityService.create(data).subscribe({
+        next: () => {
+          this.loadData();
+          this.closeModal();
+          alert('Thêm hóa đơn điện thành công!');
+        },
+        error: (err) => {
+          console.error(err);
+          alert('Có lỗi xảy ra khi thêm hóa đơn!');
+        },
       });
     }
+  }
+
+  onConfirmAction() {
+    if (this.isDeleteMode()) {
+      this.deleteRecord();
+    } else {
+      this.confirmPayment();
+    }
+  }
+
+  confirmPayment() {
+    const id = this.recordToConfirm()?.id;
+    if (!id) return;
+
+    this.utilityService.markPaid(id).subscribe(() => {
+      this.loadData();
+      this.closeConfirmModal();
+      alert('Đã xác nhận thanh toán!');
+    });
   }
 
   deleteRecord() {
     const id = this.recordToConfirm()?.id;
     if (!id) return;
-    this.utilityService.delete(id).subscribe(() => {
-      this.loadData();
-      this.closeConfirmModal();
-    });
-  }
 
-  // Chỉ còn Delete
-  onConfirmAction() {
-    const id = this.recordToConfirm()?.id;
-    if (!id) return;
     this.utilityService.delete(id).subscribe(() => {
       this.loadData();
       this.closeConfirmModal();
+      alert('Đã xóa bản ghi!');
     });
   }
 
@@ -296,6 +340,7 @@ export class ElectricityManagementComponent implements OnInit {
     this.form.set({
       id: 0,
       roomId: 0,
+      name: '',
       oldIndex: 0,
       newIndex: 0,
       unitPrice: DEFAULT_UNIT_PRICE,
@@ -303,18 +348,20 @@ export class ElectricityManagementComponent implements OnInit {
       month: currentMonthStr,
       status: UtilityStatus.UNPAID,
       source: UtilitySource.SYSTEM,
-      tenantName: '',
+      fullName: '',
     });
-    this.currentTenantName.set('');
-
+    this.currentName.set('');
     this.isEditMode.set(false);
     this.isModalOpen.set(true);
   }
 
   openEditModal(record: ElectricRecord) {
+    if (record.status === UtilityStatus.PAID) {
+      alert('Bản ghi đã thanh toán, không thể chỉnh sửa!');
+      return;
+    }
     this.form.set({ ...record });
-    this.currentTenantName.set(record.tenantName || '');
-
+    this.currentName.set(record.fullName || '');
     this.isEditMode.set(true);
     this.isModalOpen.set(true);
   }
@@ -351,7 +398,7 @@ export class ElectricityManagementComponent implements OnInit {
       return;
     }
     const header = [
-      'Phòng',
+      'Tên Phòng',
       'Khách thuê',
       'Tháng',
       'Chỉ số cũ',
@@ -361,6 +408,12 @@ export class ElectricityManagementComponent implements OnInit {
       'Thành tiền',
       'Trạng thái',
     ].join(',');
+
+    const csvSafe = (value: any): string => {
+      if (value === null || value === undefined) return '""';
+      return `"${String(value).replace(/"/g, '""')}"`;
+    };
+
     const rows = data
       .map((r) => {
         const statusText =
@@ -368,18 +421,16 @@ export class ElectricityManagementComponent implements OnInit {
             ? 'Đã thanh toán'
             : 'Chưa thanh toán';
 
-        const safeTenantName = r.tenantName ? `"${r.tenantName}"` : '---';
-
         return [
-          `Phòng ${r.roomId}`,
-          safeTenantName,
-          r.month,
-          r.oldIndex,
-          r.newIndex,
-          r.newIndex - r.oldIndex,
-          r.unitPrice,
-          r.totalAmount,
-          statusText,
+          csvSafe(r.name),
+          csvSafe(r.fullName || '---'),
+          csvSafe(r.month),
+          csvSafe(r.oldIndex),
+          csvSafe(r.newIndex),
+          csvSafe(r.newIndex - r.oldIndex),
+          csvSafe(r.unitPrice),
+          csvSafe(r.totalAmount),
+          csvSafe(statusText),
         ].join(',');
       })
       .join('\n');

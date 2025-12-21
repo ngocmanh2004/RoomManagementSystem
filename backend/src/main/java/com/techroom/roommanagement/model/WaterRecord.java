@@ -25,6 +25,9 @@ public class WaterRecord {
   @Column(name = "room_id", nullable = false)
   private Integer roomId;
 
+  @Column(name = "name", nullable = false)
+  private String name;
+
   @Column(name = "old_index", nullable = false)
   private Integer oldIndex;
 

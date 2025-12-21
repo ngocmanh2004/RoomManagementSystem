@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-// 👇 QUAN TRỌNG: Phải là <WaterRecord, Long> (Không phải Integer)
 public interface WaterRepository extends JpaRepository<WaterRecord, Long> {
 
   List<WaterRecord> findByMonth(String month);
@@ -17,6 +16,5 @@ public interface WaterRepository extends JpaRepository<WaterRecord, Long> {
 
   List<WaterRecord> findByMonthAndStatus(String month, WaterRecord.UtilityStatus status);
 
-  // 👇 Tham số roomId cũng nên là Long cho đồng bộ
   Optional<WaterRecord> findByRoomIdAndMonth(Integer roomId, String month);
 }

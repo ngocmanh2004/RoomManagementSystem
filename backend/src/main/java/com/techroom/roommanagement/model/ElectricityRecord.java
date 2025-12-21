@@ -20,6 +20,9 @@ public class ElectricityRecord {
   @Column(name = "room_id", nullable = false)
   private Integer roomId;
 
+  @Column(name = "name", nullable = false)
+  private String name;
+
   @Column(name = "old_index", nullable = false)
   private Integer oldIndex;
 
@@ -36,7 +39,7 @@ public class ElectricityRecord {
   private String meterPhotoUrl;
 
   @Column(nullable = false)
-  private String month; // YYYY-MM
+  private String month;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
@@ -45,6 +48,7 @@ public class ElectricityRecord {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private UtilitySource source = UtilitySource.SYSTEM;
+
 
   public enum UtilityStatus {
     PAID("Đã thanh toán"),

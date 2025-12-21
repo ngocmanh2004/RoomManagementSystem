@@ -195,12 +195,12 @@
 /* Filters */
 .filter-group {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 .form-select {
-  padding: 9px 36px 9px 12px;
+  padding: 9px 12px;
   border: 1px solid #d1d5db;
-  border-radius: 10px;
+  border-radius: 8px;
   background-color: white;
   cursor: pointer;
   outline: none;
@@ -217,7 +217,6 @@
 .table-responsive {
   background: white;
   border: 1px solid #e5e7eb;
-  border-top: none;
   border-radius: 0 0 16px 16px;
   overflow-x: auto;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
@@ -226,23 +225,22 @@
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1000px; /* Đảm bảo bảng không bị co ép trên màn nhỏ */
+  min-width: 900px;
 }
 
 thead th {
-  background-color: #f8fafc;
-  padding: 16px;
+  background-color: #f9fafb;
+  padding: 14px 16px;
   text-align: left;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
-  color: var(--text-gray);
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid #e2e8f0;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 tbody td {
-  padding: 16px;
+  padding: 14px 16px;
   border-bottom: 1px solid #f1f5f9;
   font-size: 0.875rem;
   color: #334155;
@@ -253,18 +251,8 @@ tbody tr:last-child td {
   border-bottom: none;
 }
 
-/* Hiệu ứng hover dòng */
 tbody tr:hover {
-  background-color: #f0f9ff; /* Highlight màu xanh nhạt khi hover */
-}
-
-/* Định dạng cột tiền và số */
-tbody td:nth-child(3), /* Chỉ số cũ */
-tbody td:nth-child(4), /* Chỉ số mới */
-tbody td:nth-child(5), /* Sử dụng */
-tbody td:nth-child(6), /* Đơn giá */
-tbody td:nth-child(7)  /* Tổng tiền */ {
-  /* font-family: 'Roboto Mono', monospace; Có thể bật nếu muốn số thẳng hàng */
+  background-color: #f0f9ff;
 }
 
 .text-bold {
@@ -272,8 +260,8 @@ tbody td:nth-child(7)  /* Tổng tiền */ {
   color: var(--text-dark);
 }
 .text-primary {
-  color: var(--primary-color);
-  font-weight: 700;
+  color: #4f46e5;
+  font-weight: 600;
 }
 .text-muted {
   color: #94a3b8;
@@ -283,55 +271,60 @@ tbody td:nth-child(7)  /* Tổng tiền */ {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: 500;
 }
 
-/* Badges (Trạng thái) */
+/* Status Badges */
 .badge {
-  padding: 6px 12px;
-  border-radius: 8px;
+  padding: 4px 10px;
+  border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+  white-space: nowrap;
 }
 .badge-paid {
-  background-color: #ecfdf5;
+  background-color: #d1fae5;
   color: #047857;
-  border: 1px solid #a7f3d0;
 }
 .badge-unpaid {
-  background-color: #fef2f2;
+  background-color: #fee2e2;
   color: #b91c1c;
-  border: 1px solid #fecaca;
 }
 
-/* Actions */
 .actions {
   display: flex;
   gap: 8px;
 }
 .btn-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
   background: transparent;
+  border: none;
   cursor: pointer;
-  transition: all 0.2s;
+  padding: 5px;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  transition: background 0.2s;
 }
 .btn-icon:hover {
-  background-color: #f1f5f9;
+  background-color: #f3f4f6;
+}
+
+/* Màu icon action */
+.text-success {
+  color: #10b981;
 }
 .text-blue {
   color: #3b82f6;
 }
 .text-danger {
   color: #ef4444;
+}
+
+.ellipsis {
+  max-width: 120px;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
 /* =========================================
@@ -408,34 +401,34 @@ tbody td:nth-child(7)  /* Tổng tiền */ {
   padding: 24px;
 }
 
-/* Form Elements */
-/* Hàng chứa các cột */
 .form-row {
   display: flex;
-  flex-wrap: wrap; /* Cho phép xuống dòng nếu màn hình quá bé */
-  gap: 20px; /* Khoảng cách giữa 2 cột */
+  flex-wrap: wrap;
+  gap: 20px;
   margin-bottom: 20px;
-  align-items: flex-start; /* Căn hàng theo mép trên (quan trọng khi cột 1 cao hơn cột 2) */
+  align-items: flex-start;
 }
 
-/* Từng cột (Form Group) */
 .form-group {
-  flex: 1 1 200px; /* Chia đều 50-50, nhưng nếu nhỏ hơn 200px thì tự xuống dòng */
-  min-width: 0; /* QUAN TRỌNG: Ngăn nội dung dài làm vỡ layout flex */
+  flex: 1 1 200px;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px; /* Khoảng cách giữa Label và Input */
-  position: relative; /* Để định vị các thành phần con nếu cần */
+  gap: 8px;
+  position: relative;
 }
 .form-group label {
   font-size: 0.875rem;
   font-weight: 600;
   color: #374151;
-  white-space: nowrap; /* Giữ nhãn trên 1 dòng */
+  white-space: nowrap;
+}
+.required {
+  color: #ef4444;
 }
 
 .form-control {
-  width: 100%; /* Bắt buộc input chiếm hết chiều rộng cột cha */
+  width: 100%;
   padding: 12px;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
@@ -443,9 +436,8 @@ tbody td:nth-child(7)  /* Tổng tiền */ {
   transition: all 0.2s;
   background-color: #fff;
 
-  /* Fix lỗi input hiển thị lạ trên một số trình duyệt */
   box-sizing: border-box;
-  height: 46px; /* Cố định chiều cao để Input và Select bằng nhau */
+  height: 46px;
 }
 
 .form-control:focus {
@@ -454,19 +446,16 @@ tbody td:nth-child(7)  /* Tổng tiền */ {
   box-shadow: 0 0 0 4px rgba(8, 145, 178, 0.1);
 }
 
-/* Style riêng cho dòng thông báo Tên khách */
 .mt-2 {
   margin-top: 8px;
   font-size: 0.85rem;
   line-height: 1.4;
 
-  /* Đảm bảo text dài không phá vỡ layout */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Đảm bảo trên mobile sẽ xếp chồng dọc */
 @media (max-width: 576px) {
   .form-row {
     flex-direction: column;
@@ -483,7 +472,6 @@ tbody td:nth-child(7)  /* Tổng tiền */ {
   cursor: not-allowed;
 }
 
-/* Info Box (Thành tiền) */
 .info-box {
   background: linear-gradient(to right, #ecfeff, #f0f9ff);
   border: 1px solid #cffafe;

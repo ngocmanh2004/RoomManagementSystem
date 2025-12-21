@@ -6,9 +6,12 @@ import com.techroom.roommanagement.model.ElectricityRecord;
 import com.techroom.roommanagement.service.ElectricityService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/utilities/electric")
@@ -54,4 +57,15 @@ public class ElectricityController {
   public void markPaid(@PathVariable Integer id) {
     service.markPaid(id);
   }
+
+  @RestControllerAdvice
+  public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<?> handleResponseStatusException(ResponseStatusException ex) {
+      return ResponseEntity.status(ex.getStatusCode())
+        .body(Map.of("message", ex.getReason()));
+    }
+  }
+
 }

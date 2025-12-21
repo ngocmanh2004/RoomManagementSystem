@@ -13,11 +13,10 @@ export enum CostType {
 export interface ExtraCost {
   id: number;
   roomId: number;
-  roomName?: string;
-  tenantName?: string;
+  name: string;
+  fullName?: string;
   code?: string;
   type: CostType;
-  name?: string;
   description?: string;
   amount: number;
   month: string;
