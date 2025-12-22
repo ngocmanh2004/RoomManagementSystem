@@ -26,7 +26,13 @@ export interface BookingContract {
   deposit: number;
   notes: string;
   rejectionReason?: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ACTIVE' | 'EXPIRED' | 'CANCELLED';
+  status:
+    | 'PENDING'
+    | 'APPROVED'
+    | 'REJECTED'
+    | 'ACTIVE'
+    | 'EXPIRED'
+    | 'CANCELLED';
   createdAt: string;
   updatedAt: string;
 }

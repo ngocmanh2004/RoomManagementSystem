@@ -609,6 +609,11 @@ export class ExtraCostManagementComponent
   }
 
   openDeleteModal(record: ExtraCost) {
+    if (record.status === ExtraCostStatus.PAID) {
+      alert('Hóa đơn đã thanh toán nên không thể xóa!');
+      return;
+    }
+
     this.recordToConfirm.set(record);
     this.isDeleteMode.set(true);
     this.isConfirmModalOpen.set(true);
@@ -628,30 +633,69 @@ export class ExtraCostManagementComponent
   // ===============================
   // EXPORT
   // ===============================
+  // ===============================
+  // EXPORT CSV
+  // ===============================
   onExportExcel() {
     const data = this.filteredRecords();
-    if (!data.length) return alert('Không có dữ liệu!');
+    if (!data.length) {
+      alert('Không có dữ liệu!');
+      return;
+    }
 
-    const csvContent =
-      'Mã CP,Phòng,Loại,Mô tả,Số tiền,Tháng,Trạng thái\n' +
-      data
-        .map(
-          (r) =>
-            `${r.code},${r.name},,${r.fullName || '---'},${this.getCostTypeName(
-              r.type
-            )},"${r.description || ''}",${r.amount},${r.month},${r.status}`
-        )
-        .join('\n');
+    const header = [
+      'Mã CP',
+      'Phòng',
+      'Loại',
+      'Mô tả',
+      'Khách thuê',
+      'Số tiền',
+      'Tháng',
+      'Trạng thái',
+    ].join(',');
+
+    const csvSafe = (value: any): string => {
+      if (value === null || value === undefined) return '""';
+      if (typeof value === 'number') return value.toString();
+      return `"${String(value).replace(/"/g, '""')}"`;
+    };
+
+    const rows = data
+      .map((r) => {
+        const statusText =
+          r.status === ExtraCostStatus.PAID
+            ? 'Đã thanh toán'
+            : 'Chưa thanh toán';
+
+        return [
+          csvSafe(r.code),
+          csvSafe(r.name),
+          csvSafe(this.getCostTypeName(r.type)),
+          csvSafe(r.description || ''),
+          csvSafe(r.fullName || '---'),
+          csvSafe(r.amount),
+          csvSafe(r.month),
+          csvSafe(statusText),
+        ].join(',');
+      })
+      .join('\n');
+
+    const csvContent = header + '\n' + rows;
 
     const blob = new Blob(['\uFEFF' + csvContent], {
       type: 'text/csv;charset=utf-8;',
     });
+
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = `Chi_phi_phat_sinh_${new Date()
       .toISOString()
       .slice(0, 10)}.csv`;
+
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 }
