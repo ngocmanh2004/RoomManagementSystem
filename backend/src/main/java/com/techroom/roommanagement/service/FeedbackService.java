@@ -29,11 +29,17 @@ public class FeedbackService {
                         HttpStatus.BAD_REQUEST, "Không tìm thấy thông tin khách thuê"
                 ));
 
-        Contract contract = contractRepository
-                .findByTenantIdAndStatus(tenant.getId(), ContractStatus.ACTIVE)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST, "Bạn chưa có hợp đồng đang thuê"
-                ));
+        List<Contract> activeContracts = contractRepository
+                .findByTenantIdAndStatus(tenant.getId(), ContractStatus.ACTIVE);
+
+        if (activeContracts.isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Bạn chưa có hợp đồng đang thuê"
+            );
+        }
+
+        // Lấy contract đầu tiên (hoặc theo logic khác bạn muốn)
+        Contract contract = activeContracts.get(0);
         Feedback f = new Feedback();
         f.setSender(tenant.getUser());
         f.setReceiver(contract.getRoom().getBuilding().getLandlord().getUser());

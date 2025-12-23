@@ -6,13 +6,16 @@ import com.techroom.roommanagement.model.Notification;
 import com.techroom.roommanagement.security.CustomUserDetails;
 import com.techroom.roommanagement.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -21,21 +24,6 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    /*@PostMapping("/send")
-    public ResponseEntity<Map<String, Object>> send(@RequestBody SendNotificationRequest req) {
-        try {
-            Map<String, Object> result = notificationService.send(req);
-            boolean success = (Boolean) result.get("success");
-            if (success) {
-                return ResponseEntity.ok(result);
-            } else {
-                return ResponseEntity.badRequest().body(result);
-            }
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "message", e.getMessage()));
-        }*/
-    // Sửa return type của endpoint /send:
     @PostMapping("/send")
     public ResponseEntity<SendNotificationResponse> send(@RequestBody SendNotificationRequest req) {
         try {
@@ -55,24 +43,31 @@ public class NotificationController {
             return ResponseEntity.badRequest().body(errorResponse);
         }
     }
-    @GetMapping("/my")
-    public List<Notification> getMyNotifications(
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+    @GetMapping("/my/paged")
+    public ResponseEntity<?> getMyNotificationsPaged(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
 
-        // Cần đảm bảo userDetails không null khi được gọi.
         if (userDetails == null) {
-            // Xử lý lỗi nếu không có thông tin xác thực
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Không tìm thấy thông tin xác thực.");
         }
 
-        return notificationService.getMyNotifications(userDetails.getId());
+        Page<Notification> pageResult = notificationService.getMyNotificationsPaged(userDetails.getId(), page, size);
+
+        // Chuyển sang format Angular cần
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", pageResult.getContent());
+        response.put("totalElements", pageResult.getTotalElements());
+
+        return ResponseEntity.ok(response);
     }
     @PostMapping("/{id}/read")
     public ResponseEntity<?> markAsRead(
-            @PathVariable Long id,
+            @PathVariable Integer id,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        notificationService.markAsRead(id, userDetails.getId().longValue());
+        notificationService.markAsRead(id, userDetails.getId());
         return ResponseEntity.ok().build();
     }
 }

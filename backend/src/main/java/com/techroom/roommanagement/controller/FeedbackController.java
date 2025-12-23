@@ -1,6 +1,7 @@
 package com.techroom.roommanagement.controller;
 
 import com.techroom.roommanagement.dto.CreateFeedbackDTO;
+import com.techroom.roommanagement.dto.PageResponseDTO;
 import com.techroom.roommanagement.model.*;
 import com.techroom.roommanagement.repository.FeedbackRepository;
 import com.techroom.roommanagement.repository.TenantRepository;
@@ -33,22 +34,24 @@ public class FeedbackController {
     }
 
     @GetMapping("/my")
-    public List<Feedback> getMyFeedback(
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public PageResponseDTO<Feedback> getMyFeedback(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            Pageable pageable) {
 
         Tenant tenant = tenantRepository.findByUserId(userDetails.getId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin khách thuê"));
 
-        return feedbackRepository
-                .findByTenantIdOrderByCreatedAtDesc(tenant.getId());
+        Page<Feedback> page = feedbackRepository.findByTenantId(tenant.getId(), pageable);
+        return PageResponseDTO.of(page);
     }
 
     @GetMapping("/landlord")
-    public Page<Feedback> getForLandlord(
+    public PageResponseDTO<Feedback> getForLandlord(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            Pageable p) {
+            Pageable pageable) {
 
-        return feedbackRepository.findByLandlordUserId(userDetails.getId(), p);
+        Page<Feedback> page = feedbackRepository.findByLandlordUserId(userDetails.getId(), pageable);
+        return PageResponseDTO.of(page);
     }
 
     @PutMapping("/{id}/process")

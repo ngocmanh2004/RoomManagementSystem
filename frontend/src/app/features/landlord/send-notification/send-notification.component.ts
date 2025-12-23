@@ -176,7 +176,11 @@ export class SendNotificationComponent implements OnInit {
         this.sending = false;
         this.alertType = 'success';
         this.alertMessage = 'Gửi thông báo thành công ✅';
-        
+        // Tự động ẩn thông báo sau 1 giây (1000ms)
+        setTimeout(() => {
+          this.alertMessage = '';
+          this.alertType = '';
+        }, 1000);
         // Reset form sau khi gửi thành công
         setTimeout(() => {
           this.form.get('title')?.setValue('');
@@ -185,7 +189,7 @@ export class SendNotificationComponent implements OnInit {
           this.form.get('selectedUserIds')?.setValue([]);
           this.openRoomSelector = false;
           this.openUserSelector = false;
-        }, 2000);
+        }, 0);
       },
       error: () => {
         this.sending = false;
@@ -199,7 +203,7 @@ export class SendNotificationComponent implements OnInit {
   private showSuccess(message: string): void {
     this.alertMessage = message;
     this.alertType = 'success';
-    setTimeout(() => this.alertMessage = '', 6000); // tự mất sau 6 giây
+    setTimeout(() => this.alertMessage = '', 0); 
   }
 
   private showError(message: string): void {

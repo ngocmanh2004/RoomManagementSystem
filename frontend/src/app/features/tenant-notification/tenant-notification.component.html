@@ -17,24 +17,28 @@
         class="notification-item"
         [ngClass]="notif.isRead ? 'notification-read' : 'notification-unread'"
         (click)="markAsRead(notif)">
-        
-        <div class="flex justify-between items-center">
-            <h3 class="notification-title font-bold">
-                {{ notif.title }}
-                <span *ngIf="!notif.isRead" class="notification-badge">MỚI</span>
-            </h3>
-            <span class="notification-time text-xs">{{ timeAgo(notif.createdAt) }}</span>
-        </div>
-        
-        <p class="notification-message text-sm mt-1 mb-2">{{ notif.message }}</p>
-
-        <div class="flex justify-end mt-2">
-            <button *ngIf="!notif.isRead" 
-                    class="mark-read-btn"
-                    (click)="markAsRead(notif); $event.stopPropagation()">
-                Đánh dấu đã đọc
-            </button>
-        </div>
+      <div class="flex justify-between items-center">
+        <h3 class="notification-title font-bold">
+          {{ notif.title }}
+          <span *ngIf="!notif.isRead" class="notification-badge">MỚI</span>
+        </h3>
+        <span class="notification-time text-xs">{{ timeAgo(notif.createdAt) }}</span>
+      </div>
+      <p class="notification-message text-sm mt-1 mb-2">{{ notif.message }}</p>
+      <div class="flex justify-end mt-2">
+        <button *ngIf="!notif.isRead" class="mark-read-btn" (click)="markAsRead(notif); $event.stopPropagation()">
+          Đánh dấu đã đọc
+        </button>
+      </div>
     </li>
   </ul>
+
+  <!-- Phân trang -->
+  <div *ngIf="totalPages > 1" class="flex justify-center mt-6 space-x-2">
+    <button class="btn btn-sm" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">Trước</button>
+    <button *ngFor="let page of pages" class="btn btn-sm" [ngClass]="{'btn-primary': page === currentPage}" (click)="goToPage(page)">
+      {{ page }}
+    </button>
+    <button class="btn btn-sm" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">Sau</button>
+  </div>
 </div>

@@ -21,16 +21,21 @@ export class FeedbackService {
 
   constructor(private http: HttpClient) {}
 
-  create(data: any): Observable<Feedback> {
-    return this.http.post<Feedback>(this.api, data);
+  create(feedback: { title: string; content: string; attachmentUrl?: string }) {
+    return this.http.post<Feedback>(this.api, feedback);
   }
 
   getMyFeedback(): Observable<Feedback[]> {
     return this.http.get<Feedback[]>(`${this.api}/my`);
   }
+  getMyFeedbackPaged(page: number, size: number): Observable<{ content: Feedback[], totalElements: number }> {
+    return this.http.get<{ content: Feedback[], totalElements: number }>(
+      `/api/feedback/my?page=${page}&size=${size}`
+    );
+  }
 
   getForLandlord(page = 0, size = 10): Observable<any> {
-    return this.http.get<any>(`${this.api}/landlord?page=${page}&size=${size}&sort=createdAt,desc`);
+    return this.http.get<Feedback>(`${this.api}/landlord?page=${page}&size=${size}&sort=createdAt,desc`);
   }
 
   startProcessing(id: number): Observable<Feedback> {

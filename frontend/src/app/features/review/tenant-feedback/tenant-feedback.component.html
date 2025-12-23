@@ -7,9 +7,24 @@
   <div class="feedback-wrapper mx-auto">
     <!-- KHUNG NGOÀI BỌC FORM -->
     <div class="bg-base-100 feedback-card mb-12">
-
+      <!-- ALERT MESSAGE -->
+      <div *ngIf="alertMessage" 
+           class="alert alert-{{alertType}} mb-6 animate-pulse shadow-lg">
+        <div class="flex items-center gap-2">
+          <span *ngIf="alertType === 'success'" class="text-2xl">🎉</span>
+          <span *ngIf="alertType === 'error'" class="text-2xl">❌</span>
+          <span *ngIf="alertType === 'info'" class="text-2xl">ℹ️</span>
+          <span class="font-medium">{{alertMessage}}</span>
+        </div>
+        <button class="btn btn-sm btn-circle btn-ghost ml-auto" 
+                (click)="alertMessage = ''">✕</button>
+      </div>
       <form novalidate (ngSubmit)="submit()" #f="ngForm" class="space-y-6 feedback-form">
-
+        <!-- Thêm phần hiển thị alert ở đầu form -->
+        <div *ngIf="alertMessage" class="alert alert-{{alertType}} mb-4">
+          <span>{{alertMessage}}</span>
+          <button class="btn btn-sm btn-circle btn-ghost" (click)="alertMessage = ''">✕</button>
+        </div>
         <!-- TIÊU ĐỀ -->
         <div class="form-row">
           <label>Tiêu đề <span class="text-error">*</span></label>
@@ -66,12 +81,19 @@
 
         <!-- NÚT -->
         <div class="text-center pt-6">
-          <button type="submit" class="btn btn-primary btn-lg" [disabled]="loading">
-            Gửi phản hồi ngay
-            </button>
-
+          <button type="submit" class="btn btn-primary btn-lg" 
+                  [disabled]="loading || f.invalid"
+                  [ngClass]="{'btn-disabled': f.invalid && f.touched}">
+            <span *ngIf="loading" class="loading loading-spinner"></span>
+            {{ loading ? 'Đang gửi...' : 'Gửi phản hồi ngay' }}
+          </button>
+          <div class="text-center pt-2">
+            <p class="text-error text-sm" 
+              *ngIf="submitted && (!newFeedback.title.trim() || !newFeedback.content.trim())">
+              Vui lòng điền đầy đủ thông tin bắt buộc
+            </p>
+          </div>
         </div>
-
       </form>
     </div>
 
@@ -210,6 +232,23 @@
             </tr>
           </tbody>
         </table>
+        <!-- Phân trang -->
+        <div *ngIf="totalPages > 1" class="flex justify-center mt-4 gap-2">
+          <button class="btn btn-sm" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+            « Trước
+          </button>
+
+          <button *ngFor="let page of pages"
+                  class="btn btn-sm"
+                  [ngClass]="{'btn-primary': currentPage === page, 'btn-outline': currentPage !== page}"
+                  (click)="goToPage(page)">
+            {{ page }}
+          </button>
+
+          <button class="btn btn-sm" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+            Tiếp »
+          </button>
+        </div>
       </div>
     </div>
   </div>

@@ -51,9 +51,7 @@ export const routes: Routes = [
       { path: 'register-landlord', component: RegisterLandlordComponent},
       { path: 'tenant-profile', component: TenantProfileComponent },
       { path: 'contract-detail', component: ContractDetailComponent },
-      { path: 'notification', component: SendNotificationComponent},
       { path: 'tenant-feedback', component: TenantFeedbackComponent},
-      { path: 'landlord/landlord-feedback', component: LandlordFeedbackComponent},
       { path: 'tenant-notification', component: TenantNotificationComponent}
     ],
   },
@@ -76,7 +74,6 @@ export const routes: Routes = [
   },
 
   // LANDLORD ROUTES (role = 1)
-  // LANDLORD ROUTES (role = 1)
 {
   path: 'landlord',
   component: LandlordLayoutComponent,
@@ -93,6 +90,8 @@ export const routes: Routes = [
     { path: 'water', component: WaterManagementComponent },
     { path: 'extra-cost', component: ExtraCostManagementComponent },
     { path: 'invoices', component: InvoiceManagementComponent },
+    { path: 'notification', component: SendNotificationComponent},
+    { path: 'landlord-feedback', component: LandlordFeedbackComponent},
   ],
 },
 
@@ -105,6 +104,8 @@ export const routes: Routes = [
     { path: '', redirectTo: 'invoices', pathMatch: 'full' },
     { path: 'invoices', component: InvoiceViewComponent },
     { path: 'vnpay-return', component: VnpayReturnComponent },
+    { path: 'tenant-notification', component: TenantNotificationComponent },
+    { path: 'tenant-feedback', component: TenantFeedbackComponent }
   ],
 },
 

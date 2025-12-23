@@ -7,6 +7,8 @@ import com.techroom.roommanagement.repository.NotificationRepository;
 import com.techroom.roommanagement.repository.TenantRepository;
 import com.techroom.roommanagement.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
@@ -154,14 +156,13 @@ public class NotificationService {
         return response;
 
     }
-    public List<Notification> getMyNotifications(Integer userId) {
+    public Page<Notification> getMyNotificationsPaged(Integer userId, int page, int size) {
         if (userId == null) {
-            return Collections.emptyList();
+            return Page.empty();
         }
-        // Gọi hàm đã định nghĩa trong NotificationRepository
-        return notificationRepository.findByUserId(userId);
+        return notificationRepository.findByUserId(userId, PageRequest.of(page, size));
     }
-    public Notification markAsRead(Long notificationId, Long userId) {
+    public Notification markAsRead(Integer notificationId, Integer userId) {
         Notification notif = notificationRepository
                 .findByIdAndUserId(notificationId, userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thông báo"));

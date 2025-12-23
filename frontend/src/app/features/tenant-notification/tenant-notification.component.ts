@@ -1,85 +1,155 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Subscription, interval } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Notification } from '../../models/notification.model'; 
-import { NotificationService } from '../../services/notification.service'; 
+import { Notification } from '../../models/notification.model';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
-  selector: 'app-tenant-notification',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './tenant-notification.component.html',
-  styleUrl: './tenant-notification.component.css'
+  selector: 'app-tenant-notification',
+  imports: [CommonModule, FormsModule],
+  templateUrl: './tenant-notification.component.html',
+  styleUrls: ['./tenant-notification.component.css']
 })
-export class TenantNotificationComponent implements OnInit {
-  notifications: Notification[] = [];
-  loading = true;
-  errorMessage: string = '';
+export class TenantNotificationComponent implements OnInit, OnDestroy {
+  notifications: Notification[] = [];
+  loading = true;
+  errorMessage: string = '';
 
-  constructor(private notificationService: NotificationService) {}
+  currentPage = 1;
+  pageSize = 5;
+  totalItems = 0;
+  totalPages = 0;
 
-  ngOnInit(): void {
-    this.loadNotifications();
-  }
+  private autoReloadSub?: Subscription;
 
-  loadNotifications(): void {
-    this.loading = true;
-    this.errorMessage = '';
-    this.notificationService.getMyNotifications().subscribe({
-      next: (data: Notification[]) => {
-        this.notifications = data;
-        this.loading = false;
-      },
-      error: (err: HttpErrorResponse) => {
-        this.errorMessage = err.error?.message || 'Không tải được thông báo. Vui lòng thử lại.';
-        this.loading = false;
-        console.error(err);
-      }
-    });
-  }
+  constructor(private notificationService: NotificationService) {}
 
-  markAsRead(notification: Notification): void {
-    // Thêm kiểm tra nếu notification đang trong quá trình đánh dấu
-    // Sử dụng [] notation để truy cập loading nếu nó không có trong interface Notification chính thức.
-    if (notification.isRead || notification.loading) return; 
+  ngOnInit(): void {
+    this.loadState();
+    this.loadNotifications(this.currentPage);
+
+    // Polling mỗi 5 giây, chỉ reload page hiện tại
+    this.autoReloadSub = interval(5000).pipe(
+      switchMap(() => this.notificationService.getMyNotificationsPaged(this.currentPage - 1, this.pageSize))
+    ).subscribe({
+      next: res => {
+        if (JSON.stringify(this.notifications) !== JSON.stringify(res.content)) {
+          this.notifications = res.content;
+          this.totalItems = res.totalElements;
+          this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+          this.saveState();
+        }
+      },
+      error: err => {
+        console.error('Polling error:', err);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.autoReloadSub?.unsubscribe();
+  }
+
+  loadNotifications(page: number = 1): void {
+    this.loading = true;
+    this.errorMessage = '';
+    this.currentPage = page;
+
+    this.notificationService.getMyNotificationsPaged(this.currentPage - 1, this.pageSize)
+      .subscribe({
+        next: res => {
+          this.notifications = res.content || [];
+          this.totalItems = res.totalElements;
+          this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+          this.loading = false;
+          this.saveState();
+        },
+        error: (err: HttpErrorResponse) => {
+          this.errorMessage = err.error?.message || 'Không tải được thông báo.';
+          this.loading = false;
+        }
+      });
+  }
+
+  markAsRead(notification: Notification): void {
+    if (notification.isRead || (notification as any).loading) return;
 
     const originalIsRead = notification.isRead;
-    // Tạm thời cập nhật UI để phản hồi nhanh
-    notification.isRead = true; 
-    notification.loading = true; 
+    notification.isRead = true;
+    (notification as any).loading = true;
 
-    this.notificationService.markAsRead(notification.id).subscribe({
-      next: (updatedNotif: Notification) => {
-        // API thành công
-        notification.loading = false;
-        console.log('Đã đánh dấu là Đã đọc:', notification.id);
-      },
-      error: (err: HttpErrorResponse) => {
-        // API thất bại, đảo ngược trạng thái UI về ban đầu
+    this.notificationService.markAsRead(notification.id).subscribe({
+      next: updatedNotif => {
+        (notification as any).loading = false;
+        Object.assign(notification, updatedNotif);
+      },
+      error: (err: HttpErrorResponse) => {
         notification.isRead = originalIsRead;
-        notification.loading = false;
+        (notification as any).loading = false;
+        this.showErrorAlert(err.error?.message || 'Không thể đánh dấu đã đọc.');
+      }
+    });
+  }
 
-        const errorMsg = err.error?.message || 'Không thể đánh dấu đã đọc. Vui lòng thử lại.';
-        alert(errorMsg);
-        
-        console.error('Lỗi khi đánh dấu đã đọc:', err);
-      }
-    });
-  }
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
+    this.loadNotifications(page);
+  }
 
-  // Hàm tiện ích để hiển thị thời gian đã trôi qua giữ nguyên
-  timeAgo(dateString: string): string {
-    const now = new Date();
-    const past = new Date(dateString);
-    const diff = Math.abs(now.getTime() - past.getTime());
-    const seconds = Math.floor(diff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
+  get pages(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
 
-    if (days > 0) return `${days} ngày trước`;
-    if (hours > 0) return `${hours} giờ trước`;
-    if (minutes > 0) return `${minutes} phút trước`;
-    return 'Vừa xong';
-  }
+  private saveState(): void {
+    const state = {
+      notifications: this.notifications,
+      currentPage: this.currentPage,
+      pageSize: this.pageSize,
+      totalItems: this.totalItems,
+      totalPages: this.totalPages
+    };
+    localStorage.setItem('tenantNotifications', JSON.stringify(state));
+  }
+
+  private loadState(): void {
+    const saved = localStorage.getItem('tenantNotifications');
+    if (saved) {
+      try {
+        const state = JSON.parse(saved);
+        this.notifications = state.notifications || [];
+        this.currentPage = state.currentPage || 1;
+        this.pageSize = state.pageSize || 5;
+        this.totalItems = state.totalItems || 0;
+        this.totalPages = state.totalPages || 0;
+        this.loading = false;
+      } catch {
+        this.currentPage = 1;
+      }
+    }
+  }
+
+  private showErrorAlert(message: string) {
+    this.errorMessage = message;
+    setTimeout(() => this.errorMessage = '', 3000);
+  }
+
+  timeAgo(dateString: string): string {
+    const now = new Date();
+    const past = new Date(dateString);
+    if (isNaN(past.getTime())) return 'Thời gian không hợp lệ';
+
+    const diff = Math.abs(now.getTime() - past.getTime());
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `${days} ngày trước`;
+    if (hours > 0) return `${hours} giờ trước`;
+    if (minutes > 0) return `${minutes} phút trước`;
+    return 'Vừa xong';
+  }
 }
