@@ -195,10 +195,7 @@
             </div>
           </td>
 
-          <td
-            class="text-muted text-sm"
-            style="max-width: 200px; white-space: normal"
-          >
+          <td class="ellipsis" style="max-width: 200px; white-space: normal">
             {{ record.description || "---" }}
           </td>
 
@@ -241,7 +238,6 @@
             </button>
             <button
               class="btn-icon text-danger"
-              [disabled]="record.status === UtilityStatus.PAID"
               (click)="openDeleteModal(record)"
               title="Xóa"
             >
@@ -281,18 +277,15 @@
             <label>Phòng <span class="required">*</span></label>
             <select
               class="form-control"
-              [value]="form().roomId"
-              (change)="updateRoomId($any($event.target).value)"
+              [(ngModel)]="form().roomId"
+              (ngModelChange)="updateRoomId($event)"
               [disabled]="isEditMode()"
+              name="room"
             >
-              <option value="0" disabled selected>
-                -- Chọn phòng đang thuê --
-              </option>
-              @for (room of roomList(); track room.id) {
-              <option [value]="room.id">
+              <option value="0" disabled>-- Chọn phòng đang thuê --</option>
+              <option *ngFor="let room of roomList()" [value]="room.id">
                 {{ room.name }}
               </option>
-              }
             </select>
           </div>
           <div class="form-group">

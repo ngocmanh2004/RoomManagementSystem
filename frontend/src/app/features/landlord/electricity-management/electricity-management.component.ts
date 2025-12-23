@@ -371,11 +371,16 @@ export class ElectricityManagementComponent implements OnInit {
   }
 
   openDeleteModal(record: ElectricRecord) {
+    if (record.status === UtilityStatus.PAID) {
+      alert('Hóa đơn đã thanh toán nên không thể xóa!');
+      return;
+    }
+  
     this.recordToConfirm.set(record);
     this.isDeleteMode.set(true);
     this.isConfirmModalOpen.set(true);
   }
-
+  
   openConfirmPaymentModal(record: ElectricRecord) {
     this.recordToConfirm.set(record);
     this.isDeleteMode.set(false);

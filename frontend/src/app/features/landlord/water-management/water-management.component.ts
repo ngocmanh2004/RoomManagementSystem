@@ -234,7 +234,9 @@ export class WaterManagementComponent
           maintainAspectRatio: false,
           plugins: {
             legend: { display: true, position: 'top' },
-            tooltip: { callbacks: { label: (c: any) => ` ${c.formattedValue} m³` } },
+            tooltip: {
+              callbacks: { label: (c: any) => ` ${c.formattedValue} m³` },
+            },
           },
           scales: {
             y: { beginAtZero: true },
@@ -515,8 +517,12 @@ export class WaterManagementComponent
     this.isDeleteMode.set(false);
     this.isConfirmModalOpen.set(true);
   }
-
   openDeleteModal(record: WaterRecord) {
+    if (record.status === UtilityStatus.PAID) {
+      alert('Hóa đơn đã thanh toán nên không thể xóa!');
+      return;
+    }
+
     this.recordToConfirm.set(record);
     this.isDeleteMode.set(true);
     this.isConfirmModalOpen.set(true);
