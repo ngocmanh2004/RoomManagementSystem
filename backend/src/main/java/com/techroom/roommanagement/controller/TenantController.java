@@ -2,14 +2,17 @@ package com.techroom.roommanagement.controller;
 
 import com.techroom.roommanagement.dto.ApiResponse;
 import com.techroom.roommanagement.dto.RegisterRequest;
+import com.techroom.roommanagement.model.Landlord;
 import com.techroom.roommanagement.model.Tenant;
 import com.techroom.roommanagement.model.User;
+import com.techroom.roommanagement.repository.LandlordRepository;
 import com.techroom.roommanagement.repository.TenantRepository;
 import com.techroom.roommanagement.repository.UserRepository;
 import com.techroom.roommanagement.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,12 +40,20 @@ public class TenantController {
     @Autowired
     private TenantService tenantService;
 
+    @Autowired
+    private LandlordRepository landlordRepository;
+
     // Lấy tất cả tenant
     @GetMapping
     public List<Tenant> getAllTenants() {
-        return tenantRepository.findAll();
+        Integer landlordId = getCurrentLandlordId();
+        if (landlordId != null) {
+            return tenantService.getTenantsByLandlord(landlordId);
+        }
+        else {
+            return tenantService.getAllTenants();
+        }
     }
-
     // Lấy tenant theo ID
     @GetMapping("/{id}")
     public ResponseEntity<Tenant> getTenantById(@PathVariable int id) {
@@ -218,7 +229,7 @@ public class TenantController {
 
         try {
             // Lấy tenant không có hợp đồng ACTIVE
-            List<Tenant> tenants = tenantRepository.findTenantsWithoutActiveContract();
+            List<Tenant> tenants = tenantRepository.findAvailableTenantsByLandlord(landlordId);
 
             return ResponseEntity.ok(new ApiResponse(true, "Lấy danh sách khách thuê thành công", tenants));
         } catch (Exception e) {
@@ -229,26 +240,21 @@ public class TenantController {
 
     // Method để lấy ID của landlord hiện tại
     private Integer getCurrentLandlordId() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication == null || !authentication.isAuthenticated()) {
-                return null;
-            }
-
-            String username = authentication.getName();
-            Optional<User> userOpt = userRepository.findByUsername(username);
-
-            if (userOpt.isPresent()) {
-                User user = userOpt.get();
-                // Check if user is a landlord (role = 1)
-                if (user.getRole() == 1) {
-                    return user.getId();
-                }
-            }
-            return null;
-        } catch (Exception e) {
-            System.err.println("Error getting current landlord ID: " + e.getMessage());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
             return null;
         }
+
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElse(null);
+
+        if (user == null || user.getRole() != 1) {
+            return null;
+        }
+
+        return landlordRepository.findByUserId(user.getId())
+                .map(Landlord::getId)   // ✅ landlords.id
+                .orElse(null);
     }
 }

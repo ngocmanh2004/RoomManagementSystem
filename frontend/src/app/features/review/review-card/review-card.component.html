@@ -11,12 +11,16 @@
       </div>
     </div>
     
-    <div *ngIf="isOwner" class="review-actions">
-      <button (click)="editReview()" class="btn-edit" title="Chỉnh sửa">
+    <div class="review-actions">
+      <button *ngIf="isOwner" (click)="editReview()" class="btn-edit" title="Chỉnh sửa">
         ✏️
       </button>
-      <button (click)="deleteReview()" class="btn-delete" title="Xóa">
+      <button *ngIf="isOwner" (click)="deleteReview()" class="btn-delete" title="Xóa">
         🗑️
+      </button>
+      <button *ngIf="!isOwner" (click)="reportReview()" class="btn-report" title="Báo cáo">
+        <span style="color: #e53935; font-size: 1.3em;">&#9888;</span>
+        <!-- hoặc dùng icon fontawesome nếu có: <i class="fa fa-exclamation-triangle" style="color:#e53935"></i> -->
       </button>
     </div>
   </div>

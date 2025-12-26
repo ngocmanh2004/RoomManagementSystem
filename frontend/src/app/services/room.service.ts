@@ -1,3 +1,4 @@
+// Removed duplicate getRoomsByLandlord definition accidentally placed outside the class
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -119,5 +120,15 @@ export class RoomService {
 
   deleteImage(imageId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiBase}/images/${imageId}`);
+  }
+
+  getRoomsByLandlord(landlordId: number): Observable<Room[]> {
+    return this.http.get<Room[]>(
+      `${this.apiBase}/rooms/by-landlord/${landlordId}`
+    );
+  }
+
+  getMyRooms(): Observable<Room[]> {
+    return this.http.get<Room[]>(`${this.apiBase}/rooms/my`);
   }
 }

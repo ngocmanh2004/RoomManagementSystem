@@ -19,6 +19,10 @@ public interface RoomRepository extends JpaRepository<Room, Integer> {
 
     List<Room> findByBuildingId(Integer buildingId);
 
+        // Lấy tất cả phòng thuộc về landlord
+        @Query("SELECT r FROM Room r JOIN r.building b WHERE b.landlord.id = :landlordId")
+        List<Room> findAllByLandlordId(@Param("landlordId") Integer landlordId);
+
     @Query("SELECT DISTINCT r FROM Room r " +
             "LEFT JOIN r.building b " +
             "LEFT JOIN r.amenities a " +

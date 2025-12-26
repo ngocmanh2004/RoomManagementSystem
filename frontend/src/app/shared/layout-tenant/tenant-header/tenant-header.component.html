@@ -1,0 +1,17 @@
+<header class="header-container">
+  <div class="header-left">
+    <button class="menu-toggle" (click)="onToggleSidebar()">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <h1 class="header-title">Hóa Đơn Của Tôi</h1>
+  </div>
+
+  <div class="header-right">
+    <div class="user-menu">
+      <span class="user-name">{{ currentUser?.fullName || 'Người dùng' }}</span>
+      <button class="logout-btn" (click)="onLogout()" title="Đăng xuất">
+        <i class="fa-solid fa-sign-out-alt"></i>
+      </button>
+    </div>
+  </div>
+</header>

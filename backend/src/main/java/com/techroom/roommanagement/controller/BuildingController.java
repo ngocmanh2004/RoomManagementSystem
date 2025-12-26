@@ -1,3 +1,4 @@
+
 package com.techroom.roommanagement.controller;
 
 import com.techroom.roommanagement.dto.BuildingDTO;
@@ -26,6 +27,13 @@ public class BuildingController {
     public List<RoomDTO> getRoomsByBuilding(@PathVariable int buildingId) {
         return buildingService.getRoomsByBuildingId(buildingId).stream()
                 .map(RoomDTO::new)
+                .toList();
+    }
+    // API lấy danh sách building theo landlordId (dùng cho FE dashboard chủ trọ)
+    @GetMapping("/by-landlord/{landlordId}")
+    public List<BuildingDTO> getBuildingsByLandlord(@PathVariable Integer landlordId) {
+        return buildingService.getBuildingsByLandlord(landlordId).stream()
+                .map(BuildingDTO::new)
                 .toList();
     }
 }

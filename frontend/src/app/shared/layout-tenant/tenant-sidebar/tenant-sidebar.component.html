@@ -1,0 +1,19 @@
+<div class="sidebar-container" [class.collapsed]="isCollapsed">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <i class="fa-solid fa-building"></i>
+    </div>
+    <span class="logo-text">Trang khách thuê</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <ul>
+      <li routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <a routerLink="/tenant/invoices">
+          <i class="fa-solid fa-file-invoice"></i>
+          <span class="nav-text">Hóa Đơn Của Tôi</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>

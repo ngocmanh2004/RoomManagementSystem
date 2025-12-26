@@ -97,5 +97,20 @@ public interface ContractRepository extends JpaRepository<Contract, Integer> {
             @Param("statuses") List<ContractStatus> statuses
     );
 
-    boolean existsByTenantIdAndStatus(Integer tenantId, ContractStatus status);
+    /**
+     * Lấy tên khách thuê hiện tại của phòng (qua hợp đồng ACTIVE)
+     */
+    @Query("""
+    SELECT c.fullName
+    FROM Contract c
+    WHERE c.room.id = :roomId
+      AND c.status = com.techroom.roommanagement.model.ContractStatus.ACTIVE
+""")
+    Optional<String> findActiveTenantFullNameByRoomId(@Param("roomId") Integer roomId);
+
+  boolean existsByTenantIdAndStatus(Integer tenantId, ContractStatus status);
+
+    List<Contract> findByTenantIdAndStatus(Integer tenantId, ContractStatus status);
+    List<Contract> findByRoomIdAndStatus(Integer roomId, ContractStatus status);
+    List<Contract> findByStatus(ContractStatus status);
 }

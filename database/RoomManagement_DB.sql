@@ -369,17 +369,33 @@ CREATE TABLE notifications (
 -- 18. FEEDBACKS
 -- ============================================================
 CREATE TABLE feedbacks (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  sender_id INT NOT NULL,
-  receiver_id INT NOT NULL,
-  content TEXT,
-  rating INT CHECK (rating BETWEEN 1 AND 5),
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE,
-  INDEX idx_sender_id (sender_id),
-  INDEX idx_receiver_id (receiver_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    tenant_id INT NULL,
+    room_id INT NULL,
+    title VARCHAR(100),
+    content TEXT,
+    attachment_url VARCHAR(255),
+    status ENUM(
+        'PENDING',           -- Chưa xử lý
+        'PROCESSING',        -- Đang xử lý
+        'RESOLVED',          -- Đã xử lý (chờ khách xác nhận)
+        'CANCELED',          -- Hủy
+        'TENANT_CONFIRMED',  -- Khách xác nhận hài lòng
+        'TENANT_REJECTED'    -- Khách chưa hài lòng → mở lại
+    ) DEFAULT 'PENDING',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    resolved_at DATETIME NULL,
+    landlord_note TEXT NULL COMMENT 'Ghi chú của chủ trọ khi xử lý',
+    tenant_feedback TEXT NULL COMMENT 'Phản hồi của khách sau khi xử lý',
+    tenant_satisfied TINYINT(1) NULL COMMENT '1=hài lòng, 0=chưa hài lòng',
+    
+    FOREIGN KEY (sender_id) REFERENCES users(id),
+    FOREIGN KEY (receiver_id) REFERENCES users(id),
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id),
+    FOREIGN KEY (room_id) REFERENCES rooms(id)
+);
 
 -- ============================================================
 -- 19. REFRESH_TOKENS (JWT)
@@ -501,4 +517,5 @@ SELECT COUNT(*) as total_users FROM users;
 SELECT COUNT(*) as total_rooms FROM rooms;
 SELECT COUNT(*) as total_contracts FROM contracts;
 SELECT COUNT(*) as total_reviews FROM reviews;
+
 SELECT * FROM contracts;

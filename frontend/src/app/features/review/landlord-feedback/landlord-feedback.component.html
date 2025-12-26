@@ -1,0 +1,137 @@
+<div class="container mx-auto p-6 max-w-7xl">
+  <h2 class="text-3xl font-bold mb-8 text-center text-primary">Quản lý phản hồi từ khách thuê</h2>
+
+  <!-- Bảng danh sách -->
+  <div class="bg-base-100 rounded-xl shadow-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table table-lg table-zebra">
+        <thead class="bg-base-200 text-base">
+          <tr>
+            <th class="w-32">Phòng</th>
+            <th class="w-40">Khách thuê</th>
+            <th>Tiêu đề</th>
+            <th class="max-w-md">Nội dung</th>
+            <th class="w-40 text-center">Trạng thái</th>
+            <th class="w-56 text-center">Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let fb of page.content" class="hover">
+            <td class="font-medium">{{ fb.room?.name || '—' }}</td>
+            <td>{{ fb.sender?.fullName || '—' }}</td>
+            <td class="font-semibold text-primary">{{ fb.title }}</td>
+            <td class="max-w-md">
+              <div class="truncate" title="{{ fb.content }}">{{ fb.content }}</div>
+            </td>
+            <td class="text-center">
+              <div class="badge badge-lg font-medium" [ngClass]="getStatusClass(fb.status)">
+                {{ getStatusText(fb.status) }}
+              </div>
+            </td>
+            <td class="text-center">
+              <div class="flex flex-col gap-2">
+
+                <!-- Chưa xử lý → Bắt đầu xử lý -->
+                <button *ngIf="fb.status === 'PENDING'"
+                        class="btn btn-sm btn-info btn-outline"
+                        (click)="startProcessing(fb.id)">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 5l7 7-7 7"></path>
+                  </svg>
+                  Bắt đầu xử lý
+                </button>
+
+                <!-- Đang xử lý → Hoàn tất -->
+                <button *ngIf="fb.status === 'PROCESSING'"
+                        class="btn btn-sm btn-success"
+                        (click)="openResolveModal(fb.id)">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  Đã xử lý xong
+                </button>
+
+                <!-- Chưa xử lý → Hủy -->
+                <button *ngIf="fb.status === 'PENDING'"
+                        class="btn btn-sm btn-ghost text-error"
+                        (click)="cancel(fb.id)">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                  Hủy
+                </button>
+                
+                <!-- Đã xử lý xong (chờ khách xác nhận) -->
+                <div *ngIf="fb.status === 'RESOLVED'" class="text-xs text-success font-medium">
+                  Đang chờ khách xác nhận
+                </div>
+
+                <!-- Hoàn tất -->
+                <div *ngIf="fb.status === 'CLOSED'" class="text-success font-bold text-sm">
+                  Hoàn tất
+                </div>
+                
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Không có dữ liệu -->
+      <div *ngIf="page.empty" class="text-center py-16 text-gray-500">
+        <p class="text-xl">Chưa có phản hồi nào</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phân trang -->
+  <div class="flex justify-center mt-8" *ngIf="!page.empty">
+    <div class="join">
+      <button class="join-item btn" [disabled]="page.first" (click)="loadPage(page.number - 1)">
+        «
+      </button>
+      <button class="join-item btn btn-active">
+        Trang {{ page.number + 1 }} / {{ page.totalPages || 1 }}
+      </button>
+      <button class="join-item btn" [disabled]="page.last" (click)="loadPage(page.number + 1)">
+        »
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Đã xử lý xong -->
+<div class="modal" [ngClass]="{ 'modal-open': isResolveModalOpen }">
+  <div class="modal-box">
+    <h3 class="font-bold text-xl mb-4 flex items-center gap-2">
+      <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M5 13l4 4L19 7"></path>
+      </svg>
+      Xác nhận đã xử lý xong
+    </h3>
+
+    <div class="py-4">
+      <textarea
+        [(ngModel)]="resolveNote"
+        class="textarea textarea-bordered w-full h-32 resize-none"
+        placeholder="Ghi chú cho khách..."
+      ></textarea>
+    </div>
+
+    <div class="modal-action">
+      <button class="btn btn-ghost" (click)="closeResolveModal()">Hủy</button>
+
+      <button class="btn btn-success"
+              (click)="submitResolve()"
+              [disabled]="!resolveNote.trim()">
+        Xác nhận đã xử lý
+      </button>
+    </div>
+  </div>
+</div>
+
+ 

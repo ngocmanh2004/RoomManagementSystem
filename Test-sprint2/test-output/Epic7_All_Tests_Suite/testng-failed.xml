@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite thread-count="3" parallel="classes" name="Failed suite [Epic7_All_Tests_Suite]" guice-stage="DEVELOPMENT">
+  <test thread-count="3" parallel="classes" name="Run_All_US_Tests(failed)">
+    <classes>
+      <class name="Epic1.US14">
+        <methods>
+          <include name="afterClass"/>
+          <include name="afterMethod"/>
+          <include name="TC141"/>
+          <include name="beforeClass"/>
+          <include name="beforeMethod"/>
+        </methods>
+      </class> <!-- Epic1.US14 -->
+    </classes>
+  </test> <!-- Run_All_US_Tests(failed) -->
+</suite> <!-- Failed suite [Epic7_All_Tests_Suite] -->

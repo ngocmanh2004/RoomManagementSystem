@@ -25,6 +25,13 @@
           <button class="btn-edit" (click)="toggleEditMode()">
             Edit profile
           </button>
+
+          <div class="quick-actions" style="margin-top:12px">
+            <button class="quick-action-btn" (click)="toggleInvoices()" style="display:flex;align-items:center;justify-content:center;gap:8px">
+              <div class="action-icon">📄</div>
+              <div class="action-label">Xem hóa đơn</div>
+            </button>
+          </div>
         </div>
 
         <form *ngIf="editMode" [formGroup]="profileForm" (ngSubmit)="onSave()" class="profile-form">
@@ -150,31 +157,8 @@
     <div class="middle-column">
       <div class="card">
         <h2 class="card-title">Hoạt động gần đây</h2>
-        
-        <div *ngIf="contract" class="activities">
-          <div class="activity-item">
-            <div class="activity-header">
-              <div class="activity-left">
-                <span class="activity-icon">📄</span>
-                <div>
-                  <div class="activity-title">Hóa đơn mới nhất</div>
-                  <div class="activity-time">
-                    {{ formatDate(invoice?.issueDate) }} • 
-                    {{ invoice?.status === 'PAID' ? 'Đã thanh toán' : 'Chưa thanh toán' }}
-                  </div>
-                </div>
-              </div>
-              <div class="activity-amount">
-                {{ formatCurrency(invoice?.totalAmount || 0) }}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div *ngIf="!contract" class="no-data">
-          <div class="no-data-icon">🏠</div>
-          <p class="no-data-text">Bạn chưa có hợp đồng thuê phòng nào</p>
-          <p class="no-data-subtext">Liên hệ chủ trọ để thuê phòng</p>
+        <div class="activities">
+          <p class="no-data-text">Các hoạt động gần đây sẽ hiển thị tại đây.</p>
         </div>
       </div>
     </div>
@@ -198,15 +182,12 @@
         </div>
       </div>
 
-      <div class="card">
-        <h2 class="card-title">Thao tác nhanh</h2>
-        <div class="quick-actions">
-          <button class="quick-action-btn">
-            <div class="action-icon">📄</div>
-            <div class="action-label">Xem hóa đơn</div>
-          </button>
-        </div>
-      </div>
+      <!-- Quick actions moved into personal info card on the left -->
     </div>
+  </div>
+  <!-- Embedded invoice section (toggle from quick action) -->
+  <div *ngIf="showInvoices" id="tenant-invoices-section" class="card" style="margin-top:20px;">
+    <h2 class="card-title">Hóa đơn của tôi</h2>
+    <app-invoice-view></app-invoice-view>
   </div>
 </div>

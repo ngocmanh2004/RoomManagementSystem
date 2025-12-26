@@ -20,4 +20,8 @@ export class BuildingService {
   getAllBuildings(): Observable<Building[]> {
     return this.http.get<Building[]>(this.api);
   }
+
+  getBuildingsByLandlord(landlordId: number): Observable<Building[]> {
+    return this.http.get<Building[]>(`${this.api}/by-landlord/${landlordId}`);
+  }
 }

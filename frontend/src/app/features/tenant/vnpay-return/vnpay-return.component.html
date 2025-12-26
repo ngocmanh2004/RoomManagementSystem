@@ -1,0 +1,71 @@
+<div class="payment-result-page">
+  <div class="result-container">
+    
+    <!-- LOADING STATE -->
+    <div *ngIf="isLoading()" class="loading-state">
+      <div class="spinner"></div>
+      <p class="loading-text">Đang xử lý kết quả thanh toán...</p>
+    </div>
+
+    <!-- SUCCESS STATE -->
+    <div *ngIf="!isLoading() && paymentSuccess()" class="result-card success">
+      <div class="icon-wrapper">
+        <div class="success-icon">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+            <circle cx="40" cy="40" r="38" stroke="#10b981" stroke-width="4"/>
+            <path d="M25 40L35 50L55 30" stroke="#10b981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <h1 class="result-title">Thanh toán thành công!</h1>
+      <p class="result-message">Hóa đơn của bạn đã được thanh toán thành công.</p>
+      
+      <div class="payment-info-box">
+        <div class="info-row">
+          <span class="info-label">Mã giao dịch:</span>
+          <span class="info-value">{{ transactionRef() }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Số tiền:</span>
+          <span class="info-value amount">{{ formatCurrency(amount()) }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Thời gian:</span>
+          <span class="info-value">{{ paymentTime() | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn btn-primary" (click)="goToInvoices()">
+          Về trang hóa đơn
+        </button>
+      </div>
+    </div>
+
+    <!-- ERROR STATE -->
+    <div *ngIf="!isLoading() && !paymentSuccess()" class="result-card error">
+      <div class="icon-wrapper">
+        <div class="error-icon">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+            <circle cx="40" cy="40" r="38" stroke="#ef4444" stroke-width="4"/>
+            <path d="M30 30L50 50M50 30L30 50" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <h1 class="result-title">Thanh toán thất bại</h1>
+      <p class="result-message">{{ errorMessage() }}</p>
+      
+      <div class="action-buttons">
+        <button class="btn btn-outline" (click)="goToInvoices()">
+          Về trang hóa đơn
+        </button>
+        <button class="btn btn-primary" (click)="retryPayment()">
+          Thử lại
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -23,6 +23,7 @@ import java.util.HashSet;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Room {
 
     @Id
@@ -73,6 +74,13 @@ public class Room {
     )
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Set<Amenity> amenities = new HashSet<>();
+    // Room.java
+    @ManyToOne
+    @JoinColumn(name = "landlord_id")
+    private Landlord landlord;
+
+    @Transient
+    private String tenantName;
 
     public enum RoomStatus {
         AVAILABLE("Trong"),

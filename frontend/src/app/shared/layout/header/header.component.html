@@ -55,6 +55,8 @@
                 </a>
               </li>
               <li class="divider"></li>
+              
+              <li class="divider"></li>
             </ng-container>
 
             <li>
@@ -77,9 +79,22 @@
                   <i class="fa fa-building"></i> Quản lý phòng trọ
                 </a>
               </li>
+
             </ng-container>
 
             <ng-container *ngIf="currentUser.role === 2">
+              <li>
+                <a [routerLink]="['/tenant/tenant-notification']">
+                  <i class="fa fa-bell"></i> Thông báo
+                </a>
+              </li>
+
+              <li>
+                <a [routerLink]="['/tenant/tenant-feedback']">
+                  <i class="fa fa-comment"></i> Gửi phản hồi
+                </a>
+              </li>
+
               <li>
                 <a [routerLink]="['/tenant/bookings']">
                   <i class="fa fa-calendar-check"></i> Đặt phòng của tôi

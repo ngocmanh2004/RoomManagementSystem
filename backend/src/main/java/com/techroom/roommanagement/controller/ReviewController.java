@@ -8,6 +8,10 @@ import com.techroom.roommanagement.exception.BadRequestException;
 import com.techroom.roommanagement.exception.ForbiddenException;     
 import com.techroom.roommanagement.exception.NotFoundException;     
 import com.techroom.roommanagement.model.User;
+import com.techroom.roommanagement.model.Review;
+import com.techroom.roommanagement.model.ReviewReport;
+import com.techroom.roommanagement.repository.ReviewReportRepository;
+import com.techroom.roommanagement.repository.ReviewRepository;
 import com.techroom.roommanagement.repository.UserRepository;
 import com.techroom.roommanagement.security.JwtTokenProvider;
 import com.techroom.roommanagement.service.ReviewService;
@@ -21,6 +25,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reviews")
@@ -37,6 +44,12 @@ public class ReviewController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ReviewReportRepository reviewReportRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
 
     /**
      * ✅ Extract ID user từ JWT Token trong Authorization header
@@ -189,5 +202,36 @@ public class ReviewController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Lỗi xóa đánh giá: " + e.getMessage()));
         }
+    }
+
+    @PostMapping("/{reviewId}/report")
+    public ResponseEntity<?> reportReview(
+            @PathVariable Integer reviewId,
+            @RequestBody Map<String, String> payload,
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
+
+        Integer reporterId = getCurrentUserId(authorization); // SỬA LẠI DÒNG NÀY
+
+        String reason = payload.get("reason");
+        String description = payload.getOrDefault("description", "");
+
+        Review review = reviewRepository.findById(reviewId).orElse(null);
+        if (review == null) return ResponseEntity.badRequest().body("Review không tồn tại");
+
+        User reporter = userRepository.findById(reporterId).orElse(null);
+        if (reporter == null) return ResponseEntity.badRequest().body("Người dùng không tồn tại");
+
+        ReviewReport report = ReviewReport.builder()
+            .review(review)
+            .reporter(reporter)
+            .reason(reason)
+            .description(description)
+            .status(ReviewReport.ReportStatus.PENDING) // SỬA LẠI DÒNG NÀY
+            .createdAt(LocalDateTime.now())
+            .build();
+
+        reviewReportRepository.save(report);
+
+        return ResponseEntity.ok(Map.of("message", "Đã gửi báo cáo, quản trị viên sẽ xem xét."));
     }
 }

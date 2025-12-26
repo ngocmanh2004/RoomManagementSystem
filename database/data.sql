@@ -36,5 +36,24 @@ SET SQL_SAFE_UPDATES = 1;
 
 -- Kiểm tra
 DESCRIBE contracts;
-
 SELECT * FROM contracts LIMIT 5;
+
+-- I'm Mạnh
+-- Thêm cột note (CHỈ THÊM NẾU CHƯA CÓ)
+SET @col_exists := (
+    SELECT COUNT(*)
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_NAME = 'review_reports'
+      AND COLUMN_NAME = 'note'
+      AND TABLE_SCHEMA = DATABASE()
+);
+
+SET @sql := IF(
+    @col_exists = 0,
+    'ALTER TABLE review_reports ADD COLUMN note VARCHAR(255);',
+    'SELECT "note column already exists";'
+);
+
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;

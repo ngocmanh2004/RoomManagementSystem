@@ -19,10 +19,11 @@ export class ContractService {
     return this.http.get(`${this.apiUrl}?status=PENDING`);
   }
   getContracts(status: string) {
-    let url = '/api/contracts';
+    // For landlord UI we use the landlord-specific endpoint which returns a paged ApiResponse.
+    let url = '/api/landlord/contracts';
     if (status) {
       url += `?status=${status}`;
     }
-    return this.http.get<Contract[]>(url);
+    return this.http.get<any>(url);
   }
 }

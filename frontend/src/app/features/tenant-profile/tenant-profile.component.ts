@@ -8,11 +8,12 @@ import { ProvinceService } from '../../services/province.service';
 import { User } from '../../models/users'; // Giả sử bạn đã tạo file này
 import { Tenant } from '../../models/tenant.model'; // Giả sử bạn đã tạo file này
 import { Province, District } from '../../models/province.model'; // Giả sử bạn đã tạo file này
+import { InvoiceViewComponent } from '../tenant/invoice-view/invoice-view.component';
 
 @Component({
   selector: 'app-tenant-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, InvoiceViewComponent],
   templateUrl: './tenant-profile.component.html',
   styleUrls: ['./tenant-profile.component.css']
 })
@@ -25,6 +26,7 @@ export class TenantProfileComponent implements OnInit {
   contract: any = null; 
   room: any = null;    
   invoice: any = null;  
+  showInvoices = false;
 
   provinces: Province[] = [];
   districts: District[] = [];
@@ -38,6 +40,17 @@ export class TenantProfileComponent implements OnInit {
     private provinceService: ProvinceService,
     private router: Router
   ) {}
+
+  toggleInvoices(): void {
+    this.showInvoices = !this.showInvoices;
+    // optional: scroll into view when opened
+    if (this.showInvoices) {
+      setTimeout(() => {
+        const el = document.getElementById('tenant-invoices-section');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
+  }
 
   ngOnInit(): void {
     this.initForm();

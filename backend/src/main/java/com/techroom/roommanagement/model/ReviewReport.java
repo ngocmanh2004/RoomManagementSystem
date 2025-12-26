@@ -1,5 +1,6 @@
 package com.techroom.roommanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
                 @Index(name = "idx_review_reports_reporter_id", columnList = "reporter_id"),
                 @Index(name = "idx_review_reports_status", columnList = "status")
         })
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -43,6 +45,9 @@ public class ReviewReport {
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "note")
+    private String note;
 
     public enum ReportStatus {
         PENDING, RESOLVED, DISMISSED
