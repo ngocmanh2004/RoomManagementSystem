@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,24 +26,19 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @PostMapping("/send")
-    public ResponseEntity<SendNotificationResponse> send(@RequestBody SendNotificationRequest req) {
-        try {
-            SendNotificationResponse result = notificationService.send(req);
-
-            if (result.isSuccess()) {
-                return ResponseEntity.ok(result);
-            } else {
-                // Trường hợp service trả về lỗi logic (success=false)
-                return ResponseEntity.badRequest().body(result);
-            }
-        } catch (Exception e) {
-            // Trường hợp lỗi ngoại lệ (ví dụ: IllegalArgumentException)
-            SendNotificationResponse errorResponse = new SendNotificationResponse();
-            errorResponse.setSuccess(false);
-            errorResponse.setMessage(e.getMessage());
-            return ResponseEntity.badRequest().body(errorResponse);
+    @PreAuthorize("hasRole('LANDLORD')")
+    public ResponseEntity<SendNotificationResponse> send(
+            @RequestBody SendNotificationRequest req,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Chưa đăng nhập");
         }
+
+        SendNotificationResponse result = notificationService.send(req);
+        return ResponseEntity.ok(result);
     }
+
     @GetMapping("/my/paged")
     public ResponseEntity<?> getMyNotificationsPaged(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -59,15 +55,22 @@ public class NotificationController {
         Map<String, Object> response = new HashMap<>();
         response.put("content", pageResult.getContent());
         response.put("totalElements", pageResult.getTotalElements());
+        response.put("totalPages", pageResult.getTotalPages());
+        response.put("number", pageResult.getNumber());
 
         return ResponseEntity.ok(response);
     }
-    @PostMapping("/{id}/read")
-    public ResponseEntity<?> markAsRead(
+    @PutMapping("/{id}/read")
+    public ResponseEntity<Notification> markAsRead(
             @PathVariable Integer id,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        notificationService.markAsRead(id, userDetails.getId());
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        Notification updated =notificationService.markAsRead(id, userDetails.getId());
         return ResponseEntity.ok().build();
     }
+
 }

@@ -1,5 +1,8 @@
-<div class="notification-card">
-  <h3 class="notification-title">Gửi thông báo cho khách</h3>
+<div class="notification-page">
+
+<div class="notification-card modern-card">
+
+  <h3 class="notification-title modern-title">Gửi thông báo cho khách</h3>
 
   <div class="notification-body" [formGroup]="form">
 
@@ -19,7 +22,7 @@
     <div class="field-group">
       <label class="form-label">Đối tượng</label>
       <select class="form-control" formControlName="sendTo">
-        <option value="ALL">Toàn bộ khách</option>
+        <option value="ALL_TENANTS">Toàn bộ khách</option>
         <option value="ROOMS">Chọn phòng</option>
         <option value="USERS">Chọn khách</option>
       </select>
@@ -53,10 +56,17 @@
             <div>Đang tải danh sách phòng...</div>
           </div>
           <!-- Danh sách phòng -->
-          <div *ngFor="let room of rooms" class="room-item" 
-               (click)="toggleRoom(room.id, !selectedRoomIds.includes(room.id))">
+          <div
+                *ngFor="let room of rooms"
+                class="room-item"
+                (click)="toggleRoom(room.id, !isRoomSelected(room.id))"
+              >
             <div class="room-checkbox-container">
-              <input type="checkbox" [checked]="selectedRoomIds.includes(room.id)">
+              <input
+                type="checkbox"
+                [checked]="isRoomSelected(room.id)"
+                (click)="$event.stopPropagation()"
+              />
               <span class="room-checkbox-custom"></span>
             </div>
             <div class="room-info">
@@ -79,6 +89,7 @@
       <div class="popup-overlay" *ngIf="openRoomSelector" 
            (click)="openRoomSelector = false"></div>
     </div>
+  
     <!-- ====================== PHẦN CHỌN KHÁCH THUÊ ====================== -->
 <div *ngIf="form.get('sendTo')?.value === 'USERS'" class="user-selection-container">
   <label class="form-label">Chọn khách thuê</label>
@@ -111,10 +122,17 @@
       </div>
       
       <!-- Danh sách khách -->
-      <div *ngFor="let user of tenants" class="user-item" 
-           (click)="toggleUser(user.id, !selectedUserIds.includes(user.id))">
+      <div
+          *ngFor="let user of tenants"
+          class="user-item"
+          (click)="toggleUser(user.id, !isUserSelected(user.id))"
+        >
         <div class="user-checkbox-container">
-          <input type="checkbox" [checked]="selectedUserIds.includes(user.id)">
+          <input
+            type="checkbox"
+            [checked]="isUserSelected(user.id)"
+            (click)="$event.stopPropagation()"
+          />
           <span class="user-checkbox-custom"></span>
         </div>
         <div class="user-info">
@@ -158,4 +176,9 @@
       <strong>{{ alertMessage }}</strong>
     </div>
   </div>
+  </div>
+</div>
+<div *ngIf="activeTab === 'feedback'" class="empty-state">
+  <i>📭</i>
+  <p>Chưa có phản hồi nào</p>
 </div>

@@ -29,6 +29,8 @@ export class SendNotificationComponent implements OnInit {
   openUserSelector = false; 
   loadingTenants = false;
   loadingRooms = false;
+  activeTab: 'notification' | 'feedback' = 'notification';
+  notificationCount = 3;
 
   constructor(
     private fb: FormBuilder,
@@ -39,7 +41,7 @@ export class SendNotificationComponent implements OnInit {
     this.form = this.fb.group({
       title: ['', Validators.required],
       message: ['', Validators.required],
-      sendTo: ['ALL', Validators.required],
+      sendTo: ['ALL_TENANTS', Validators.required],
       selectedRoomIds: [[]],
       selectedUserIds: [[]],
       sendEmail: [false]
@@ -149,7 +151,7 @@ export class SendNotificationComponent implements OnInit {
     });
   }
 
-  send(): void {
+  /*send(): void {
     if (this.form.invalid) return;
 
     this.sending = true;
@@ -195,6 +197,51 @@ export class SendNotificationComponent implements OnInit {
         this.sending = false;
         this.alertType = 'error';
         this.alertMessage = 'Gửi thất bại ❌';
+      }
+    });
+  }*/
+  send(): void {
+    if (this.form.invalid) return;
+
+    this.sending = true;
+
+    const value = this.form.value;
+
+    const req: any = {
+      title: value.title,
+      message: value.message,
+      sendTo: value.sendTo,
+      sendEmail: value.sendEmail,
+      roomIds: value.sendTo === 'ROOMS' ? this.selectedRoomIds : undefined,
+      userIds: value.sendTo === 'USERS' ? this.selectedUserIds : undefined
+    };
+
+    this.notificationService.send(req).subscribe({
+      next: () => {
+        this.sending = false;
+        this.alertType = 'success';
+        this.alertMessage = 'Gửi thông báo thành công ✅';
+
+        // reset form CHUẨN
+        this.form.reset({
+          sendTo: 'ALL_TENANTS',
+          sendEmail: false,
+          selectedRoomIds: [],
+          selectedUserIds: []
+        });
+
+        this.openRoomSelector = false;
+        this.openUserSelector = false;
+
+        setTimeout(() => {
+          this.alertMessage = '';
+          this.alertType = '';
+        }, 1500);
+      },
+      error: (err) => {
+        this.sending = false;
+        this.alertType = 'error';
+        this.alertMessage = err.error?.message || 'Gửi thất bại ❌';
       }
     });
   }

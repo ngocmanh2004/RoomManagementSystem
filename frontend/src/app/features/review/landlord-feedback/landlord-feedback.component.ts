@@ -36,7 +36,7 @@ export class LandlordFeedbackComponent {
 
   // Bắt đầu xử lý
   startProcessing(id: number) {
-    this.feedbackService.startProcessing(id).subscribe({
+    this.feedbackService.process(id, 'PROCESSING').subscribe({
       next: () => {
         this.showAlert('Bắt đầu xử lý thành công', 'info');
         this.loadPage(this.page.number);
@@ -62,7 +62,7 @@ export class LandlordFeedbackComponent {
 
     console.log('Submitting resolve for ID:', this.resolveId);
     
-    this.feedbackService.resolve(this.resolveId, this.resolveNote).subscribe({
+    this.feedbackService.process(this.resolveId, 'RESOLVED', this.resolveNote).subscribe({
       next: (response) => {
         console.log('Resolve response:', response);
         this.showAlert('Đã gửi thông báo xử lý xong!', 'success');

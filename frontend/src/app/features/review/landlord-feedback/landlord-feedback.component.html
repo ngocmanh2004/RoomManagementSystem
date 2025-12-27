@@ -21,7 +21,10 @@
             <td>{{ fb.sender?.fullName || '—' }}</td>
             <td class="font-semibold text-primary">{{ fb.title }}</td>
             <td class="max-w-md">
-              <div class="truncate" title="{{ fb.content }}">{{ fb.content }}</div>
+              <div class="line-clamp-2 text-sm text-gray-600">
+                {{ fb.content }}
+              </div>
+
             </td>
             <td class="text-center">
               <div class="badge badge-lg font-medium" [ngClass]="getStatusClass(fb.status)">
@@ -103,35 +106,37 @@
   </div>
 </div>
 
-<!-- Modal: Đã xử lý xong -->
-<div class="modal" [ngClass]="{ 'modal-open': isResolveModalOpen }">
-  <div class="modal-box">
-    <h3 class="font-bold text-xl mb-4 flex items-center gap-2">
-      <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M5 13l4 4L19 7"></path>
-      </svg>
-      Xác nhận đã xử lý xong
-    </h3>
+<!-- Modal chỉ render khi nhấn nút "Đã xử lý xong" -->
+<ng-container *ngIf="isResolveModalOpen">
+  <div class="modal modal-open">
+    <div class="modal-box">
+      <h3 class="font-bold text-xl mb-4 flex items-center gap-2">
+        <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5 13l4 4L19 7"></path>
+        </svg>
+        Xác nhận đã xử lý xong
+      </h3>
 
-    <div class="py-4">
-      <textarea
-        [(ngModel)]="resolveNote"
-        class="textarea textarea-bordered w-full h-32 resize-none"
-        placeholder="Ghi chú cho khách..."
-      ></textarea>
-    </div>
+      <div class="py-4">
+        <textarea
+          [(ngModel)]="resolveNote"
+          class="textarea textarea-bordered w-full h-32 resize-none"
+          placeholder="Ghi chú cho khách..."
+        ></textarea>
+      </div>
 
-    <div class="modal-action">
-      <button class="btn btn-ghost" (click)="closeResolveModal()">Hủy</button>
+      <div class="modal-action">
+        <button class="btn btn-ghost" (click)="closeResolveModal()">Hủy</button>
 
-      <button class="btn btn-success"
-              (click)="submitResolve()"
-              [disabled]="!resolveNote.trim()">
-        Xác nhận đã xử lý
-      </button>
+        <button class="btn btn-success"
+                (click)="submitResolve()"
+                [disabled]="!resolveNote.trim()">
+          Xác nhận đã xử lý
+        </button>
+      </div>
     </div>
   </div>
-</div>
+</ng-container>
 
  

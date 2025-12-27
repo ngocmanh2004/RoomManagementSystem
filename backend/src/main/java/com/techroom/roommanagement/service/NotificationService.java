@@ -9,11 +9,14 @@ import com.techroom.roommanagement.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 import com.techroom.roommanagement.dto.SendNotificationResponse;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.stream.Collectors;
 
 
@@ -127,7 +130,7 @@ public class NotificationService {
 
                 n.setTitle(req.getTitle());
                 n.setMessage(req.getMessage());
-                n.setType("SYSTEM"); // Hoặc dùng type khác nếu có
+                n.setType(NotificationType.SYSTEM); // Hoặc dùng type khác nếu có
                 n.setIsRead(false);
 
                 Notification s = notificationRepository.save(n);
@@ -162,13 +165,30 @@ public class NotificationService {
         }
         return notificationRepository.findByUserId(userId, PageRequest.of(page, size));
     }
-    public Notification markAsRead(Integer notificationId, Integer userId) {
-        Notification notif = notificationRepository
-                .findByIdAndUserId(notificationId, userId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông báo"));
+    public Notification markAsRead(Integer id, Integer userId) {
+        Notification n = notificationRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Không tìm thấy thông báo"
+                        )
+                );
 
-        notif.setIsRead(true);
-        return notificationRepository.save(notif);
+        if (!n.getUserId().equals(userId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Bạn không có quyền thao tác thông báo này"
+            );
+        }
+
+        if (!n.getIsRead()) {
+            n.setIsRead(true);
+            notificationRepository.save(n);
+        }
+
+        return n;
     }
+
 
 }
