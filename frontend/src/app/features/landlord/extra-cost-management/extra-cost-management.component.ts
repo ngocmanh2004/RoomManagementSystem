@@ -175,31 +175,24 @@ export class ExtraCostManagementComponent
   filteredRecords = computed(() => {
     const f = this.filters();
     const keyword = this.removeAccents(f.keyword);
-    const rooms = this.roomList();
 
     return this.records().filter((r) => {
       const matchMonth = !f.month || r.month === f.month;
       const matchRoom = f.roomId === 0 || r.roomId === f.roomId;
       const matchStatus = f.status === 'ALL' || r.status === f.status;
+      const matchType = f.type === 'ALL' || r.type === f.type;
 
       const roomInfo = this.roomList().find((room) => room.id === r.roomId);
       const roomName = roomInfo ? roomInfo.name : `Phòng ${r.roomId}`;
 
-      const normalizedRoomName = this.removeAccents(roomName);
-      const normalizedTenantName = this.removeAccents(r.fullName || '');
-      const roomIdStr = r.roomId.toString();
-      const formattedCode = 'p' + r.roomId.toString().padStart(3, '0');
-      const matchType = f.type === 'ALL' || r.type === f.type;
       const matchSearch =
         keyword === '' ||
-        (r.roomId != null && r.roomId.toString().includes(keyword)) ||
-        (r.roomId != null &&
-          ('p' + r.roomId.toString().padStart(3, '0')).includes(keyword)) ||
-        normalizedRoomName.includes(keyword) ||
-        normalizedTenantName.includes(keyword);
-
-      r.code?.toLowerCase().includes(keyword) ||
-        r.name.toLowerCase().includes(keyword);
+        r.roomId.toString().includes(keyword) ||
+        ('p' + r.roomId.toString().padStart(3, '0')).includes(keyword) ||
+        this.removeAccents(roomName).includes(keyword) ||
+        this.removeAccents(r.fullName || '').includes(keyword) ||
+        this.removeAccents(r.code || '').includes(keyword) ||
+        this.removeAccents(r.name || '').includes(keyword);
 
       return matchMonth && matchRoom && matchStatus && matchType && matchSearch;
     });
