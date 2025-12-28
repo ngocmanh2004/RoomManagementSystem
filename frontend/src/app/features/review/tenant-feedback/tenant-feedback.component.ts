@@ -1,10 +1,12 @@
 import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
-import { Feedback, FeedbackService } from '../../../services/feedback.service';
+import { FeedbackService } from '../../../services/feedback.service';
 import { UploadService } from '../../../services/upload.service';
 import { interval, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { Feedback } from '../../../models/feedback.model';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 interface PagedFeedback {
   content: Feedback[];
@@ -23,12 +25,15 @@ export class TenantFeedbackComponent implements OnDestroy {
   myFeedback: Feedback[] = [];
   loading = false;
   submitted = false;
+  showCreateForm = false;
 
   // Modal & thông báo
   rejectReason = '';
   alertMessage = '';
   selectedFile: File | null = null;
   alertType: 'success' | 'error' | 'info' | '' = '';
+  isDeleteSuccess = false;
+
   showRejectBoxId: number | null = null;
   imageModalUrl: string | null = null;
   showImageModal = false;
@@ -40,8 +45,8 @@ export class TenantFeedbackComponent implements OnDestroy {
   pageSize = 5;
   totalItems = 0;
   totalPages = 0;
-
-  constructor(private feedbackService: FeedbackService, private uploadService: UploadService) {
+  
+  constructor(private feedbackService: FeedbackService, private uploadService: UploadService,private sanitizer: DomSanitizer) {
     // Load trạng thái từ localStorage
     const saved = localStorage.getItem('tenantFeedback');
     if (saved) {
@@ -58,7 +63,7 @@ export class TenantFeedbackComponent implements OnDestroy {
 
     // Polling để cập nhật real-time
     this.autoReloadSub = interval(5000).pipe(
-      switchMap(() => this.feedbackService.getMyFeedbackPaged(this.currentPage - 1, this.pageSize))
+      switchMap(() => this.feedbackService.getMyFeedback(this.currentPage - 1, this.pageSize))
     ).subscribe({
       next: (res: PagedFeedback) => {
         // Chỉ cập nhật nếu có thay đổi
@@ -86,7 +91,8 @@ export class TenantFeedbackComponent implements OnDestroy {
 
   submit() {
     this.submitted = true;
-    this.alertMessage = ''; // xóa thông báo cũ trước khi kiểm tra
+    this.alertMessage = '';
+
     if (!this.newFeedback.title.trim() || !this.newFeedback.content.trim()) {
       this.showAlert('Vui lòng nhập tiêu đề và nội dung', 'error');
       return;
@@ -94,9 +100,10 @@ export class TenantFeedbackComponent implements OnDestroy {
 
     this.loading = true;
 
+    // 👉 có ảnh → upload trước
     if (this.selectedFile) {
       this.uploadService.uploadImage(this.selectedFile).subscribe({
-        next: (res) => {
+        next: (res: { url: string }) => {   // 👈 ÉP KIỂU RÕ
           this.newFeedback.attachmentUrl = res.url;
           this.createFeedback();
         },
@@ -106,7 +113,10 @@ export class TenantFeedbackComponent implements OnDestroy {
           this.submitted = false;
         }
       });
-    } else {
+
+    } 
+    // 👉 không có ảnh
+    else {
       this.createFeedback();
     }
   }
@@ -134,13 +144,20 @@ export class TenantFeedbackComponent implements OnDestroy {
 
   loadMyFeedback(page: number = 1) {
     this.currentPage = page;
-    this.feedbackService.getMyFeedbackPaged(this.currentPage - 1, this.pageSize)
+    this.feedbackService.getMyFeedback(this.currentPage - 1, this.pageSize)
       .subscribe((res: PagedFeedback) => {
         this.myFeedback = res.content || [];
         this.totalItems = res.totalElements || 0;
         this.totalPages = Math.ceil(this.totalItems / this.pageSize);
         this.saveState();
+
+        this.myFeedback.forEach(fb => {
+        if (fb.attachmentUrl) {
+          console.log('URL ảnh gốc từ server:', fb.attachmentUrl);
+        }
       });
+    });
+      
   }
 
   get pages(): number[] {
@@ -153,7 +170,7 @@ export class TenantFeedbackComponent implements OnDestroy {
   }
 
   confirmSatisfied(id: number) {
-    this.feedbackService.tenantConfirm(id).subscribe({
+    this.feedbackService.tenantConfirm(id, true).subscribe({
       next: () => {
         this.showAlert('Cảm ơn bạn đã xác nhận hài lòng!', 'success');
         this.loadMyFeedback(this.currentPage);
@@ -173,18 +190,18 @@ export class TenantFeedbackComponent implements OnDestroy {
   }
 
   submitReject() {
-    if (!this.showRejectBoxId || !this.rejectReason.trim()) {
-      this.showAlert('Vui lòng nhập lý do chưa hài lòng', 'error');
-      return;
-    }
-    const feedbackId = this.showRejectBoxId;
-    this.feedbackService.tenantReject(feedbackId, this.rejectReason).subscribe({
+    if (!this.showRejectBoxId || !this.rejectReason.trim()) return;
+
+    this.feedbackService.tenantConfirm(
+      this.showRejectBoxId,
+      false,
+      this.rejectReason
+    ).subscribe({
       next: () => {
         this.showAlert('Đã gửi phản hồi – chủ trọ sẽ xử lý lại', 'info');
         this.closeRejectBox();
         this.loadMyFeedback(this.currentPage);
-      },
-      error: () => this.showAlert('Gửi thất bại', 'error')
+      }
     });
   }
 
@@ -216,12 +233,8 @@ export class TenantFeedbackComponent implements OnDestroy {
   removeFile() {
     this.selectedFile = null;
     this.newFeedback.attachmentUrl = '';
-    if (this.previewUrl) {
-      URL.revokeObjectURL(this.previewUrl);
-      this.previewUrl = null;
-    }
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
+    if (this.previewUrl) URL.revokeObjectURL(this.previewUrl);
+    this.previewUrl = null;
   }
 
   deleteFeedback(id: number) {
@@ -259,14 +272,14 @@ export class TenantFeedbackComponent implements OnDestroy {
 
   getStatusClass(s: string): string {
     const map: Record<string, string> = {
-      PENDING: 'badge badge-warning',
-      PROCESSING: 'badge badge-info',
-      RESOLVED: 'badge badge-primary',
-      TENANT_CONFIRMED: 'badge badge-success badge-lg',
-      TENANT_REJECTED: 'badge badge-error',
-      CANCELED: 'badge badge-ghost'
+      PENDING: 'badge-pending',         
+      PROCESSING: 'badge-processing',   
+      RESOLVED: 'badge-resolved',       
+      TENANT_CONFIRMED: 'badge-resolved', 
+      TENANT_REJECTED: 'badge-processing', 
+      CANCELED: 'badge-canceled'
     };
-    return map[s] || 'badge';
+    return map[s] || 'badge-pending';
   }
 
   formatFileSize(bytes: number): string {
@@ -282,4 +295,30 @@ export class TenantFeedbackComponent implements OnDestroy {
     this.previewUrl = null;
     this.selectedFile = null;
   }
+  toggleCreateForm() {
+    this.showCreateForm = !this.showCreateForm;
+
+    // reset form khi đóng
+    if (!this.showCreateForm) {
+      this.newFeedback = { title: '', content: '', attachmentUrl: '' };
+      this.selectedFile = null;
+      this.previewUrl = null;
+      this.submitted = false;
+
+      if (this.feedbackForm) {
+        this.feedbackForm.resetForm();
+      }
+    }
+  }
+  safeImageUrl(url: string): SafeUrl {
+    if (!url) return '';
+
+    if (url.startsWith('/images')) {
+      return this.sanitizer.bypassSecurityTrustUrl(
+        'http://localhost:8081' + url);
+    }
+
+    return this.sanitizer.bypassSecurityTrustUrl(url);
+  }
+
 }

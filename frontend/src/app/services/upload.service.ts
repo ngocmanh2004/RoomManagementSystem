@@ -6,17 +6,18 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class UploadService {
-  private apiUrl = '/api/upload'; // URL API upload của bạn
+  private readonly API_URL = 'http://localhost:8081/api/upload'; 
 
   constructor(private http: HttpClient) {}
 
-  uploadImage(file: File) {
+  uploadImage(file: File): Observable<{ url: string }> {
     const formData = new FormData();
     formData.append('file', file);
 
     return this.http.post<{ url: string }>(
-        'http://localhost:8081/api/upload',
-        formData
+      this.API_URL,
+      formData
     );
-    }
+  }
+
 }

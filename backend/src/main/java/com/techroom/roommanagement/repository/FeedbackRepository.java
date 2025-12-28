@@ -21,10 +21,11 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
     List<Feedback> findByTenantIdOrderByCreatedAtDesc(Integer tenantId);
 
     // Khách xem phản hồi của mình (có phân trang)
-    Page<Feedback> findByTenantId(Integer tenantId, Pageable pageable);
+    Page<Feedback> findByTenant_Id(Integer tenantId, Pageable pageable);
+    Page<Feedback> findByReceiver_Id(Integer receiverId, Pageable pageable);
 
     // Các phương thức kiểm tra quyền sửa/xóa
     Optional<Feedback> findByIdAndRoom_Landlord_User_Id(Integer id, Integer landlordUserId);
-    Optional<Feedback> findByIdAndReceiverId(Integer id, Integer receiverId);
-    Optional<Feedback> findByIdAndTenantId(Integer id, Integer tenantId);
+    Optional<Feedback> findByIdAndReceiver_Id(Integer id, Integer receiverId);
+    Optional<Feedback> findByIdAndTenant_Id(Integer id, Integer tenantId);
 }

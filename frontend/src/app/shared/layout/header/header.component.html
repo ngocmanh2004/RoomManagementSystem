@@ -22,6 +22,19 @@
       </ng-container>
 
       <ng-container *ngIf="isLoggedIn && currentUser">
+        <button
+          type="button"
+          class="notification-btn"
+          (click)="goToNotification()"
+          *ngIf="currentUser && (currentUser.role === 1 || currentUser.role === 2)"
+        >
+          <i class="fa fa-bell"></i>
+
+          <span class="notification-badge" *ngIf="notificationCount > 0">
+            {{ notificationCount }}
+          </span>
+        </button>
+
         <div class="user-dropdown">
           <button class="user-btn">
             <i class="fa fa-user-circle"></i>
@@ -83,17 +96,6 @@
             </ng-container>
 
             <ng-container *ngIf="currentUser.role === 2">
-              <li>
-                <a [routerLink]="['/tenant/tenant-notification']">
-                  <i class="fa fa-bell"></i> Thông báo
-                </a>
-              </li>
-
-              <li>
-                <a [routerLink]="['/tenant/tenant-feedback']">
-                  <i class="fa fa-comment"></i> Gửi phản hồi
-                </a>
-              </li>
 
               <li>
                 <a [routerLink]="['/tenant/bookings']">

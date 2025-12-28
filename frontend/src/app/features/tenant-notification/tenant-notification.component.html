@@ -1,44 +1,61 @@
-<div class="container mx-auto p-6 max-w-4xl">
-  <h2 class="text-3xl font-bold text-primary mb-8">🔔 Thông báo của bạn</h2>
+<div class="notification-wrapper" *ngIf="!loading">
 
-  <div *ngIf="loading" class="text-center py-10">
-    <span class="loading loading-spinner loading-lg text-primary"></span>
-    <p>Đang tải thông báo...</p>
+  <!-- LIST -->
+  <div class="notification-list" *ngIf="notifications.length > 0">
+
+    <div *ngFor="let notif of notifications"
+         class="notification-card"
+         [class.unread]="!notif.isRead"
+         (click)="!notif.isRead && markAsRead(notif)">
+
+      <!-- ICON -->
+      <div class="notif-icon">
+        <span *ngIf="notif.type === 'SYSTEM'">🔔</span>
+        <span *ngIf="notif.type === 'PAYMENT_RECEIVED'">💰</span>
+        <span *ngIf="notif.type === 'UTILITY_REQUEST'">⚡</span>
+      </div>
+
+      <!-- CONTENT -->
+      <div class="notif-body">
+        <div class="notif-top">
+          <h4 class="notif-title">{{ notif.title }}</h4>
+
+          <div class="notif-actions">
+            <span *ngIf="!notif.isRead" class="badge-important">
+              Quan trọng
+            </span>
+            <a *ngIf="!notif.isRead"
+               class="mark-read"
+               (click)="markAsRead(notif); $event.stopPropagation()">
+              Đánh dấu đã đọc
+            </a>
+          </div>
+        </div>
+
+        <p class="notif-message">{{ notif.message }}</p>
+
+        <div class="notif-time">
+          ⏰ {{ timeAgo(notif.createdAt) }}
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
+  <!-- PAGINATION -->
+  <div *ngIf="totalPages > 1" class="pagination">
+    <button [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+      ← Trước
+    </button>
 
-  <div *ngIf="!loading && notifications.length === 0" class="text-center py-20 bg-base-100 rounded-lg shadow">
-    <p class="text-xl text-gray-500">🎉 Bạn không có thông báo nào mới.</p>
-  </div>
-
-  <ul *ngIf="!loading && notifications.length > 0" class="space-y-2">
-    <li *ngFor="let notif of notifications"
-        class="notification-item"
-        [ngClass]="notif.isRead ? 'notification-read' : 'notification-unread'"
-        (click)="markAsRead(notif)">
-      <div class="flex justify-between items-center">
-        <h3 class="notification-title font-bold">
-          {{ notif.title }}
-          <span *ngIf="!notif.isRead" class="notification-badge">MỚI</span>
-        </h3>
-        <span class="notification-time text-xs">{{ timeAgo(notif.createdAt) }}</span>
-      </div>
-      <p class="notification-message text-sm mt-1 mb-2">{{ notif.message }}</p>
-      <div class="flex justify-end mt-2">
-        <button *ngIf="!notif.isRead" class="mark-read-btn" (click)="markAsRead(notif); $event.stopPropagation()">
-          Đánh dấu đã đọc
-        </button>
-      </div>
-    </li>
-  </ul>
-
-  <!-- Phân trang -->
-  <div *ngIf="totalPages > 1" class="flex justify-center mt-6 space-x-2">
-    <button class="btn btn-sm" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">Trước</button>
-    <button *ngFor="let page of pages" class="btn btn-sm" [ngClass]="{'btn-primary': page === currentPage}" (click)="goToPage(page)">
+    <button *ngFor="let page of pages"
+            [class.active]="page === currentPage"
+            (click)="goToPage(page)">
       {{ page }}
     </button>
-    <button class="btn btn-sm" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">Sau</button>
+
+    <button [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+      Sau →
+    </button>
   </div>
+
 </div>

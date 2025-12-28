@@ -11,6 +11,7 @@ import { AuthService } from '../../../services/auth.service';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit {
+  notificationCount: number = 0;
   isLoggedIn = false;
   currentUser: any = null;
 
@@ -62,6 +63,18 @@ export class HeaderComponent implements OnInit {
       default: 
         console.error('Invalid role for dashboard:', this.currentUser.role);
         return '/';
+    }
+  }
+  // click icon thông báo
+  goToNotification() {
+    if (!this.currentUser) return;
+
+    if (this.currentUser.role === 2) {
+      // KHÁCH THUÊ
+      this.router.navigate(['/tenant/review']);
+    } else if (this.currentUser.role === 1) {
+      // CHỦ TRỌ
+      this.router.navigate(['/landlord/review']);
     }
   }
 }

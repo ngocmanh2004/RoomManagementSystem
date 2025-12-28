@@ -1,4 +1,4 @@
-/* ====================== QUẢN LÝ PHẢN HỒI – ĐẸP NHƯ ẢNH BẠN GỬI – 2025 ====================== */
+/* ====================== QUẢN LÝ PHẢN HỒI ====================== */
 
 .alert {
   position: fixed !important;
@@ -11,7 +11,7 @@
   box-shadow: none !important;
   padding: 1rem 2rem !important;
   border-radius: 2rem !important;
-  font-weight: 800 !important;
+  font-weight: 400 !important;
   font-size: 1.1rem !important;
   text-align: center;
   animation: textPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -57,7 +57,7 @@ h2 {
   margin-bottom: 2rem !important;
 }
 
-/* Card bảng – có viền trắng bao quanh */
+/* Card bảng  */
 .bg-base-100 {
   background: white !important;
   border-radius: 1.8rem !important;
@@ -66,7 +66,7 @@ h2 {
   overflow: hidden;
 }
 
-/* Header bảng – xanh đậm đẹp */
+/* Header bảng  */
 .table thead {
   background: linear-gradient(90deg, #1e40af, #3b82f6) !important;
 }
@@ -79,7 +79,7 @@ h2 {
   text-transform: uppercase;
 }
 
-/* Cột Phòng rộng hơn */
+/* Cột Phòng */
 .table th:nth-child(1),
 .table td:nth-child(1) { 
   min-width: 180px !important; 
@@ -103,7 +103,7 @@ h2 {
   box-shadow: 0 4px 15px rgba(0,0,0,0.12);
 }
 
-/* ====================== CỘT HÀNH ĐỘNG – TẤT CẢ NÚT ĐỀU NHAU, ĐẸP CỰC ====================== */
+/* ====================== CỘT HÀNH ĐỘNG  ====================== */
 .table .flex.flex-col.gap-2 {
   display: flex !important;
   flex-wrap: nowrap !important;
@@ -114,7 +114,7 @@ h2 {
   padding: 0.6rem 0;
 }
 
-/* Tất cả nút & trạng thái đều cùng kiểu, cùng size */
+/* Tất cả nút & trạng thái  */
 .table .btn-sm,
 .table .flex.flex-col.gap-2 > div,
 .table .text-success,
@@ -174,7 +174,7 @@ h2 {
   box-shadow: 0 16px 36px rgba(34,197,94,0.55) !important;
 }
 
-/* TRẠNG THÁI "ĐANG CHỜ XÁC NHẬN" & "HOÀN TẤT" – CŨNG LÀ NÚT ĐẸP */
+/* TRẠNG THÁI "ĐANG CHỜ XÁC NHẬN" & "HOÀN TẤT"  */
 .table .text-success,
 .table .text-xs.text-success {
   background: #f0fdf4 !important;
@@ -214,7 +214,7 @@ h2 {
   font-weight: 800; 
 }
 
-/* Responsive – mobile vẫn đẹp */
+/* Responsive  */
 @media (max-width: 768px) {
   .table .flex.flex-col.gap-2 { 
     flex-wrap: wrap !important; 
@@ -226,7 +226,7 @@ h2 {
     max-width: none !important;
   }
 }
-/* Cột "Nội dung" – rộng hơn, cách xa cột Hành động */
+/* Cột "Nội dung"  */
 .table th:nth-child(4),
 .table td:nth-child(4) {
   min-width: 260px !important;
@@ -234,14 +234,14 @@ h2 {
   padding-right: 2.5rem !important;   /* đẩy nội dung ra xa cột Hành động */
 }
 
-/* Cột "Hành động" – cách xa cột Nội dung, căn giữa đẹp */
+/* Cột "Hành động"  */
 .table th:nth-child(6),
 .table td:nth-child(6) {
   padding-left: 2.5rem !important;    /* tạo khoảng cách lớn với cột Nội dung */
   padding-right: 1.8rem !important;
   min-width: 250px !important;        /* đủ chỗ cho 2 nút ngang nhau */
 }
-/* ====================== MODAL "ĐÃ XỬ LÝ XONG" – ĐẸP NHƯ ẢNH BẠN GỬI – CỰC KỲ HOÀN HẢO ====================== */
+/* ====================== MODAL "ĐÃ XỬ LÝ XONG" ====================== */
 
 /* Ẩn dấu tick đen (bắt buộc) */
 .modal-toggle,
@@ -261,7 +261,7 @@ h2 {
   pointer-events: none !important;
 }
 
-/* Modal căn giữa, to hơn, đẹp như ảnh */
+/* Modal  */
 .modal-box {
   max-width: 560px !important;
   width: 92vw !important;
@@ -280,7 +280,7 @@ h2 {
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* Tiêu đề + icon check xanh lá đẹp */
+/* Tiêu đề + icon check */
 .modal-box h3 {
   font-size: 2.1rem !important;
   font-weight: 900 !important;
@@ -320,7 +320,7 @@ h2 {
   background: white;
 }
 
-/* ====================== SỬA NÚT "HỦY" CĂN GIỮA ====================== */
+/* ====================== SỬA NÚT "HỦY"  ====================== */
 
 .modal-action {
   display: flex !important;
@@ -367,7 +367,7 @@ h2 {
   box-shadow: 0 12px 30px rgba(0,0,0,0.15) !important;
 }
 
-/* Nút Xác nhận – xanh lá gradient đẹp */
+/* Nút Xác nhận – xanh lá gradient */
 .modal-action .btn-success {
   background: linear-gradient(135deg, #22c55e, #16a34a) !important;
   color: white !important;
@@ -384,7 +384,7 @@ h2 {
   opacity: 0.7;
   transform: none !important;
 }
-/* ====================== ÉP MODAL VÀO CHÍNH GIỮA MÀN HÌNH – 100% HOÀN HẢO ====================== */
+/* ====================== ÉP MODAL VÀO CHÍNH GIỮA MÀN HÌNH ====================== */
 
 .modal {
   display: flex !important;
@@ -412,7 +412,7 @@ h2 {
 .modal::before {
   content: none !important;
 }
-/* ====================== CỘT HÀNH ĐỘNG ĐẸP NHƯ ẢNH 2025 – CỰC CHUẨN ====================== */
+/* ====================== CỘT HÀNH ĐỘNG  ====================== */
 .action-buttons-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -453,9 +453,7 @@ h2 {
   min-height: 90px;
   font-size: 1.05rem;
 }
-/* ====================== CỘT HÀNH ĐỘNG ĐẸP NHƯ ẢNH – SIÊU CHUẨN 2025 ====================== */
-
-/* Nút nhỏ bo tròn – giống hệt ảnh */
+/* Nút nhỏ bo tròn  */
 .pill-btn {
   @apply font-bold text-sm py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105;
   min-height: 48px;
@@ -468,7 +466,7 @@ h2 {
 .pill-btn.red     { @apply bg-red-100 text-red-700 border-2 border-red-300; }
 .pill-btn.orange  { @apply bg-amber-100 text-amber-800 border-2 border-amber-300; }
 
-/* Nút to có tick xanh – chính là cái vuông xanh trong ảnh */
+/* Nút to có tick xanh  */
 .big-tick-btn {
   @apply bg-green-50 text-green-700 border-4 border-green-300 rounded-3xl font-black text-lg;
   width: 160px;
@@ -497,7 +495,7 @@ h2 {
 .pill-status.gray   { @apply bg-gray-100 text-gray-600 border-2 border-gray-200; }
 .pill-status.red    { @apply bg-red-100 text-red-700 border-2 border-red-200 font-bold; }
 
-/* Đảm bảo cột Hành động rộng đẹp, không tràn */
+/* Đảm bảo cột Hành động không tràn */
 .table th:nth-child(6),
 .table td:nth-child(6) {
   width: 280px !important;

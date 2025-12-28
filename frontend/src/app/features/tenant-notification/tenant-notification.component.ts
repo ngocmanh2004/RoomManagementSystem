@@ -22,7 +22,7 @@ export class TenantNotificationComponent implements OnInit, OnDestroy {
   pageSize = 5;
   totalItems = 0;
   totalPages = 0;
-
+  
   private autoReloadSub?: Subscription;
 
   constructor(private notificationService: NotificationService) {}

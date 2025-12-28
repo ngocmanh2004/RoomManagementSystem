@@ -209,3 +209,17 @@ nav a.active {
     width: 100%;
   }
 }
+.notification-icon {
+  margin: 0 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.notification-btn {
+  background: none;
+  border: none;
+  position: relative;
+  margin-right: 10px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
