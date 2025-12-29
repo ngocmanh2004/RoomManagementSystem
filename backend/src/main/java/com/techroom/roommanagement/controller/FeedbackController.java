@@ -2,6 +2,7 @@ package com.techroom.roommanagement.controller;
 
 import com.techroom.roommanagement.dto.FeedbackCreateRequest;
 import com.techroom.roommanagement.dto.FeedbackProcessRequest;
+import com.techroom.roommanagement.dto.FeedbackUpdateRequest;
 import com.techroom.roommanagement.dto.TenantConfirmRequest;
 import com.techroom.roommanagement.model.Feedback;
 import com.techroom.roommanagement.security.CustomUserDetails;
@@ -89,4 +90,13 @@ public class FeedbackController {
         feedbackService.delete(id, user.getId());
         return ResponseEntity.noContent().build();
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateFeedback(
+            @PathVariable Integer id,
+            @RequestBody FeedbackUpdateRequest request
+    ) {
+        feedbackService.update(id, request);
+        return ResponseEntity.ok().build();
+    }
+
 }

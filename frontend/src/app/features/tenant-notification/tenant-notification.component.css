@@ -1,93 +1,295 @@
-.notification-wrapper {
-  max-width: 900px;
-  margin: auto;
+.notification-page {
+  max-width: 1400px;
+  margin: 0 auto;
   padding: 20px;
+  background: #f5f5f5;
+  min-height: 100vh;
 }
 
-/* HEADER */
-.page-header h2 {
-  font-size: 22px;
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+}
+
+.header-content h1 {
+  font-size: 24px;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
   font-weight: 600;
 }
 
-/* CARD */
-.notification-card {
+.header-content p {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+.btn-mark-all {
+  padding: 10px 18px;
+  background: white;
+  color: #666;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
   display: flex;
-  padding: 16px;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-mark-all:hover {
+  border-color: #17a2b8;
+  color: #17a2b8;
+}
+
+.notification-container {
   background: white;
   border-radius: 8px;
-  margin-bottom: 12px;
-  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.filter-tabs {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 0 24px;
+}
+
+.filter-tabs button {
+  padding: 16px 24px;
+  background: transparent;
+  border: none;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.2s;
+  position: relative;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
 }
 
-.notification-card.unread {
-  border-left: 4px solid #2563eb;
-  background: #f8fafc;
+.filter-tabs button.active {
+  color: #17a2b8;
+  border-bottom-color: #17a2b8;
 }
 
-/* ICON */
-.notif-icon {
-  font-size: 22px;
-  margin-right: 12px;
+.notification-list {
+  min-height: 400px;
 }
 
-/* BODY */
-.notif-body {
+.notification-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f0f0;
+  border-left: 4px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.notification-item:hover {
+  background: #fafafa;
+}
+
+.notification-item.unread {
+  background: #f0f9fb;
+  border-left-color: #17a2b8;
+}
+
+.notification-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
   flex: 1;
 }
 
-.notif-top {
+.notification-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
 }
 
-.notif-title {
+.icon-blue {
+  background: #e3f2fd;
+}
+
+.icon-red {
+  background: #ffebee;
+}
+
+.icon-orange {
+  background: #fff3e0;
+}
+
+.icon-green {
+  background: #e8f5e9;
+}
+
+.icon-emoji {
+  font-size: 24px;
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.notification-title-row h3 {
   font-size: 15px;
+  color: #1a1a1a;
+  margin: 0;
   font-weight: 600;
 }
 
-.badge-important {
-  background: #fee2e2;
-  color: #dc2626;
+.unread-indicator {
+  color: #17a2b8;
   font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 12px;
-  margin-right: 8px;
+  line-height: 1;
 }
 
-.mark-read {
+.notification-message {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0 0 10px 0;
+}
+
+.notification-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.notification-badge {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.badge-blue {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.badge-red {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+.badge-orange {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.badge-green {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.notification-time {
   font-size: 12px;
-  color: #2563eb;
+  color: #999;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.notification-time i {
+  font-size: 11px;
+}
+
+.notification-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-mark-read {
+  background: transparent;
+  border: 1px solid #e0e0e0;
+  color: #666;
   cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  font-size: 13px;
 }
 
-.notif-message {
-  color: #555;
-  margin: 6px 0;
+.btn-mark-read:hover {
+  border-color: #17a2b8;
+  color: #17a2b8;
+  background: #f0f9fb;
 }
 
-.notif-time {
-  font-size: 12px;
-  color: #888;
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: #7f8c8d;
 }
 
-/* PAGINATION */
+.empty-state i {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.3;
+}
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #17a2b8;
+  font-size: 18px;
+}
+
 .pagination {
   display: flex;
   justify-content: center;
-  gap: 6px;
-  margin-top: 20px;
+  align-items: center;
+  padding: 20px;
+  gap: 15px;
+  border-top: 1px solid #e0e0e0;
 }
 
 .pagination button {
-  padding: 6px 10px;
-  border: 1px solid #e5e7eb;
-  background: white;
+  padding: 8px 16px;
+  background: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
+  transition: all 0.3s;
 }
 
-.pagination button.active {
-  background: #2563eb;
-  color: white;
+.pagination button:hover:not(:disabled) {
+  background: #138496;
+}
+
+.pagination button:disabled {
+  background: #e0e0e0;
+  cursor: not-allowed;
+}
+
+.page-info {
+  color: #7f8c8d;
+  font-size: 14px;
 }

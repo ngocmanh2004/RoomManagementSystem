@@ -1,69 +1,77 @@
 package com.techroom.roommanagement.service;
 
 import com.techroom.roommanagement.dto.SendNotificationRequest;
+import com.techroom.roommanagement.dto.SendNotificationResponse;
 import com.techroom.roommanagement.model.*;
-import com.techroom.roommanagement.repository.ContractRepository;
-import com.techroom.roommanagement.repository.NotificationRepository;
-import com.techroom.roommanagement.repository.TenantRepository;
-import com.techroom.roommanagement.repository.UserRepository;
+import com.techroom.roommanagement.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDateTime;
-import java.util.*;
-import com.techroom.roommanagement.dto.SendNotificationResponse;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.stream.Collectors;
+import java.time.LocalDateTime;
+import java.util.*;
 
-
-
-/**
- * Service để gửi notification cho user
- * Có thể mở rộng để tích hợp với WebSocket, Email, SMS, etc
- */
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class NotificationService {
 
-    /**
-     * Gửi notification cho user
-     * @param userId ID của user nhận notification
-     * @param title Tiêu đề
-     * @param message Nội dung
-     * @param type Loại notification (BOOKING_CREATED, BOOKING_REQUEST, CONTRACT_APPROVED, etc)
-     */
-    public void sendNotification(Integer userId, String title, String message, String type) {
-        if (userId == null) {
-            System.out.println("⚠️ [NotificationService] userId is null, skipping notification");
-            return;
-        }
-
-        System.out.println("📢 [NotificationService] Sending notification:");
-        System.out.println("   → User ID: " + userId);
-        System.out.println("   → Title: " + title);
-        System.out.println("   → Message: " + message);
-        System.out.println("   → Type: " + type);
-        System.out.println("   → Time: " + LocalDateTime.now());
-
-        // TODO: Implement later with actual notification system
-        // - Save to database (Notification table)
-        // - Send WebSocket message to user
-        // - Send Email/SMS
-        // - Push notification to mobile app
-    }
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final ContractRepository contractRepository;
-    private final TenantRepository tenantRepository;
 
+    /**
+     * Tạo notification đơn cho 1 user
+     * Dùng trong các trường hợp: Admin duyệt/từ chối, feedback, booking...
+     */
+    public Notification createNotification(
+            Integer userId,
+            String title,
+            String message,
+            NotificationType type
+    ) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId không được null");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Không tìm thấy user với id: " + userId
+                ));
+
+        Notification notification = new Notification();
+        notification.setUserId(userId);
+        notification.setTitle(title);
+        notification.setMessage(message);
+        notification.setType(type);
+        notification.setIsRead(false);
+        notification.setCreatedAt(LocalDateTime.now());
+
+        return notificationRepository.save(notification);
+    }
+
+    /**
+     * Gửi notification cho tất cả ADMIN
+     * Dùng khi: User đăng ký chủ trọ, có booking mới, feedback mới...
+     */
+    public void notifyAllAdmins(String title, String message, NotificationType type) {
+        List<User> admins = userRepository.findByRole(0); // role 0 = ADMIN
+
+        for (User admin : admins) {
+            createNotification(admin.getId(), title, message, type);
+        }
+    }
+
+    /**
+     * Gửi notification hàng loạt (cho landlord gửi nhiều tenant)
+     */
     @Transactional
     public SendNotificationResponse send(SendNotificationRequest req) {
-
         if (req.getTitle() == null || req.getTitle().trim().isEmpty()) {
             throw new IllegalArgumentException("Tiêu đề không được để trống");
         }
@@ -74,11 +82,9 @@ public class NotificationService {
         Set<Integer> recipientUserIds = new HashSet<>();
         List<String> emptyRooms = new ArrayList<>();
 
-        // === XỬ LÝ GỬI THEO PHÒNG ===
+        // Xử lý gửi theo PHÒNG
         if ("ROOMS".equalsIgnoreCase(req.getSendTo()) && req.getRoomIds() != null && !req.getRoomIds().isEmpty()) {
-
             for (Integer roomId : req.getRoomIds()) {
-                // Giả định ContractStatus.ACTIVE là enum/class hợp lệ
                 List<Contract> contracts = contractRepository.findByRoomIdAndStatus(roomId, ContractStatus.ACTIVE);
 
                 if (contracts.isEmpty()) {
@@ -93,16 +99,15 @@ public class NotificationService {
                 });
             }
         }
-        // Các case khác giữ nguyên (ALL, USERS, ALL_TENANTS)...
+        // Gửi cho TẤT CẢ TENANT
         else if ("ALL".equalsIgnoreCase(req.getSendTo()) || "ALL_TENANTS".equalsIgnoreCase(req.getSendTo())) {
-            // Giả định role 2 là Khách thuê
             userRepository.findByRole(2).forEach(u -> recipientUserIds.add(u.getId()));
         }
+        // Gửi cho USERS cụ thể
         else if ("USERS".equalsIgnoreCase(req.getSendTo()) && req.getUserIds() != null) {
             recipientUserIds.addAll(req.getUserIds());
         }
 
-        // === KHỞI TẠO RESPONSE ===
         SendNotificationResponse response = new SendNotificationResponse();
 
         if (recipientUserIds.isEmpty()) {
@@ -114,7 +119,6 @@ public class NotificationService {
         List<Notification> saved = new ArrayList<>();
 
         try {
-            // Lấy danh sách User Entity để thiết lập mối quan hệ
             List<User> targetUsers = userRepository.findAllById(recipientUserIds);
 
             if (targetUsers.isEmpty()) {
@@ -125,13 +129,12 @@ public class NotificationService {
 
             for (User user : targetUsers) {
                 Notification n = new Notification();
-                // Giả định Notification Entity đã được sửa để có trường 'user'
                 n.setUserId(user.getId());
-
                 n.setTitle(req.getTitle());
                 n.setMessage(req.getMessage());
-                n.setType(NotificationType.SYSTEM); // Hoặc dùng type khác nếu có
+                n.setType(NotificationType.SYSTEM);
                 n.setIsRead(false);
+                n.setCreatedAt(LocalDateTime.now());
 
                 Notification s = notificationRepository.save(n);
 
@@ -141,39 +144,62 @@ public class NotificationService {
                 saved.add(s);
             }
 
-            // 📢 LẮP ĐẶT LOGIC GỬI EMAIL (NẾU CÓ)
-            if (req.isSendEmail()) {
-                // TODO: Thực hiện gửi email cho user.getEmail()
-            }
-
         } catch (Exception e) {
             response.setSuccess(false);
             response.setMessage("Gửi thông báo thất bại: " + e.getMessage());
             return response;
         }
 
-        // --- Trường hợp thành công ---
         response.setSuccess(true);
         response.setMessage("Gửi thông báo thành công đến " + saved.size() + " khách.");
         response.setSentToCount(saved.size());
         return response;
-
     }
+
+    /**
+     * Lấy notifications theo user - PHÂN TRANG
+     */
     public Page<Notification> getMyNotificationsPaged(Integer userId, int page, int size) {
         if (userId == null) {
             return Page.empty();
         }
-        return notificationRepository.findByUserId(userId, PageRequest.of(page, size));
+        return notificationRepository.findByUserIdOrderByCreatedAtDesc(
+                userId,
+                PageRequest.of(page, size)
+        );
     }
+
+    /**
+     * Lấy tất cả notifications của user (không phân trang) - Dùng cho dropdown
+     */
+    public List<Notification> getNotificationsByUserId(Integer userId) {
+        if (userId == null) {
+            return Collections.emptyList();
+        }
+        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+    /**
+     * Đếm số notifications CHƯA ĐỌC
+     */
+    public long getUnreadCount(Integer userId) {
+        if (userId == null) {
+            return 0;
+        }
+        return notificationRepository.countByUserIdAndIsRead(userId, false);
+    }
+
+    /**
+     * Đánh dấu 1 notification đã đọc
+     */
+    @Transactional
     public Notification markAsRead(Integer id, Integer userId) {
         Notification n = notificationRepository
                 .findById(id)
-                .orElseThrow(() ->
-                        new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "Không tìm thấy thông báo"
-                        )
-                );
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Không tìm thấy thông báo"
+                ));
 
         if (!n.getUserId().equals(userId)) {
             throw new ResponseStatusException(
@@ -190,5 +216,44 @@ public class NotificationService {
         return n;
     }
 
+    /**
+     * Đánh dấu TẤT CẢ notifications của user đã đọc
+     */
+    @Transactional
+    public void markAllAsRead(Integer userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId không được null");
+        }
 
+        List<Notification> unreadNotifications = notificationRepository
+                .findByUserIdAndIsRead(userId, false);
+
+        for (Notification n : unreadNotifications) {
+            n.setIsRead(true);
+        }
+
+        notificationRepository.saveAll(unreadNotifications);
+    }
+
+    /**
+     * Xóa notification
+     */
+    @Transactional
+    public void deleteNotification(Integer id, Integer userId) {
+        Notification n = notificationRepository
+                .findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Không tìm thấy thông báo"
+                ));
+
+        if (!n.getUserId().equals(userId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Bạn không có quyền xóa thông báo này"
+            );
+        }
+
+        notificationRepository.delete(n);
+    }
 }

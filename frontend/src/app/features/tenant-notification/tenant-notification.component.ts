@@ -1,155 +1,170 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Subscription, interval } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Notification } from '../../models/notification.model';
+import { RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { NotificationService } from '../../services/notification.service';
+import { Notification } from '../../models/notification.model';
 
 @Component({
   selector: 'app-tenant-notification',
-  imports: [CommonModule, FormsModule],
+  standalone: true,
+  imports: [CommonModule, RouterModule],
   templateUrl: './tenant-notification.component.html',
   styleUrls: ['./tenant-notification.component.css']
 })
 export class TenantNotificationComponent implements OnInit, OnDestroy {
   notifications: Notification[] = [];
-  loading = true;
-  errorMessage: string = '';
-
-  currentPage = 1;
+  filteredNotifications: Notification[] = [];
+  loading = false;
+  currentPage = 0;
   pageSize = 5;
-  totalItems = 0;
   totalPages = 0;
+  totalElements = 0;
   
-  private autoReloadSub?: Subscription;
+  filterTab: 'all' | 'unread' | 'read' = 'all';
+  
+  private subscription?: Subscription;
 
   constructor(private notificationService: NotificationService) {}
-
-  ngOnInit(): void {
-    this.loadState();
-    this.loadNotifications(this.currentPage);
-
-    // Polling mỗi 5 giây, chỉ reload page hiện tại
-    this.autoReloadSub = interval(5000).pipe(
-      switchMap(() => this.notificationService.getMyNotificationsPaged(this.currentPage - 1, this.pageSize))
-    ).subscribe({
-      next: res => {
-        if (JSON.stringify(this.notifications) !== JSON.stringify(res.content)) {
-          this.notifications = res.content;
-          this.totalItems = res.totalElements;
-          this.totalPages = Math.ceil(this.totalItems / this.pageSize);
-          this.saveState();
-        }
-      },
-      error: err => {
-        console.error('Polling error:', err);
-      }
-    });
+  
+  ngOnInit() {
+    this.loadNotifications();
   }
 
-  ngOnDestroy(): void {
-    this.autoReloadSub?.unsubscribe();
+  ngOnDestroy() {
+    this.subscription?.unsubscribe();
   }
 
-  loadNotifications(page: number = 1): void {
+  loadNotifications() {
     this.loading = true;
-    this.errorMessage = '';
-    this.currentPage = page;
-
-    this.notificationService.getMyNotificationsPaged(this.currentPage - 1, this.pageSize)
+    this.notificationService.getMyNotificationsPaged(this.currentPage, this.pageSize)
       .subscribe({
-        next: res => {
-          this.notifications = res.content || [];
-          this.totalItems = res.totalElements;
-          this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+        next: (response) => {
+          this.notifications = response.content;
+          this.totalPages = response.totalPages;
+          this.totalElements = response.totalElements;
+          this.currentPage = response.number;
+          this.applyFilter();
           this.loading = false;
-          this.saveState();
         },
-        error: (err: HttpErrorResponse) => {
-          this.errorMessage = err.error?.message || 'Không tải được thông báo.';
+        error: (err) => {
+          console.error('Error loading notifications:', err);
           this.loading = false;
         }
       });
   }
 
-  markAsRead(notification: Notification): void {
-    if (notification.isRead || (notification as any).loading) return;
-
-    const originalIsRead = notification.isRead;
-    notification.isRead = true;
-    (notification as any).loading = true;
-
-    this.notificationService.markAsRead(notification.id).subscribe({
-      next: updatedNotif => {
-        (notification as any).loading = false;
-        Object.assign(notification, updatedNotif);
-      },
-      error: (err: HttpErrorResponse) => {
-        notification.isRead = originalIsRead;
-        (notification as any).loading = false;
-        this.showErrorAlert(err.error?.message || 'Không thể đánh dấu đã đọc.');
-      }
-    });
-  }
-
-  goToPage(page: number) {
-    if (page < 1 || page > this.totalPages) return;
-    this.loadNotifications(page);
-  }
-
-  get pages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  private saveState(): void {
-    const state = {
-      notifications: this.notifications,
-      currentPage: this.currentPage,
-      pageSize: this.pageSize,
-      totalItems: this.totalItems,
-      totalPages: this.totalPages
-    };
-    localStorage.setItem('tenantNotifications', JSON.stringify(state));
-  }
-
-  private loadState(): void {
-    const saved = localStorage.getItem('tenantNotifications');
-    if (saved) {
-      try {
-        const state = JSON.parse(saved);
-        this.notifications = state.notifications || [];
-        this.currentPage = state.currentPage || 1;
-        this.pageSize = state.pageSize || 5;
-        this.totalItems = state.totalItems || 0;
-        this.totalPages = state.totalPages || 0;
-        this.loading = false;
-      } catch {
-        this.currentPage = 1;
-      }
+  applyFilter() {
+    switch (this.filterTab) {
+      case 'unread':
+        this.filteredNotifications = this.notifications.filter(n => !n.isRead);
+        break;
+      case 'read':
+        this.filteredNotifications = this.notifications.filter(n => n.isRead);
+        break;
+      default:
+        this.filteredNotifications = [...this.notifications];
     }
   }
 
-  private showErrorAlert(message: string) {
-    this.errorMessage = message;
-    setTimeout(() => this.errorMessage = '', 3000);
+  setFilter(tab: 'all' | 'unread' | 'read') {
+    this.filterTab = tab;
+    this.applyFilter();
   }
 
-  timeAgo(dateString: string): string {
-    const now = new Date();
-    const past = new Date(dateString);
-    if (isNaN(past.getTime())) return 'Thời gian không hợp lệ';
+  markAsRead(notification: Notification) {
+    if (notification.isRead) return;
+    
+    this.notificationService.markAsRead(notification.id).subscribe({
+      next: () => {
+        notification.isRead = true;
+        this.applyFilter();
+      },
+      error: (err) => console.error('Error marking as read:', err)
+    });
+  }
 
-    const diff = Math.abs(now.getTime() - past.getTime());
-    const seconds = Math.floor(diff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
+  deleteNotification(id: number, event: Event) {
+    event.stopPropagation();
+    
+    if (!confirm('Bạn có chắc muốn xóa thông báo này?')) return;
+    
+    this.notificationService.deleteNotification(id).subscribe({
+      next: () => {
+        this.loadNotifications();
+      },
+      error: (err) => console.error('Error deleting notification:', err)
+    });
+  }
 
-    if (days > 0) return `${days} ngày trước`;
-    if (hours > 0) return `${hours} giờ trước`;
-    if (minutes > 0) return `${minutes} phút trước`;
-    return 'Vừa xong';
+  markAllAsRead() {
+    const userId = JSON.parse(localStorage.getItem('currentUser') || '{}').id;
+    if (!userId) return;
+
+    this.notificationService.markAllAsRead(userId).subscribe({
+      next: () => {
+        this.loadNotifications();
+      },
+      error: (err) => console.error('Error marking all as read:', err)
+    });
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.loadNotifications();
+    }
+  }
+
+  previousPage() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.loadNotifications();
+    }
+  }
+
+  getNotificationIcon(type: string): string {
+    const icons: { [key: string]: string } = {
+      'INVOICE_CREATED': '💰',
+      'INVOICE_REMINDER': '⏰',
+      'PAYMENT_OVERDUE': '⚠️',
+      'UTILITY_REQUEST': '⚡',
+      'FEEDBACK_PROCESSING': '⏳',
+      'FEEDBACK_RESOLVED': '✅',
+      'FEEDBACK_CANCELLED': '🚫',
+      'SYSTEM': '🔔',
+      'CONTRACT_EXPIRED': '⏰',
+    };
+    return icons[type] || '🔔';
+  }
+
+  getNotificationColor(type: string): string {
+    if (['PAYMENT_OVERDUE', 'CONTRACT_EXPIRED'].includes(type)) return 'red';
+    if (['INVOICE_REMINDER', 'UTILITY_REQUEST'].includes(type)) return 'orange';
+    if (['FEEDBACK_RESOLVED'].includes(type)) return 'green';
+    return 'blue';
+  }
+
+  getNotificationTypeLabel(type: string): string {
+    const labels: { [key: string]: string } = {
+      'INVOICE_CREATED': 'Hóa đơn',
+      'INVOICE_REMINDER': 'Nhắc nhở',
+      'PAYMENT_OVERDUE': 'Quá hạn',
+      'UTILITY_REQUEST': 'Tiện ích',
+      'FEEDBACK_PROCESSING': 'Phản hồi',
+      'FEEDBACK_RESOLVED': 'Đã xử lý',
+      'FEEDBACK_CANCELLED': 'Đã hủy',
+      'SYSTEM': 'Hệ thống',
+      'CONTRACT_EXPIRED': 'Hợp đồng',
+    };
+    return labels[type] || 'Thông báo';
+  }
+
+  get unreadCount(): number {
+    return this.notifications.filter(n => !n.isRead).length;
+  }
+
+  get readCount(): number {
+    return this.notifications.filter(n => n.isRead).length;
   }
 }

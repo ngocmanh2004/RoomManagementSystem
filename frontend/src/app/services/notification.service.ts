@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import {
   Notification,
   SendNotificationRequest,
@@ -15,20 +15,23 @@ export class NotificationService {
 
   private apiUrl = 'http://localhost:8081/api/notifications';
 
+  // BehaviorSubject để share unread count across components
+  private unreadCountSubject = new BehaviorSubject<number>(0);
+  public unreadCount$ = this.unreadCountSubject.asObservable();
+
   constructor(private http: HttpClient) {}
 
   // =====================================================
-  // SEND NOTIFICATION
+  // LẤY TẤT CẢ NOTIFICATIONS (KHÔNG PHÂN TRANG)
+  // Dùng cho dropdown header
   // =====================================================
-  send(req: SendNotificationRequest): Observable<SendNotificationResponse> {
-    return this.http.post<SendNotificationResponse>(
-      `${this.apiUrl}/send`,
-      req
-    );
+  getNotificationsByUserId(userId: number): Observable<Notification[]> {
+    return this.http.get<Notification[]>(`${this.apiUrl}/user/${userId}`);
   }
 
   // =====================================================
-  // GET MY NOTIFICATIONS (PAGED)
+  // LẤY NOTIFICATIONS PHÂN TRANG
+  // Dùng cho trang chi tiết
   // =====================================================
   getMyNotificationsPaged(
     page: number,
@@ -39,15 +42,11 @@ export class NotificationService {
     totalPages: number;
     number: number;
   }> {
-
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
 
-    return this.http.get<any>(
-      `${this.apiUrl}/my/paged`,
-      { params }
-    ).pipe(
+    return this.http.get<any>(`${this.apiUrl}/my/paged`, { params }).pipe(
       map(res => ({
         content: res.content || [],
         totalElements: res.totalElements || 0,
@@ -58,20 +57,57 @@ export class NotificationService {
   }
 
   // =====================================================
-  // MARK AS READ
+  // ĐẾM SỐ NOTIFICATIONS CHƯA ĐỌC
   // =====================================================
-  markAsRead(id: number): Observable<Notification> {
-    return this.http.put<Notification>(
-      `${this.apiUrl}/${id}/read`,
-      {}
+  getUnreadCount(userId: number): Observable<number> {
+    return this.http.get<{ count: number }>(
+      `${this.apiUrl}/user/${userId}/unread/count`
+    ).pipe(
+      map(res => res.count || 0)
     );
   }
 
   // =====================================================
-  // OPTIONAL – COUNT UNREAD (nếu backend có)
+  // REFRESH UNREAD COUNT VÀ CẬP NHẬT BEHAVIORSUBJECT
+  // Gọi trong header component để update badge
   // =====================================================
-  getUnreadCount(): Observable<number> {
-    return this.http.get<number>(`${this.apiUrl}/my/unread-count`);
+  refreshUnreadCount(userId: number): void {
+    this.getUnreadCount(userId).subscribe({
+      next: (count) => {
+        this.unreadCountSubject.next(count);
+      },
+      error: (err) => {
+        console.error('Error refreshing unread count:', err);
+      }
+    });
+  }
+
+  // =====================================================
+  // ĐÁNH DẤU 1 NOTIFICATION ĐÃ ĐỌC
+  // =====================================================
+  markAsRead(id: number): Observable<Notification> {
+    return this.http.put<Notification>(`${this.apiUrl}/${id}/read`, {});
+  }
+
+  // =====================================================
+  // ĐÁNH DẤU TẤT CẢ ĐÃ ĐỌC
+  // =====================================================
+  markAllAsRead(userId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/user/${userId}/read-all`, {});
+  }
+
+  // =====================================================
+  // XÓA NOTIFICATION
+  // =====================================================
+  deleteNotification(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
+  // =====================================================
+  // GỬI NOTIFICATION HÀNG LOẠT (CHO LANDLORD)
+  // =====================================================
+  send(req: SendNotificationRequest): Observable<SendNotificationResponse> {
+    return this.http.post<SendNotificationResponse>(`${this.apiUrl}/send`, req);
   }
 
   // =====================================================

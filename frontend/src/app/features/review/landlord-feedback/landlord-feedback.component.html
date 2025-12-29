@@ -1,142 +1,209 @@
-<div class="container mx-auto p-6 max-w-7xl">
-  <h2 class="text-3xl font-bold mb-8 text-center text-primary">Quản lý phản hồi từ khách thuê</h2>
-
-  <!-- Bảng danh sách -->
-  <div class="bg-base-100 rounded-xl shadow-xl overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="table table-lg table-zebra">
-        <thead class="bg-base-200 text-base">
-          <tr>
-            <th class="w-32">Phòng</th>
-            <th class="w-40">Khách thuê</th>
-            <th>Tiêu đề</th>
-            <th class="max-w-md">Nội dung</th>
-            <th class="w-40 text-center">Trạng thái</th>
-            <th class="w-56 text-center">Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let fb of page.content" class="hover">
-            <td class="font-medium">{{ fb.room?.name || '—' }}</td>
-            <td>{{ fb.sender?.fullName || '—' }}</td>
-            <td class="font-semibold text-primary">{{ fb.title }}</td>
-            <td class="max-w-md">
-              <div class="line-clamp-2 text-sm text-gray-600">
-                {{ fb.content }}
-              </div>
-
-            </td>
-            <td class="text-center">
-              <div class="badge badge-lg font-medium" [ngClass]="getStatusClass(fb.status)">
-                {{ getStatusText(fb.status) }}
-              </div>
-            </td>
-            <td class="text-center">
-              <div class="flex flex-col gap-2">
-
-                <!-- Chưa xử lý → Bắt đầu xử lý -->
-                <button *ngIf="fb.status === 'PENDING'"
-                        class="btn btn-sm btn-info btn-outline"
-                        (click)="startProcessing(fb.id)">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M9 5l7 7-7 7"></path>
-                  </svg>
-                  Bắt đầu xử lý
-                </button>
-
-                <!-- Đang xử lý → Hoàn tất -->
-                <button *ngIf="fb.status === 'PROCESSING'"
-                        class="btn btn-sm btn-success"
-                        (click)="openResolveModal(fb.id)">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  Đã xử lý xong
-                </button>
-
-                <!-- Chưa xử lý → Hủy -->
-                <button *ngIf="fb.status === 'PENDING'"
-                        class="btn btn-sm btn-ghost text-error"
-                        (click)="cancel(fb.id)">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
-                  Hủy
-                </button>
-                
-                <!-- Đã xử lý xong (chờ khách xác nhận) -->
-                <div *ngIf="fb.status === 'RESOLVED'" class="text-xs text-success font-medium">
-                  Đang chờ khách xác nhận
-                </div>
-
-                <!-- Hoàn tất -->
-                <div *ngIf="fb.status === 'CLOSED'" class="text-success font-bold text-sm">
-                  Hoàn tất
-                </div>
-                
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- Không có dữ liệu -->
-      <div *ngIf="page.empty" class="text-center py-16 text-gray-500">
-        <p class="text-xl">Chưa có phản hồi nào</p>
-      </div>
+<div class="feedback-management-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Quản lý phản hồi</h1>
+      <p class="page-subtitle">Xem và xử lý yêu cầu từ khách thuê</p>
     </div>
   </div>
 
-  <!-- Phân trang -->
-  <div class="flex justify-center mt-8" *ngIf="!page.empty">
-    <div class="join">
-      <button class="join-item btn" [disabled]="page.first" (click)="loadPage(page.number - 1)">
-        «
-      </button>
-      <button class="join-item btn btn-active">
-        Trang {{ page.number + 1 }} / {{ page.totalPages || 1 }}
-      </button>
-      <button class="join-item btn" [disabled]="page.last" (click)="loadPage(page.number + 1)">
-        »
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal chỉ render khi nhấn nút "Đã xử lý xong" -->
-<ng-container *ngIf="isResolveModalOpen">
-  <div class="modal modal-open">
-    <div class="modal-box">
-      <h3 class="font-bold text-xl mb-4 flex items-center gap-2">
-        <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M5 13l4 4L19 7"></path>
-        </svg>
-        Xác nhận đã xử lý xong
-      </h3>
-
-      <div class="py-4">
-        <textarea
-          [(ngModel)]="resolveNote"
-          class="textarea textarea-bordered w-full h-32 resize-none"
-          placeholder="Ghi chú cho khách..."
-        ></textarea>
-      </div>
-
-      <div class="modal-action">
-        <button class="btn btn-ghost" (click)="closeResolveModal()">Hủy</button>
-
-        <button class="btn btn-success"
-                (click)="submitResolve()"
-                [disabled]="!resolveNote.trim()">
-          Xác nhận đã xử lý
+  <!-- Feedback List -->
+  <div class="feedback-container">
+    <div class="container-header">
+      <div class="filter-tabs">
+        <button 
+          [class.active]="filterStatus === 'all'"
+          (click)="setFilter('all')">
+          Tất cả ({{ feedbacks.length }})
+        </button>
+        <button 
+          [class.active]="filterStatus === 'PENDING'"
+          (click)="setFilter('PENDING')">
+          Chưa xử lý ({{ pendingCount }})
+        </button>
+        <button 
+          [class.active]="filterStatus === 'PROCESSING'"
+          (click)="setFilter('PROCESSING')">
+          Đang xử lý ({{ processingCount }})
+        </button>
+        <button 
+          [class.active]="filterStatus === 'RESOLVED'"
+          (click)="setFilter('RESOLVED')">
+          Đã xử lý ({{ resolvedCount }})
         </button>
       </div>
     </div>
-  </div>
-</ng-container>
 
- 
+    <div class="feedback-list" *ngIf="!loading">
+      <div *ngIf="filteredFeedbacks.length === 0" class="empty-state">
+        <i class="fa fa-inbox"></i>
+        <p>Không có phản hồi nào</p>
+      </div>
+
+      <div *ngFor="let feedback of filteredFeedbacks" class="feedback-card">
+        <div class="card-header">
+          <h3 class="card-title">{{ feedback.title }}</h3>
+          <span class="status-badge" [ngClass]="'status-' + feedback.status.toLowerCase()">
+            {{ getStatusText(feedback.status) }}
+          </span>
+        </div>
+
+        <div class="card-meta">
+          <span class="meta-item">
+            <i class="fa fa-user"></i>
+            {{ feedback.tenant.user.fullName }}
+          </span>
+          <span class="meta-item">
+            <i class="fa fa-clock"></i>
+            {{ feedback.createdAt | date:'dd/MM/yyyy' }}
+          </span>
+          <span class="meta-item" *ngIf="feedback.room">
+            <i class="fa fa-door-open"></i>
+            {{ feedback.room.name }}
+          </span>
+        </div>
+
+        <p class="card-description">{{ feedback.content }}</p>
+
+        <div class="card-actions">
+          <button 
+            class="btn-primary" 
+            *ngIf="feedback.status === 'PENDING'"
+            (click)="startProcessing(feedback)">
+            <i class="fa fa-play-circle"></i> Bắt đầu xử lý
+          </button>
+          
+          <button 
+            class="btn-primary" 
+            *ngIf="feedback.status === 'PROCESSING'"
+            (click)="openDetail(feedback)">
+            <i class="fa fa-edit"></i> Chưa sẵn sàng thực
+          </button>
+
+          <button 
+            class="btn-success" 
+            *ngIf="feedback.status === 'RESOLVED'"
+            (click)="openDetail(feedback)">
+            <i class="fa fa-comment"></i> Trả lời
+          </button>
+
+          <button 
+            class="btn-outline" 
+            (click)="openDetail(feedback)">
+            <i class="fa fa-eye"></i> Xem chi tiết
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading" *ngIf="loading">
+      <i class="fa fa-spinner fa-spin"></i> Đang tải...
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" *ngIf="showDetailModal" (click)="closeDetail()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2><i class="fa fa-file-alt"></i> Chi tiết phản hồi</h2>
+        <button class="btn-close" (click)="closeDetail()">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" *ngIf="selectedFeedback">
+        <div class="detail-section">
+          <h3>Thông tin khách thuê</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <i class="fa fa-user"></i>
+              <div>
+                <label>Tên khách thuê</label>
+                <span>{{ selectedFeedback.tenant.user.fullName }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <i class="fa fa-envelope"></i>
+              <div>
+                <label>Email</label>
+                <span>{{ selectedFeedback.tenant.user.email }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <i class="fa fa-door-open"></i>
+              <div>
+                <label>Phòng</label>
+                <span>{{ selectedFeedback.room.name }} - {{ selectedFeedback.room.building.name }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <i class="fa fa-calendar"></i>
+              <div>
+                <label>Thời gian gửi</label>
+                <span>{{ selectedFeedback.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Nội dung phản hồi</h3>
+          <div class="content-box">
+            <h4>{{ selectedFeedback.title }}</h4>
+            <p>{{ selectedFeedback.content }}</p>
+          </div>
+
+          <div class="attachment" *ngIf="selectedFeedback.attachmentUrl">
+            <h4>Ảnh đính kèm</h4>
+            <img [src]="selectedFeedback.attachmentUrl" alt="Attachment">
+          </div>
+        </div>
+
+        <div class="detail-section" *ngIf="selectedFeedback.status !== 'PENDING'">
+          <h3>Trạng thái xử lý</h3>
+          <div 
+            class="status-box" 
+            [style.background-color]="getStatusColor(selectedFeedback.status) + '20'"
+            [style.border-left-color]="getStatusColor(selectedFeedback.status)">
+            <i class="fa fa-{{getStatusIcon(selectedFeedback.status)}}"></i>
+            <span>{{ getStatusText(selectedFeedback.status) }}</span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Xử lý phản hồi</h3>
+          
+          <div class="form-group">
+            <label>Ghi chú xử lý</label>
+            <textarea 
+              class="form-control" 
+              rows="4"
+              [(ngModel)]="processForm.landlordNote"
+              placeholder="Nhập ghi chú về cách xử lý..."></textarea>
+          </div>
+
+          <div class="action-buttons">
+            <button 
+              class="btn-action processing"
+              *ngIf="selectedFeedback.status === 'PENDING'"
+              (click)="startProcessing(selectedFeedback)">
+              <i class="fa fa-play"></i> Bắt đầu xử lý
+            </button>
+
+            <button 
+              class="btn-action resolved"
+              *ngIf="selectedFeedback.status === 'PROCESSING'"
+              (click)="resolveFeedback(selectedFeedback.id)">
+              <i class="fa fa-check"></i> Đánh dấu hoàn thành
+            </button>
+
+            <button 
+              class="btn-action cancel"
+              (click)="cancelFeedback(selectedFeedback.id)">
+              <i class="fa fa-ban"></i> Hủy phản hồi
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

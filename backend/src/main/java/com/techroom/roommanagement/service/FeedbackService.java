@@ -1,10 +1,8 @@
 package com.techroom.roommanagement.service;
 
 import com.techroom.roommanagement.dto.FeedbackCreateRequest;
-import com.techroom.roommanagement.model.Contract;
-import com.techroom.roommanagement.model.ContractStatus;
-import com.techroom.roommanagement.model.Feedback;
-import com.techroom.roommanagement.model.Tenant;
+import com.techroom.roommanagement.dto.FeedbackUpdateRequest;
+import com.techroom.roommanagement.model.*;
 import com.techroom.roommanagement.repository.ContractRepository;
 import com.techroom.roommanagement.repository.FeedbackRepository;
 import com.techroom.roommanagement.repository.TenantRepository;
@@ -29,6 +27,7 @@ public class FeedbackService {
     private final FeedbackRepository feedbackRepository;
     private final ContractRepository contractRepository;
     private final TenantRepository tenantRepository;
+    private final NotificationService notificationService;
 
     /* ================= TENANT ================= */
 
@@ -68,7 +67,17 @@ public class FeedbackService {
         fb.setAttachmentUrl(dto.getAttachmentUrl());
         fb.setStatus(Feedback.Status.PENDING);
 
-        return feedbackRepository.save(fb);
+        Feedback saved = feedbackRepository.save(fb);
+
+        // ✅ GỬI THÔNG BÁO CHO LANDLORD
+        notificationService.createNotification(
+                fb.getReceiver().getId(),
+                "Phản hồi mới: " + fb.getTitle(),
+                "Khách thuê " + tenant.getUser().getFullName() + " đã gửi phản hồi về phòng " + fb.getRoom().getName(),
+                NotificationType.FEEDBACK_CREATED
+        );
+
+        return saved;
     }
 
     // Khách xác nhận hài lòng
@@ -134,7 +143,17 @@ public class FeedbackService {
         }
 
         fb.setStatus(Feedback.Status.PROCESSING);
-        return feedbackRepository.save(fb);
+        Feedback saved = feedbackRepository.save(fb);
+
+        // ✅ GỬI THÔNG BÁO CHO TENANT
+        notificationService.createNotification(
+                fb.getTenant().getUser().getId(),
+                "Phản hồi đang được xử lý",
+                "Phản hồi \"" + fb.getTitle() + "\" của bạn đang được chủ trọ xử lý.",
+                NotificationType.FEEDBACK_PROCESSING
+        );
+
+        return saved;
     }
 
     // Chủ trọ hoàn tất xử lý
@@ -157,7 +176,17 @@ public class FeedbackService {
         fb.setLandlordNote(landlordNote);
         fb.setResolvedAt(LocalDateTime.now());
 
-        return feedbackRepository.save(fb);
+        Feedback saved = feedbackRepository.save(fb);
+
+        // ✅ GỬI THÔNG BÁO CHO TENANT
+        notificationService.createNotification(
+                fb.getTenant().getUser().getId(),
+                "Phản hồi đã được xử lý",
+                "Phản hồi \"" + fb.getTitle() + "\" đã được xử lý xong. Vui lòng xác nhận.",
+                NotificationType.FEEDBACK_RESOLVED
+        );
+
+        return saved;
     }
 
     // Chủ trọ hủy phản hồi
@@ -168,7 +197,17 @@ public class FeedbackService {
         fb.setStatus(Feedback.Status.CANCELED);
         fb.setResolvedAt(LocalDateTime.now());
 
-        return feedbackRepository.save(fb);
+        Feedback saved = feedbackRepository.save(fb);
+
+        // ✅ GỬI THÔNG BÁO CHO TENANT
+        notificationService.createNotification(
+                fb.getTenant().getUser().getId(),
+                "Phản hồi đã bị hủy",
+                "Phản hồi \"" + fb.getTitle() + "\" của bạn đã bị hủy bởi chủ trọ.",
+                NotificationType.FEEDBACK_CANCELLED
+        );
+
+        return saved;
     }
 
     /* ================= DELETE ================= */
@@ -264,6 +303,14 @@ public class FeedbackService {
                     );
                 }
                 fb.setStatus(Feedback.Status.PROCESSING);
+
+                // ✅ GỬI THÔNG BÁO CHO TENANT
+                notificationService.createNotification(
+                        fb.getTenant().getUser().getId(),
+                        "Phản hồi đang được xử lý",
+                        "Phản hồi \"" + fb.getTitle() + "\" của bạn đang được chủ trọ xử lý.",
+                        NotificationType.FEEDBACK_PROCESSING
+                );
             }
 
             case RESOLVED -> {
@@ -276,11 +323,27 @@ public class FeedbackService {
                 fb.setStatus(Feedback.Status.RESOLVED);
                 fb.setLandlordNote(request.getLandlordNote());
                 fb.setResolvedAt(LocalDateTime.now());
+
+                // ✅ GỬI THÔNG BÁO CHO TENANT
+                notificationService.createNotification(
+                        fb.getTenant().getUser().getId(),
+                        "Phản hồi đã được xử lý",
+                        "Phản hồi \"" + fb.getTitle() + "\" đã được xử lý xong. Vui lòng xác nhận.",
+                        NotificationType.FEEDBACK_RESOLVED
+                );
             }
 
             case CANCELED -> {
                 fb.setStatus(Feedback.Status.CANCELED);
                 fb.setResolvedAt(LocalDateTime.now());
+
+                // ✅ GỬI THÔNG BÁO CHO TENANT
+                notificationService.createNotification(
+                        fb.getTenant().getUser().getId(),
+                        "Phản hồi đã bị hủy",
+                        "Phản hồi \"" + fb.getTitle() + "\" của bạn đã bị hủy bởi chủ trọ.",
+                        NotificationType.FEEDBACK_CANCELLED
+                );
             }
 
             default -> throw new ResponseStatusException(
@@ -291,5 +354,19 @@ public class FeedbackService {
 
         return feedbackRepository.save(fb);
     }
+    public void update(Integer id, FeedbackUpdateRequest req) {
+        Feedback fb = feedbackRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Feedback not found"));
 
+        // Chỉ cho sửa khi chưa xử lý
+        if (!fb.getStatus().equals(Feedback.Status.PENDING)) {
+            throw new RuntimeException("Không thể chỉnh sửa phản hồi đã xử lý");
+        }
+
+        fb.setTitle(req.getTitle());
+        fb.setContent(req.getContent());
+        fb.setAttachmentUrl(req.getAttachmentUrl());
+
+        feedbackRepository.save(fb);
+    }
 }

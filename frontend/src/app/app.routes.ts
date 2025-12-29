@@ -36,8 +36,6 @@ import { VnpayReturnComponent } from './features/tenant/vnpay-return/vnpay-retur
 import { TenantLayoutComponent } from './shared/layout-tenant/tenant-layout/tenant-layout.component';
 
 import { ReportManagementComponent } from './features/admin/report-management/report-management.component';
-import { LandlordReviewPageComponent } from './features/review/landlord-review-page/landlord-review-page.component';
-import { TenantReviewPageComponent } from './features/review/tenant-review-page/tenant-review-page.component';
 
 export const routes: Routes = [
   {
@@ -54,7 +52,7 @@ export const routes: Routes = [
       { path: 'tenant-profile', component: TenantProfileComponent },
       { path: 'contract-detail', component: ContractDetailComponent },
       { path: 'tenant-feedback', component: TenantFeedbackComponent},
-      { path: 'tenant-notification', component: TenantNotificationComponent}
+      { path: 'notification', component: TenantNotificationComponent}
     ],
   },
   // ADMIN ROUTES (role = 0)
@@ -93,7 +91,7 @@ export const routes: Routes = [
     { path: 'extra-cost', component: ExtraCostManagementComponent },
     { path: 'invoices', component: InvoiceManagementComponent },
     { path: 'notification', component: SendNotificationComponent},
-    { path: 'review', component: LandlordReviewPageComponent }
+    { path: 'landlord-feedback', component: LandlordFeedbackComponent},
   ],
 },
 
@@ -106,7 +104,7 @@ export const routes: Routes = [
     { path: '', redirectTo: 'invoices', pathMatch: 'full' },
     { path: 'invoices', component: InvoiceViewComponent },
     { path: 'vnpay-return', component: VnpayReturnComponent },
-    { path: 'review', component: TenantReviewPageComponent },
+    { path: 'notification', component: TenantNotificationComponent },
     { path: 'tenant-feedback', component: TenantFeedbackComponent }
   ],
 },

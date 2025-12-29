@@ -1,174 +1,194 @@
-<div class="container mx-auto p-6 max-w-5xl">
-  <div class="text-center mb-10">
-    <div class="feedback-create-section">
-      <div>
-        <h3>Gửi phản hồi mới</h3>
-        <p>Báo cáo sự cố, yêu cầu sửa chữa hoặc góp ý cải thiện</p>
+<div class="feedback-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Gửi phản hồi</h1>
+      <p>Gửi phản hồi, yêu cầu sửa chữa hoặc góp ý</p>
+    </div>
+    <button class="btn-create" (click)="toggleCreateForm()">
+      <i class="fa fa-plus"></i> Tạo phản hồi mới
+    </button>
+  </div>
+
+  <!-- Create Form -->
+  <div class="create-form-overlay" *ngIf="showCreateForm">
+    <div class="create-form-container">
+      <div class="create-form">
+        <div class="form-header">
+          <div class="header-icon">
+            <i class="fa fa-comment-dots"></i>
+          </div>
+          <div class="header-text">
+            <h2>Gửi phản hồi mới</h2>
+            <p>Điền thông tin để gửi phản hồi đến chủ trọ</p>
+          </div>
+        </div>
+
+        <div class="form-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Loại phản hồi</label>
+              <select class="form-control">
+                <option>Yêu cầu sửa chữa</option>
+                <option>Khiếu nại về tiếng ồn</option>
+                <option>Góp ý về vệ sinh chung</option>
+                <option>Yêu cầu thay bóng đèn</option>
+                <option>Khác</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Mức độ ưu tiên</label>
+              <select class="form-control">
+                <option value="normal">Trung bình</option>
+                <option value="urgent">Khẩn cấp</option>
+                <option value="low">Thấp</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Tiêu đề phản hồi</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              [(ngModel)]="newFeedback.title"
+              placeholder="Ví dụ: Máy lạnh phòng 101 không hoạt động...">
+          </div>
+
+          <div class="form-group">
+            <label>Nội dung chi tiết</label>
+            <textarea 
+              class="form-control" 
+              rows="5"
+              [(ngModel)]="newFeedback.content"
+              placeholder="Mô tả chi tiết vấn đề bạn gặp phải..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Đính kèm ảnh minh họa</label>
+
+            <input
+              type="file"
+              accept="image/*"
+              (change)="onFileSelected($event)"
+            />
+
+            <div *ngIf="newFeedback.attachmentUrl" class="preview">
+              <img *ngIf="newFeedback.attachmentUrl"
+                [src]="newFeedback.attachmentUrl"
+                alt="Ảnh đính kèm"
+                style="max-width:300px; border-radius:8px">
+            </div>
+          </div>
+
+          <div class="info-box">
+            <i class="fa fa-lightbulb"></i>
+            <div>
+              <strong>Mẹo để được hỗ trợ nhanh hơn</strong>
+              <ul>
+                <li>Mô tả rõ ràng và chi tiết vấn đề bạn gặp phải</li>
+                <li>Đính kèm ảnh minh họa để chủ trọ dễ hình dung</li>
+                <li>Chọn mức độ ưu tiên phù hợp với tình huống</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-footer">
+          <button class="btn-primary" (click)="createFeedback()">
+            <i class="fa fa-paper-plane"></i> Gửi phản hồi
+          </button>
+          <button class="btn-secondary" (click)="toggleCreateForm()">
+            <i class="fa fa-times"></i> Hủy
+          </button>
+        </div>
       </div>
-      <button class="btn-create" (click)="toggleCreateForm()">
-        {{ showCreateForm ? 'Đóng form' : '+ Tạo phản hồi' }}
-      </button>
+    </div>
+  </div>
+
+  <!-- Feedback List -->
+  <div class="feedback-container">
+    <div class="list-header">
+      <h2>Lịch sử phản hồi</h2>
+      <p>Theo dõi trạng thái xử lý phản hồi của bạn</p>
+      <div class="total-count">Tổng: <strong>{{ feedbacks.length }}</strong> phản hồi</div>
     </div>
 
-  <div class="feedback-wrapper mx-auto">
-    <!-- KHUNG NGOÀI BỌC FORM -->
-    <div *ngIf="showCreateForm" class="feedback-create-form-wrapper">
-
-      <!-- Alert thông báo -->
-      <div *ngIf="alertMessage" class="feedback-alert" [class.success]="alertType==='success'" 
-          [class.error]="alertType==='error'" [class.info]="alertType==='info'">
-        <div class="flex items-center gap-3">
-          <span class="text-2xl">
-            <span *ngIf="alertType==='success'">🎉</span>
-            <span *ngIf="alertType==='error'">❌</span>
-            <span *ngIf="alertType==='info'">ℹ️</span>
-          </span>
-          <span class="font-medium">{{ alertMessage }}</span>
-        </div>
-        <button (click)="alertMessage = ''">✕</button>
+    <div class="feedback-list" *ngIf="!loading">
+      <div *ngIf="feedbacks.length === 0" class="empty-state">
+        <i class="fa fa-inbox"></i>
+        <p>Chưa có phản hồi nào</p>
       </div>
 
-      <form novalidate (ngSubmit)="submit()" #f="ngForm" class="space-y-8">
-
-        <!-- Tiêu đề -->
-        <div>
-          <label class="feedback-form-label">Tiêu đề <span class="text-error">*</span></label>
-          <input type="text"
-                [(ngModel)]="newFeedback.title"
-                name="title"
-                required
-                class="feedback-form-input"
-                placeholder="VD: Ống nước hỏng, WiFi yếu..." />
+      <div *ngFor="let feedback of feedbacks" class="feedback-card">
+        <div class="card-left-indicator" [ngClass]="'indicator-' + feedback.status.toLowerCase()"></div>
+        
+        <div class="card-icon" [ngClass]="'icon-' + feedback.status.toLowerCase()">
+          <i class="fa fa-{{getStatusIconCard(feedback.status)}}"></i>
         </div>
 
-        <!-- Nội dung -->
-        <div>
-          <label class="feedback-form-label">Nội dung chi tiết <span class="text-error">*</span></label>
-          <textarea [(ngModel)]="newFeedback.content"
-                    name="content"
-                    rows="5"
-                    required
-                    class="feedback-form-textarea"
-                    placeholder="Mô tả rõ vấn đề bạn đang gặp..."></textarea>
-        </div>
+        <div class="card-content">
+          <div class="card-header">
+            <h3>{{ feedback.title }}</h3>
+            <span class="status-badge" [ngClass]="'badge-' + feedback.status.toLowerCase()">
+              {{ getStatusText(feedback.status) }}
+            </span>
+          </div>
 
-        <!-- Upload ảnh -->
-        <div class="feedback-upload-section">
-          <label class="feedback-upload-label">Ảnh đính kèm (tùy chọn)</label>
-          <input type="file"
-                accept="image/*"
-                (change)="onFileSelected($event)"
-                class="feedback-file-input" />
+          <div class="card-meta">
+            <span class="meta-item">
+              <span class="meta-label">Sửa chữa</span>
+            </span>
+            <span class="meta-item">
+              <span class="meta-label">{{ feedback.room.name || 'Phòng' }}</span>
+            </span>
+            <span class="meta-item">
+              <i class="fa fa-clock"></i> {{ feedback.createdAt | date:'yyyy-MM-dd HH:mm' }}
+            </span>
+          </div>
 
-          <!-- Preview ảnh -->
-          <div *ngIf="selectedFile" class="feedback-preview-container">
-            <img *ngIf="previewUrl" [src]="previewUrl" alt="Preview" class="feedback-preview-img" />
-            <div class="feedback-preview-info">
-              <p>{{ selectedFile.name }}</p>
-              <p>{{ formatFileSize(selectedFile.size) }}</p>
+          <p class="card-description">{{ feedback.content }}</p>
+          <!-- Ảnh đính kèm -->
+          <div class="card-attachment" *ngIf="feedback.attachmentUrl">
+            <img
+              [src]="feedback.attachmentUrl"
+              alt="Ảnh đính kèm"
+              class="feedback-image"
+            />
+          </div>
+
+          <div class="card-response" *ngIf="feedback.landlordNote">
+            <div class="response-icon">
+              <i class="fa fa-reply"></i>
             </div>
-            <button type="button" class="feedback-remove-btn" (click)="removeFile()">
-              Xóa ảnh
+            <div class="response-content">
+              <strong>Phản hồi từ chủ trọ:</strong>
+              <p>{{ feedback.landlordNote }}</p>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button
+              class="btn-action btn-edit"
+              *ngIf="feedback.status === 'PENDING'"
+              (click)="editFeedback(feedback)"
+            >
+              <i class="fa fa-edit"></i> Chỉnh sửa
+            </button>
+            <button
+              class="btn-action btn-delete"
+              *ngIf="feedback.status === 'PENDING'"
+              (click)="deleteFeedback(feedback.id)"
+            >
+              <i class="fa fa-trash"></i> Xóa
             </button>
           </div>
         </div>
-
-        <!-- Nút gửi -->
-        <div class="feedback-submit-section">
-          <button type="submit"
-                  class="feedback-submit-btn"
-                  [disabled]="loading || f.invalid">
-            <span *ngIf="loading" class="loading loading-spinner mr-2"></span>
-            {{ loading ? 'Đang gửi...' : 'Gửi phản hồi ngay' }}
-          </button>
-
-          <p class="feedback-error-message" 
-            *ngIf="submitted && (!newFeedback.title.trim() || !newFeedback.content.trim())">
-            Vui lòng điền đầy đủ tiêu đề và nội dung
-          </p>
-        </div>
-
-      </form>
+      </div>
     </div>
 
-    <!-- Lịch sử phản hồi -->
-    <div class="mt-12">
-
-      <!-- Khi chưa có phản hồi -->
-      <div *ngIf="myFeedback.length === 0" class="text-center py-20 text-gray-500">
-        <p class="text-xl">Bạn chưa gửi phản hồi nào</p>
-      </div>
-
-      <!-- BẢNG KHI CÓ DỮ LIỆU -->
-      <div *ngIf="myFeedback.length > 0" class="bg-base-100 feedback-card overflow-x-auto">
-        
-        <div class="space-y-6">
-
-          <div *ngFor="let fb of myFeedback" class="feedback-card-item">
-
-            <!-- Tiêu đề riêng một dòng -->
-            <div class="feedback-card-header">
-              <h4>{{ fb.title }}</h4>
-            </div>
-
-            
-            <div class="feedback-status-row">
-              <span class="feedback-status-badge" [ngClass]="getStatusClass(fb.status)">
-                {{ getStatusText(fb.status) }}
-              </span>
-              <div class="feedback-timestamp">
-                Tạo {{ fb.createdAt | date:'HH:mm dd/MM/yyyy' }}
-                <span *ngIf="fb.updatedAt"> • Cập nhật {{ fb.updatedAt | date:'HH:mm dd/MM/yyyy' }}</span>
-              </div>
-            </div>
-
-            <!-- Nội dung -->
-            <p class="feedback-content">{{ fb.content }}</p>
-
-            <!-- Ảnh nếu có -->
-            <img 
-              *ngIf="fb.attachmentUrl"
-              [src]="safeImageUrl(fb.attachmentUrl)"
-              (click)="openImageModal(fb.attachmentUrl)"
-              class="feedback-image"
-            />
-
-            <!-- Phản hồi chủ trọ -->
-            <div *ngIf="fb.landlordNote" class="feedback-landlord-reply">
-              <p>Phản hồi từ chủ trọ</p>
-              <p>{{ fb.landlordNote }}</p>
-            </div>
-            <!-- Nút xác nhận Hài lòng / Chưa hài lòng -->
-          <div *ngIf="fb.landlordNote && fb.status === 'RESOLVED'" class="feedback-confirmation">
-            <button class="btn btn-success btn-sm" (click)="confirmSatisfied(fb.id)">Hài lòng ✅</button>
-            <button class="btn btn-warning btn-sm" (click)="openRejectBox(fb.id)">Chưa hài lòng ❌</button>
-          </div>
-          <!-- Form nhập lý do chưa hài lòng -->
-          <div *ngIf="showRejectBoxId === fb.id" class="feedback-reject-box">
-            <textarea [(ngModel)]="rejectReason" placeholder="Nhập lý do chưa hài lòng..."></textarea>
-            <button class="btn btn-primary btn-sm" (click)="submitReject()">Gửi</button>
-            <button class="btn btn-secondary btn-sm" (click)="closeRejectBox()">Hủy</button>
-          </div>
-
-        </div>
-        <!-- Phân trang -->
-        <div *ngIf="totalPages > 1" class="flex justify-center mt-4 gap-2">
-          <button class="btn btn-sm" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
-            « Trước
-          </button>
-
-          <button *ngFor="let page of pages"
-                  class="btn btn-sm"
-                  [ngClass]="{'btn-primary': currentPage === page, 'btn-outline': currentPage !== page}"
-                  (click)="goToPage(page)">
-            {{ page }}
-          </button>
-
-          <button class="btn btn-sm" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
-            Tiếp »
-          </button>
-        </div>
-      </div>
+    <div class="loading" *ngIf="loading">
+      <i class="fa fa-spinner fa-spin"></i> Đang tải...
     </div>
   </div>
 </div>
