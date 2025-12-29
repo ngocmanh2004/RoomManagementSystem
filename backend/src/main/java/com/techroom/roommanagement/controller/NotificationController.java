@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,55 +20,143 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/notifications")
+@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 @RequiredArgsConstructor
 public class NotificationController {
 
     private final NotificationService notificationService;
 
+    /**
+     * Gửi notification hàng loạt (Landlord gửi cho tenant)
+     */
     @PostMapping("/send")
-    public ResponseEntity<SendNotificationResponse> send(@RequestBody SendNotificationRequest req) {
-        try {
-            SendNotificationResponse result = notificationService.send(req);
-
-            if (result.isSuccess()) {
-                return ResponseEntity.ok(result);
-            } else {
-                // Trường hợp service trả về lỗi logic (success=false)
-                return ResponseEntity.badRequest().body(result);
-            }
-        } catch (Exception e) {
-            // Trường hợp lỗi ngoại lệ (ví dụ: IllegalArgumentException)
-            SendNotificationResponse errorResponse = new SendNotificationResponse();
-            errorResponse.setSuccess(false);
-            errorResponse.setMessage(e.getMessage());
-            return ResponseEntity.badRequest().body(errorResponse);
+    @PreAuthorize("hasRole('LANDLORD')")
+    public ResponseEntity<SendNotificationResponse> send(
+            @RequestBody SendNotificationRequest req,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Chưa đăng nhập");
         }
+
+        SendNotificationResponse result = notificationService.send(req);
+        return ResponseEntity.ok(result);
     }
+
+    /**
+     * Lấy notifications của user hiện tại - PHÂN TRANG
+     * Dùng cho trang chi tiết notifications
+     */
     @GetMapping("/my/paged")
     public ResponseEntity<?> getMyNotificationsPaged(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size) {
-
+            @RequestParam(defaultValue = "5") int size
+    ) {
         if (userDetails == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Không tìm thấy thông tin xác thực.");
         }
 
-        Page<Notification> pageResult = notificationService.getMyNotificationsPaged(userDetails.getId(), page, size);
+        Page<Notification> pageResult = notificationService.getMyNotificationsPaged(
+                userDetails.getId(), page, size
+        );
 
-        // Chuyển sang format Angular cần
         Map<String, Object> response = new HashMap<>();
         response.put("content", pageResult.getContent());
         response.put("totalElements", pageResult.getTotalElements());
+        response.put("totalPages", pageResult.getTotalPages());
+        response.put("number", pageResult.getNumber());
 
         return ResponseEntity.ok(response);
     }
-    @PostMapping("/{id}/read")
-    public ResponseEntity<?> markAsRead(
+
+    /**
+     * Lấy TẤT CẢ notifications của user (không phân trang)
+     * Dùng cho dropdown trên header
+     */
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Notification>> getNotificationsByUserId(
+            @PathVariable Integer userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null || !userDetails.getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không có quyền truy cập");
+        }
+
+        List<Notification> notifications = notificationService.getNotificationsByUserId(userId);
+        return ResponseEntity.ok(notifications);
+    }
+
+    /**
+     * Đếm số notifications CHƯA ĐỌC
+     * Dùng để hiển thị badge số đỏ trên chuông
+     */
+    @GetMapping("/user/{userId}/unread/count")
+    public ResponseEntity<Map<String, Long>> getUnreadCount(
+            @PathVariable Integer userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null || !userDetails.getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không có quyền truy cập");
+        }
+
+        long count = notificationService.getUnreadCount(userId);
+        Map<String, Long> response = new HashMap<>();
+        response.put("count", count);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Đánh dấu 1 notification đã đọc
+     */
+    @PutMapping("/{id}/read")
+    public ResponseEntity<Notification> markAsRead(
             @PathVariable Integer id,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        notificationService.markAsRead(id, userDetails.getId());
-        return ResponseEntity.ok().build();
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        Notification updated = notificationService.markAsRead(id, userDetails.getId());
+        return ResponseEntity.ok(updated);
+    }
+
+    /**
+     * Đánh dấu TẤT CẢ notifications đã đọc
+     */
+    @PutMapping("/user/{userId}/read-all")
+    public ResponseEntity<Map<String, String>> markAllAsRead(
+            @PathVariable Integer userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null || !userDetails.getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không có quyền truy cập");
+        }
+
+        notificationService.markAllAsRead(userId);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Đã đánh dấu tất cả thông báo là đã đọc");
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Xóa notification
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, String>> deleteNotification(
+            @PathVariable Integer id,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        notificationService.deleteNotification(id, userDetails.getId());
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Đã xóa thông báo");
+        return ResponseEntity.ok(response);
     }
 }

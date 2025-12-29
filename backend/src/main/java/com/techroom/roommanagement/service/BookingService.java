@@ -103,21 +103,21 @@ public class BookingService {
         System.out.println("Contract code: " + savedContract.getContractCode());
 
         // Gửi thông báo...
-        notificationService.sendNotification(
+        notificationService.createNotification(
                 tenantUserId,
                 "Yeu cau thue phong",
                 "Yeu cau thue phong \"" + room.getName() + "\" da duoc gui thanh cong.",
-                "BOOKING_CREATED"
+                NotificationType.BOOKING_CREATED
         );
 
         if (room.getBuilding() != null && room.getBuilding().getLandlord() != null) {
             User landlordUser = room.getBuilding().getLandlord().getUser();
             if (landlordUser != null && landlordUser.getId() != null) {
-                notificationService.sendNotification(
+                notificationService.createNotification(
                         landlordUser.getId(),
                         "Yeu cau thue phong moi",
                         "Co yeu cau thue phong \"" + room.getName() + "\" tu " + tenant.getUser().getFullName(),
-                        "BOOKING_REQUEST"
+                        NotificationType.BOOKING_CREATED
                 );
             }
         }
@@ -183,11 +183,11 @@ public class BookingService {
         System.out.println("Room status updated to OCCUPIED - roomId: " + room.getId());
 
 
-        notificationService.sendNotification(
+        notificationService.createNotification(
                 contract.getTenant().getUser().getId(),
                 "Hợp đồng được duyệt",
                 "Yêu cầu thuê phòng \"" + room.getName() + "\" của bạn đã được chấp nhận.",
-                "CONTRACT_APPROVED"
+                NotificationType.CONTRACT_APPROVED
         );
 
         System.out.println("Contract approved - ID: " + contractId + ", Status: ACTIVE");
@@ -207,11 +207,11 @@ public class BookingService {
         Contract savedContract = contractRepository.save(contract);
 
         // Gửi thông báo
-        notificationService.sendNotification(
+        notificationService.createNotification(
                 contract.getTenant().getUser().getId(),
                 "Hợp đồng bị từ chối",
                 "Yêu cầu thuê phòng \"" + contract.getRoom().getName() + "\" bị từ chối. Lý do: " + rejectionReason,
-                "CONTRACT_REJECTED"
+                NotificationType.CONTRACT_REJECTED
         );
 
         System.out.println("Contract rejected - ID: " + contractId);
@@ -275,11 +275,11 @@ public class BookingService {
         Contract savedContract = contractRepository.save(contract);
 
         // Gửi thông báo cho tenant
-        notificationService.sendNotification(
+        notificationService.createNotification(
                 contract.getTenant().getUser().getId(),
                 "Hop dong da thanh ly",
                 "Hop dong thue phong \"" + room.getName() + "\" da duoc thanh ly. " + terminationMessage,
-                "CONTRACT_TERMINATED"
+                NotificationType.CONTRACT_CANCELLED
         );
 
         // Log để debug
@@ -367,12 +367,12 @@ public class BookingService {
         System.out.println(" Room status updated to OCCUPIED - roomId: " + room.getId());
 
         // 9. Gửi thông báo cho tenant
-        notificationService.sendNotification(
+        notificationService.createNotification(
                 tenant.getUser().getId(),
                 "Hợp đồng thuê phòng mới",
                 "Bạn đã được tạo hợp đồng thuê phòng \"" + room.getName() +
                         "\". Hợp đồng có hiệu lực từ " + dto.getStartDate(),
-                "CONTRACT_CREATED"
+                NotificationType.CONTRACT_CREATED
         );
 
         System.out.println(" Direct contract created - ID: " + savedContract.getId());

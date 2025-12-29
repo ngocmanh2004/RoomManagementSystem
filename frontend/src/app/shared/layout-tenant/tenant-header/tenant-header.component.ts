@@ -1,6 +1,6 @@
 import { Component, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router} from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -12,7 +12,7 @@ import { AuthService } from '../../../services/auth.service';
 })
 export class TenantHeaderComponent {
   @Output() toggleSidebar = new EventEmitter<void>();
-  
+  constructor(private router: Router) {}
   private authService = inject(AuthService);
 
   currentUser = this.authService.getCurrentUser();
@@ -22,6 +22,7 @@ export class TenantHeaderComponent {
   }
 
   onLogout() {
-    this.authService.logout();
+    localStorage.removeItem('token'); 
+    this.router.navigate(['/']);
   }
 }

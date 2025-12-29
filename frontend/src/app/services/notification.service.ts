@@ -1,47 +1,118 @@
 import { Injectable } from '@angular/core';
-import { HttpClient , HttpParams} from '@angular/common/http';
-import { map } from 'rxjs/operators';
-import { Notification, SendNotificationRequest, SendNotificationResponse } from '../models/notification.model';
-import { interval, Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
+import {
+  Notification,
+  SendNotificationRequest,
+  SendNotificationResponse
+} from '../models/notification.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationService {
+
   private apiUrl = 'http://localhost:8081/api/notifications';
+
+  // BehaviorSubject để share unread count across components
+  private unreadCountSubject = new BehaviorSubject<number>(0);
+  public unreadCount$ = this.unreadCountSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Gửi thông báo
-   * @param req dữ liệu gửi
-   * @returns Observable<SendNotificationResponse>
-   */
-  send(req: SendNotificationRequest): Observable<SendNotificationResponse> {
-    return this.http.post<SendNotificationResponse>(`${this.apiUrl}/send`, req);
+  // =====================================================
+  // LẤY TẤT CẢ NOTIFICATIONS (KHÔNG PHÂN TRANG)
+  // Dùng cho dropdown header
+  // =====================================================
+  getNotificationsByUserId(userId: number): Observable<Notification[]> {
+    return this.http.get<Notification[]>(`${this.apiUrl}/user/${userId}`);
   }
 
-  /**
-   * Lấy danh sách thông báo của user hiện tại (nếu có API riêng thì dùng)
-   */
-  
-  getMyNotificationsPaged(page: number, size: number): Observable<{ content: Notification[], totalElements: number }> {
+  // =====================================================
+  // LẤY NOTIFICATIONS PHÂN TRANG
+  // Dùng cho trang chi tiết
+  // =====================================================
+  getMyNotificationsPaged(
+    page: number,
+    size: number
+  ): Observable<{
+    content: Notification[];
+    totalElements: number;
+    totalPages: number;
+    number: number;
+  }> {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
-    
-    return this.http.get<{ content: Notification[], totalElements: number }>(
-      `${this.apiUrl}/my/paged`,
-      { params }
+
+    return this.http.get<any>(`${this.apiUrl}/my/paged`, { params }).pipe(
+      map(res => ({
+        content: res.content || [],
+        totalElements: res.totalElements || 0,
+        totalPages: res.totalPages || 0,
+        number: res.number || 0
+      }))
     );
   }
 
   // =====================================================
-  // CÁC HÀM TIỆN ÍCH (rất hay dùng trong component)
+  // ĐẾM SỐ NOTIFICATIONS CHƯA ĐỌC
   // =====================================================
+  getUnreadCount(userId: number): Observable<number> {
+    return this.http.get<{ count: number }>(
+      `${this.apiUrl}/user/${userId}/unread/count`
+    ).pipe(
+      map(res => res.count || 0)
+    );
+  }
 
-  /** Gửi thông báo cho nhiều phòng – trả về Promise dễ dùng với async/await */
+  // =====================================================
+  // REFRESH UNREAD COUNT VÀ CẬP NHẬT BEHAVIORSUBJECT
+  // Gọi trong header component để update badge
+  // =====================================================
+  refreshUnreadCount(userId: number): void {
+    this.getUnreadCount(userId).subscribe({
+      next: (count) => {
+        this.unreadCountSubject.next(count);
+      },
+      error: (err) => {
+        console.error('Error refreshing unread count:', err);
+      }
+    });
+  }
+
+  // =====================================================
+  // ĐÁNH DẤU 1 NOTIFICATION ĐÃ ĐỌC
+  // =====================================================
+  markAsRead(id: number): Observable<Notification> {
+    return this.http.put<Notification>(`${this.apiUrl}/${id}/read`, {});
+  }
+
+  // =====================================================
+  // ĐÁNH DẤU TẤT CẢ ĐÃ ĐỌC
+  // =====================================================
+  markAllAsRead(userId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/user/${userId}/read-all`, {});
+  }
+
+  // =====================================================
+  // XÓA NOTIFICATION
+  // =====================================================
+  deleteNotification(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
+  // =====================================================
+  // GỬI NOTIFICATION HÀNG LOẠT (CHO LANDLORD)
+  // =====================================================
+  send(req: SendNotificationRequest): Observable<SendNotificationResponse> {
+    return this.http.post<SendNotificationResponse>(`${this.apiUrl}/send`, req);
+  }
+
+  // =====================================================
+  // TIỆN ÍCH GỬI HÀNG LOẠT
+  // =====================================================
   sendToRooms(
     title: string,
     message: string,
@@ -57,18 +128,25 @@ export class NotificationService {
     });
   }
 
-  /** Gửi cho tất cả khách đang thuê */
-  sendToAllTenants(title: string, message: string, sendEmail = false): Observable<SendNotificationResponse> {
+  sendToAllTenants(
+    title: string,
+    message: string,
+    sendEmail = false
+  ): Observable<SendNotificationResponse> {
     return this.send({
       title,
       message,
-      sendTo: 'ALL', // hoặc 'ALL_TENANTS' tùy bạn set backend
+      sendTo: 'ALL_TENANTS',
       sendEmail
     });
   }
 
-  /** Gửi cho danh sách user cụ thể */
-  sendToUsers(title: string, message: string, userIds: number[], sendEmail = false): Observable<SendNotificationResponse> {
+  sendToUsers(
+    title: string,
+    message: string,
+    userIds: number[],
+    sendEmail = false
+  ): Observable<SendNotificationResponse> {
     return this.send({
       title,
       message,
@@ -76,14 +154,5 @@ export class NotificationService {
       userIds,
       sendEmail
     });
-  }
-  markAsRead(id: number) {
-    return this.http.post<Notification>(`${this.apiUrl}/${id}/read`,{});
-    }
-  // Polling real-time, trả về Observable<Notification[]>
-  getMyNotificationsPolling(intervalMs: number = 5000): Observable<Notification[]> {
-    return interval(intervalMs).pipe(
-      switchMap(() => this.http.get<Notification[]>(`${this.apiUrl}/my`))
-    );
   }
 }

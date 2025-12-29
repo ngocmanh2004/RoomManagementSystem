@@ -1,7 +1,20 @@
-import { Component } from '@angular/core';
-import { FeedbackService } from '../../../services/feedback.service';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+
+interface Feedback {
+  id: number;
+  title: string;
+  content: string;
+  status: 'PENDING' | 'PROCESSING' | 'RESOLVED' | 'CANCELED';
+  createdAt: string;
+  resolvedAt?: string;
+  landlordNote?: string;
+  attachmentUrl?: string;
+  tenant: { user: { fullName: string; email: string } };
+  room: { id: number; name: string; building: { name: string } };
+}
 
 @Component({
   selector: 'app-landlord-feedback',
@@ -10,138 +23,164 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './landlord-feedback.component.html',
   styleUrl: './landlord-feedback.component.css'
 })
-export class LandlordFeedbackComponent {
-  page: any = { content: [], number: 0, totalPages: 1, first: true, last: true, empty: true };
+export class LandlordFeedbackComponent implements OnInit {
+  feedbacks: Feedback[] = [];
+  filteredFeedbacks: Feedback[] = [];
+  loading = false;
   
-  // Modal resolve
-  resolveId = 0;
-  resolveNote = '';
-  isResolveModalOpen = false;
+  filterStatus: 'all' | 'PENDING' | 'PROCESSING' | 'RESOLVED' | 'CANCELED' = 'all';
+  selectedFeedback: Feedback | null = null;
+  showDetailModal = false;
+  
+  processForm = {
+    status: '' as 'PROCESSING' | 'RESOLVED' | 'CANCELED',
+    landlordNote: ''
+  };
 
-  // Toast thông báo
-  alertMessage = '';
-  alertType: 'success' | 'error' | 'info' | '' = '';
+  private apiUrl = 'http://localhost:8081/api/feedbacks';
 
-  constructor(private feedbackService: FeedbackService) {
-    this.loadPage(0);
+  constructor(private http: HttpClient) {}
+
+  ngOnInit() {
+    this.loadFeedbacks();
   }
 
-  loadPage(page: number) {
-    if (page < 0) return;
-    this.feedbackService.getForLandlord(page).subscribe({
-      next: (data) => this.page = data,
-      error: () => this.showAlert('Lỗi tải dữ liệu', 'error')
-    });
-  }
-
-  // Bắt đầu xử lý
-  startProcessing(id: number) {
-    this.feedbackService.startProcessing(id).subscribe({
-      next: () => {
-        this.showAlert('Bắt đầu xử lý thành công', 'info');
-        this.loadPage(this.page.number);
-      },
-      error: () => this.showAlert('Lỗi khi bắt đầu xử lý', 'error')
-    });
-  }
-
-  // Mở modal xác nhận xử lý xong
-  openResolveModal(id: number) {
-    this.resolveId = id;
-    this.resolveNote = '';
-    this.isResolveModalOpen = true;
-  }
-
-  closeResolveModal() {
-    this.isResolveModalOpen = false;
-  }
-
-  // Gửi xác nhận đã xử lý xong
-  submitResolve() {
-    if (!this.resolveNote.trim()) return;
-
-    console.log('Submitting resolve for ID:', this.resolveId);
-    
-    this.feedbackService.resolve(this.resolveId, this.resolveNote).subscribe({
+  loadFeedbacks() {
+    this.loading = true;
+    this.http.get<any>(`${this.apiUrl}/landlord`, {
+      params: { page: '0', size: '20' }
+    }).subscribe({
       next: (response) => {
-        console.log('Resolve response:', response);
-        this.showAlert('Đã gửi thông báo xử lý xong!', 'success');
-        this.closeResolveModal();
-        
-        // Force reload ngay lập tức
-        this.loadPage(this.page.number);
-        
-        // Thêm delay nhỏ rồi reload lại
-        setTimeout(() => {
-          this.loadPage(this.page.number);
-        }, 1000);
+        this.feedbacks = response.content || [];
+        this.applyFilter();
+        this.loading = false;
       },
       error: (err) => {
-        console.error('Resolve error:', err);
-        this.showAlert('Gửi thất bại', 'error');
+        console.error('Error loading feedbacks:', err);
+        this.loading = false;
       }
     });
   }
 
-  // HỦY PHẢN HỒI (API thật)
-  cancel(id: number) {
-    if (!confirm('Bạn có chắc muốn HỦY phản hồi này?\nHành động không thể hoàn tác.')) {
+  applyFilter() {
+    if (this.filterStatus === 'all') {
+      this.filteredFeedbacks = [...this.feedbacks];
+    } else {
+      this.filteredFeedbacks = this.feedbacks.filter(f => f.status === this.filterStatus);
+    }
+  }
+
+  setFilter(status: typeof this.filterStatus) {
+    this.filterStatus = status;
+    this.applyFilter();
+  }
+
+  openDetail(feedback: Feedback) {
+    this.selectedFeedback = feedback;
+    this.showDetailModal = true;
+    this.processForm = {
+      status: 'PROCESSING',
+      landlordNote: feedback.landlordNote || ''
+    };
+  }
+
+  closeDetail() {
+    this.showDetailModal = false;
+    this.selectedFeedback = null;
+  }
+
+  startProcessing(feedback: Feedback) {
+    this.processForm.status = 'PROCESSING';
+    this.processFeedback(feedback.id);
+  }
+
+  resolveFeedback(feedbackId: number) {
+    if (!this.processForm.landlordNote) {
+      alert('Vui lòng nhập ghi chú xử lý!');
       return;
     }
+    this.processForm.status = 'RESOLVED';
+    this.processFeedback(feedbackId);
+  }
 
-    this.feedbackService.cancel(id).subscribe({
+  cancelFeedback(feedbackId: number) {
+    if (!confirm('Bạn có chắc muốn hủy phản hồi này?')) return;
+    this.processForm.status = 'CANCELED';
+    this.processFeedback(feedbackId);
+  }
+
+  processFeedback(feedbackId: number) {
+    this.http.put(`${this.apiUrl}/${feedbackId}/process`, this.processForm).subscribe({
       next: () => {
-        this.showAlert('Đã hủy phản hồi', 'success');
-        this.loadPage(this.page.number);
+        alert('Cập nhật trạng thái thành công!');
+        this.closeDetail();
+        this.loadFeedbacks();
       },
       error: (err) => {
-        this.showAlert(
-          err?.error?.message || 'Không thể hủy phản hồi',
-          'error'
-        );
+        console.error('Error processing feedback:', err);
+        alert('Có lỗi xảy ra!');
       }
     });
   }
 
-  // Đóng modal (ẩn dấu tick đen)
-  closeModal() {
-    const checkbox = document.getElementById('resolve-modal') as HTMLInputElement;
-    if (checkbox) checkbox.checked = false;
+  deleteFeedback(feedbackId: number) {
+    if (!confirm('Bạn có chắc muốn xóa phản hồi này?')) return;
+    
+    this.http.delete(`${this.apiUrl}/${feedbackId}`).subscribe({
+      next: () => {
+        alert('Đã xóa phản hồi!');
+        this.loadFeedbacks();
+      },
+      error: (err) => {
+        console.error('Error deleting feedback:', err);
+        alert('Có lỗi xảy ra!');
+      }
+    });
   }
 
-  // Toast thông báo đẹp
-  private showAlert(message: string, type: 'success' | 'error' | 'info') {
-    this.alertMessage = message;
-    this.alertType = type;
-    setTimeout(() => {
-      this.alertMessage = '';
-      this.alertType = '';
-    }, 4500);
-  }
-
-  // Trạng thái đẹp
   getStatusText(status: string): string {
-    const map: Record<string, string> = {
-      PENDING: 'Chưa xử lý',
-      PROCESSING: 'Đang xử lý',
-      RESOLVED: 'Đã xử lý xong (chờ khách xác nhận)',
-      CANCELED: 'Đã hủy',
-      TENANT_CONFIRMED: 'Khách đã xác nhận hài lòng',
-      TENANT_REJECTED: 'Khách chưa hài lòng'
+    const statusMap: { [key: string]: string } = {
+      'PENDING': 'Chưa xử lý',
+      'PROCESSING': 'Đang xử lý',
+      'RESOLVED': 'Đã xử lý',
+      'CANCELED': 'Đã hủy'
     };
-    return map[status] || status;
+    return statusMap[status] || status;
   }
 
-  getStatusClass(status: string): string {
-    const map: Record<string, string> = {
-      PENDING: 'badge-warning',
-      PROCESSING: 'badge-info',
-      RESOLVED: 'badge-primary',
-      CANCELED: 'badge-ghost',
-      TENANT_CONFIRMED: 'badge-success',
-      TENANT_REJECTED: 'badge-error'
+  getStatusColor(status: string): string {
+    const colorMap: { [key: string]: string } = {
+      'PENDING': '#ffc107',
+      'PROCESSING': '#17a2b8',
+      'RESOLVED': '#28a745',
+      'CANCELED': '#6c757d'
     };
-    return `badge badge-lg font-bold ${map[status] || 'badge-neutral'}`;
+    return colorMap[status] || '#6c757d';
   }
-  
+
+  getStatusIcon(status: string): string {
+    const iconMap: { [key: string]: string } = {
+      'PENDING': 'clock',
+      'PROCESSING': 'cog fa-spin',
+      'RESOLVED': 'check-circle',
+      'CANCELED': 'ban'
+    };
+    return iconMap[status] || 'question-circle';
+  }
+
+  get pendingCount(): number {
+    return this.feedbacks.filter(f => f.status === 'PENDING').length;
+  }
+
+  get processingCount(): number {
+    return this.feedbacks.filter(f => f.status === 'PROCESSING').length;
+  }
+
+  get resolvedCount(): number {
+    return this.feedbacks.filter(f => f.status === 'RESOLVED').length;
+  }
+
+  get canceledCount(): number {
+    return this.feedbacks.filter(f => f.status === 'CANCELED').length;
+  } 
 }

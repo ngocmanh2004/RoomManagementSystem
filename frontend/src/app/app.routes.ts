@@ -52,7 +52,7 @@ export const routes: Routes = [
       { path: 'tenant-profile', component: TenantProfileComponent },
       { path: 'contract-detail', component: ContractDetailComponent },
       { path: 'tenant-feedback', component: TenantFeedbackComponent},
-      { path: 'tenant-notification', component: TenantNotificationComponent}
+      { path: 'notification', component: TenantNotificationComponent}
     ],
   },
   // ADMIN ROUTES (role = 0)
@@ -104,7 +104,7 @@ export const routes: Routes = [
     { path: '', redirectTo: 'invoices', pathMatch: 'full' },
     { path: 'invoices', component: InvoiceViewComponent },
     { path: 'vnpay-return', component: VnpayReturnComponent },
-    { path: 'tenant-notification', component: TenantNotificationComponent },
+    { path: 'notification', component: TenantNotificationComponent },
     { path: 'tenant-feedback', component: TenantFeedbackComponent }
   ],
 },

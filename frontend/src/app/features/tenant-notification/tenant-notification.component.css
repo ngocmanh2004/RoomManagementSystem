@@ -1,111 +1,295 @@
-/* notification-styles.css */
-.notification-list {
+.notification-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f5f5f5;
+  min-height: 100vh;
 }
 
-.notification-item {
-  transition: all 0.2s ease;
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+}
+
+.header-content h1 {
+  font-size: 24px;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+  font-weight: 600;
+}
+
+.header-content p {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+.btn-mark-all {
+  padding: 10px 18px;
+  background: white;
+  color: #666;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
   cursor: pointer;
-  border-left: 4px solid transparent;
-  margin-bottom: 0.5rem;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  font-size: 13px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-mark-all:hover {
+  border-color: #17a2b8;
+  color: #17a2b8;
+}
+
+.notification-container {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.filter-tabs {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 0 24px;
+}
+
+.filter-tabs button {
+  padding: 16px 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.2s;
   position: relative;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
 }
 
-/* Bỏ dấu chấm (bullet) của thẻ li */
+.filter-tabs button.active {
+  color: #17a2b8;
+  border-bottom-color: #17a2b8;
+}
+
+.notification-list {
+  min-height: 400px;
+}
+
 .notification-item {
-  list-style-type: none;
-}
-
-/* Thêm padding cho container để tránh bị che */
-ul {
-  padding-left: 0;
-}
-
-/* Thông báo CHƯA đọc - nổi bật */
-.notification-unread {
-  background-color: #f0f9ff;
-  border-left-color: #3b82f6;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
-  border: 1px solid #dbeafe;
-}
-
-.notification-unread .notification-title {
-  color: #1e40af;
-  font-weight: 400;
-}
-
-.notification-unread .notification-message {
-  color: #374151;
-}
-
-/* Thông báo ĐÃ đọc - xám hơn */
-.notification-read {
-  background-color: #f9fafb;
-  border-left-color: #9ca3af;
-  opacity: 0.85;
-  border: 1px solid #e5e7eb;
-}
-
-.notification-read .notification-title {
-  color: #6b7280;
-  font-weight: 300;
-}
-
-.notification-read .notification-message {
-  color: #9ca3af;
-}
-
-.notification-read .notification-time {
-  color: #9ca3af;
-}
-
-/* Badge cho thông báo mới */
-.notification-badge {
-  background-color: #f59e0b;
-  color: white;
-  font-size: 0.7rem;
-  padding: 0.125rem 0.5rem;
-  border-radius: 0.25rem;
-  margin-left: 0.5rem;
-}
-
-/* Hiệu ứng hover */
-.notification-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.notification-unread:hover {
-  background-color: #e0f2fe;
-}
-
-.notification-read:hover {
-  background-color: #f3f4f6;
-}
-
-/* Nút đánh dấu đã đọc - Ở góc trên bên phải */
-.mark-read-btn {
-  position: absolute !important;
-  top: 0.75rem !important;
-  right: 0.75rem !important;
-  background-color: transparent;
-  border: 1px solid #3b82f6;
-  color: #3b82f6;
-  padding: 0.25rem 0.75rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f0f0;
+  border-left: 4px solid transparent;
   cursor: pointer;
-  z-index: 10;
+  transition: all 0.2s;
 }
 
-.mark-read-btn:hover {
-  background-color: #3b82f6;
+.notification-item:hover {
+  background: #fafafa;
+}
+
+.notification-item.unread {
+  background: #f0f9fb;
+  border-left-color: #17a2b8;
+}
+
+.notification-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1;
+}
+
+.notification-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.icon-blue {
+  background: #e3f2fd;
+}
+
+.icon-red {
+  background: #ffebee;
+}
+
+.icon-orange {
+  background: #fff3e0;
+}
+
+.icon-green {
+  background: #e8f5e9;
+}
+
+.icon-emoji {
+  font-size: 24px;
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.notification-title-row h3 {
+  font-size: 15px;
+  color: #1a1a1a;
+  margin: 0;
+  font-weight: 600;
+}
+
+.unread-indicator {
+  color: #17a2b8;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.notification-message {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0 0 10px 0;
+}
+
+.notification-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.notification-badge {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.badge-blue {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.badge-red {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+.badge-orange {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.badge-green {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.notification-time {
+  font-size: 12px;
+  color: #999;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.notification-time i {
+  font-size: 11px;
+}
+
+.notification-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-mark-read {
+  background: transparent;
+  border: 1px solid #e0e0e0;
+  color: #666;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  font-size: 13px;
+}
+
+.btn-mark-read:hover {
+  border-color: #17a2b8;
+  color: #17a2b8;
+  background: #f0f9fb;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: #7f8c8d;
+}
+
+.empty-state i {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.3;
+}
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #17a2b8;
+  font-size: 18px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  gap: 15px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.pagination button {
+  padding: 8px 16px;
+  background: #17a2b8;
   color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
-/* Điều chỉnh padding cho tiêu đề để tránh bị nút che */
-.notification-item .flex.justify-between {
-  padding-right: 5rem; /* Tạo khoảng trống cho nút */
+.pagination button:hover:not(:disabled) {
+  background: #138496;
+}
+
+.pagination button:disabled {
+  background: #e0e0e0;
+  cursor: not-allowed;
+}
+
+.page-info {
+  color: #7f8c8d;
+  font-size: 14px;
 }

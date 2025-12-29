@@ -1,1156 +1,415 @@
-/* ====================== SEND NOTIFICATION – GỌN, SÁT, ĐẸP 2025 + CHIP + POPUP ====================== */
-
-.notification-card {
-  max-width: 460px;
-  margin: 2rem auto;
-  background: #fff;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-  border: 1px solid #e2e8f0;
-  position: relative;
+.send-notification-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px 20px;
 }
 
-.notification-title {
+.page-header {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.header-content h1 {
+  font-size: 28px;
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+.header-content p {
+  color: #7f8c8d;
+  font-size: 14px;
+}
+
+.main-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+}
+
+.section-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 25px;
+  background: linear-gradient(135deg, #17a2b8, #138496);
+  color: white;
+}
+
+.card-header h2 {
+  font-size: 20px;
+  margin: 0 0 8px 0;
+}
+
+.card-header p {
   margin: 0;
-  padding: 1rem 1.5rem;
-  background: #0d6efd;
-  color: white;
-  font-size: 1.28rem;
-  font-weight: 600;
-  text-align: center;
+  opacity: 0.9;
+  font-size: 14px;
 }
 
-.notification-body {
-  padding: 1.5rem 1.8rem;
-  position: relative;
-  z-index: 1;
+.card-body {
+  padding: 25px;
 }
 
-/* Khoảng cách field */
-.field-group {
-  margin-bottom: 0.95rem;
+.form-group {
+  margin-bottom: 25px;
 }
 
-.form-label {
+.form-group label {
   display: block;
+  margin-bottom: 10px;
+  color: #2c3e50;
   font-weight: 600;
-  color: #374151;
-  margin-bottom: 0.35rem;
-  font-size: 0.94rem;
+  font-size: 14px;
 }
 
-.form-control,
-.form-select {
+.form-control {
   width: 100%;
-  border: 1.5px solid #d1d5db;
-  border-radius: 10px;
-  padding: 0.7rem 0.95rem;
-  font-size: 0.98rem;
-  transition: all 0.2s ease;
-}
-
-.form-control:focus,
-.form-select:focus {
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
-  outline: none;
-}
-
-textarea.form-control { min-height: 115px; resize: vertical; }
-
-/* ====================== PHẦN CHỌN KHÁCH THUÊ ====================== */
-
-/* Container chính */
-.user-selection-container {
-  margin-bottom: 1.5rem;
-}
-
-.user-selection-container label {
-  display: block;
-  font-weight: 600;
-  color: #2d3748;
-  margin-bottom: 0.75rem;
-  font-size: 1rem;
-}
-
-/* Khu vực hiển thị khách đã chọn (chip) */
-.selected-users-container {
-  min-height: 56px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 12px 16px;
-  background: #f8fafc;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 1.2rem;
-  transition: all 0.25s ease;
-}
-
-.selected-users-container:hover {
-  border-color: #a5b4fc;
-  background: white;
-}
-
-.selected-users-placeholder {
-  color: #94a3b8;
-  font-style: italic;
-  font-size: 0.95rem;
-}
-
-/* Chip hiển thị khách đã chọn */
-.user-chip {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 24px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 3px 8px rgba(102, 126, 234, 0.25);
-  animation: chipAppear 0.3s ease-out;
-  transition: all 0.2s ease;
-}
-
-@keyframes chipAppear {
-  from {
-    opacity: 0;
-    transform: scale(0.8) translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-.user-chip:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 12px #667eea;
-}
-
-.remove-user-btn {
-  background: rgba(255, 255, 255, 0.25);
-  border: none;
-  color: white;
-  font-size: 1.4rem;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-left: 4px;
-  line-height: 1;
-}
-
-.remove-user-btn:hover {
-  background: rgba(255, 255, 255, 0.4);
-  transform: scale(1.15);
-}
-
-/* Danh sách khách thuê để chọn */
-.users-list-container {
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  overflow: hidden;
-  max-height: 320px;
-  background: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.users-list-scroll {
-  max-height: 280px;
-  overflow-y: auto;
-  padding: 8px 0;
-}
-
-/* User item trong danh sách */
-.user-item {
-  display: flex;
-  align-items: center;
-  padding: 14px 18px;
-  border-bottom: 1px solid #f1f5f9;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.user-item:hover {
-  background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-  transform: translateX(2px);
-}
-
-.user-item:last-child {
-  border-bottom: none;
-}
-
-/* Checkbox custom */
-.user-checkbox-container {
-  position: relative;
-  margin-right: 16px;
-}
-
-.user-checkbox-container input[type="checkbox"] {
-  opacity: 0;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.checkbox-custom {
-  width: 22px;
-  height: 22px;
-  border: 2px solid #cbd5e1;
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
   border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #17a2b8;
+  box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.1);
+}
+
+textarea.form-control {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.recipient-options {
+  display: flex;
+  gap: 20px;
+}
+
+.radio-option {
+  flex: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
-  transition: all 0.25s;
-  background: white;
+  padding: 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
-.user-checkbox-container input:checked + .checkbox-custom {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: transparent;
+.radio-option:hover {
+  border-color: #17a2b8;
+  background: #f0f9fa;
 }
 
-.user-checkbox-container input:checked + .checkbox-custom::after {
-  content: '✓';
-  color: white;
-  font-weight: bold;
-  font-size: 0.9rem;
-  transform: scale(1);
-  transition: transform 0.2s;
+.radio-option input {
+  margin-right: 10px;
 }
 
-/* Thông tin user */
-.user-info {
+.radio-option span {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.room-selection {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.select-all {
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 15px;
+}
+
+.checkbox-option {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.checkbox-option input {
+  margin-right: 10px;
+}
+
+.checkbox-option span {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.room-card {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.room-card:hover {
+  border-color: #17a2b8;
+  background: #f0f9fa;
+}
+
+.room-card.selected {
+  border-color: #17a2b8;
+  background: #e8f4f8;
+}
+
+.room-info {
+  display: flex;
+  gap: 10px;
   flex: 1;
 }
 
-.user-name {
-  font-weight: 600;
-  color: #1e293b;
-  font-size: 1rem;
-  margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.room-info i {
+  font-size: 24px;
+  color: #17a2b8;
+  margin-top: 5px;
 }
 
-.user-details {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+.room-info strong {
+  display: block;
+  color: #2c3e50;
+  margin-bottom: 5px;
 }
 
-.user-email, .user-phone {
-  color: #64748b;
-  font-size: 0.88rem;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.room-info .building {
+  display: block;
+  font-size: 12px;
+  color: #7f8c8d;
+  margin-bottom: 3px;
 }
 
-.user-email::before {
-  content: "✉️";
-  font-size: 0.8rem;
+.room-info .tenant {
+  display: block;
+  font-size: 13px;
+  color: #28a745;
 }
 
-.user-phone::before {
-  content: "📱";
-  font-size: 0.8rem;
-}
-
-/* Trạng thái loading/empty */
-.users-list-empty {
-  text-align: center;
-  padding: 3rem 2rem;
-  color: #94a3b8;
-  font-style: italic;
-  background: #f8fafc;
-  border-radius: 8px;
-}
-
-.users-list-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 2rem;
-  color: #64748b;
-  gap: 12px;
-}
-
-.loading-spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid #e2e8f0;
-  border-top: 3px solid #667eea;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Thống kê dưới danh sách */
-.users-selection-stats {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-  padding: 14px 18px;
-  border-top: 1px solid #e2e8f0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
+.room-info .vacant {
+  display: block;
+  font-size: 13px;
+  color: #dc3545;
 }
 
 .selected-count {
-  color: #667eea;
+  margin-top: 15px;
+  padding: 10px;
+  background: #e8f4f8;
+  border-radius: 6px;
+  color: #17a2b8;
   font-weight: 600;
-  background: white;
-  padding: 4px 12px;
-  border-radius: 20px;
-  border: 1px solid #cbd5e1;
-}
-
-.total-count {
-  color: #64748b;
-  font-weight: 500;
-}
-
-/* Nút chọn tất cả/bỏ chọn tất cả */
-.select-all-container {
-  padding: 12px 18px;
-  border-bottom: 1px solid #e2e8f0;
-  background: #f8fafc;
-}
-
-.select-all-btn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: none;
-  border: none;
-  color: #667eea;
-  font-weight: 500;
-  font-size: 0.92rem;
-  cursor: pointer;
-  padding: 6px 12px;
-  border-radius: 8px;
-  transition: all 0.2s;
-}
-
-.select-all-btn:hover {
-  background: rgba(102, 126, 234, 0.1);
-  transform: translateY(-1px);
-}
-
-.select-all-icon {
-  font-size: 1.1rem;
-}
-
-/* Scrollbar styling */
-.users-list-scroll::-webkit-scrollbar {
-  width: 8px;
-}
-
-.users-list-scroll::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 4px;
-}
-
-.users-list-scroll::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-
-.users-list-scroll::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-  .user-item {
-    padding: 12px 16px;
-  }
-  
-  .user-name {
-    font-size: 0.95rem;
-  }
-  
-  .user-email, .user-phone {
-    font-size: 0.85rem;
-  }
-  
-  .selected-users-container {
-    padding: 10px 14px;
-  }
-  
-  .user-chip {
-    padding: 7px 14px;
-    font-size: 0.85rem;
-  }
-}
-/* ====================== PHẦN CHỌN PHÒNG ====================== */
-
-/* Container chính */
-.room-selection-container {
-  margin-bottom: 1.5rem;
-  position: relative;
-}
-
-.room-selection-container label {
-  display: block;
-  font-weight: 600;
-  color: #2d3748;
-  margin-bottom: 0.75rem;
-  font-size: 1rem;
-}
-
-/* Khu vực hiển thị phòng đã chọn (chip) */
-.selected-rooms-container {
-  min-height: 56px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 12px 16px;
-  background: #f8fafc;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.selected-rooms-container:hover {
-  border-color: #10b981;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-}
-
-.selected-rooms-placeholder {
-  color: #94a3b8;
-  font-style: italic;
-  font-size: 0.95rem;
-  padding: 4px 0;
-}
-
-/* Chip hiển thị phòng đã chọn */
-.room-chip {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 24px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.25);
-  animation: chipAppear 0.3s ease-out;
-  transition: all 0.2s ease;
-}
-
-.room-chip:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 12px rgba(16, 185, 129, 0.35);
-}
-
-.remove-room-btn {
-  background: rgba(255, 255, 255, 0.25);
-  border: none;
-  color: white;
-  font-size: 1.4rem;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-left: 4px;
-  line-height: 1;
-}
-
-.remove-room-btn:hover {
-  background: rgba(255, 255, 255, 0.4);
-  transform: scale(1.15);
-}
-
-/* ====================== POPUP CHỌN PHÒNG ====================== */
-
-/* Overlay khi mở popup */
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  z-index: 999;
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Popup container */
-.room-selector-popup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
-  width: 90%;
-  max-width: 480px;
-  max-height: 80vh;
-  overflow: hidden;
-  z-index: 1000;
-  animation: popupSlideIn 0.35s ease-out;
-}
-
-@keyframes popupSlideIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -48%) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-/* Popup header */
-.popup-header {
-  padding: 1.2rem 1.5rem;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.popup-header strong {
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-
-.close-popup-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  font-size: 1.8rem;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  line-height: 1;
-}
-
-.close-popup-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: rotate(90deg);
-}
-
-/* Danh sách phòng */
-.room-list {
-  max-height: 50vh;
-  overflow-y: auto;
-  padding: 0.8rem 0;
-}
-
-/* Loading state */
-.rooms-loading {
-  padding: 3rem 2rem;
   text-align: center;
-  color: #94a3b8;
-  font-style: italic;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
 }
 
-.rooms-loading .loading-spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid #e2e8f0;
-  border-top: 3px solid #10b981;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-/* Item phòng */
-.room-item {
-  display: flex;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #f1f5f9;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.room-item:hover {
-  background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%);
-  transform: translateX(2px);
-}
-
-.room-item:last-child {
-  border-bottom: none;
-}
-
-/* Checkbox custom cho phòng */
-.room-checkbox-container {
-  position: relative;
-  margin-right: 16px;
-}
-
-.room-checkbox-container input[type="checkbox"] {
-  opacity: 0;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.room-checkbox-custom {
-  width: 22px;
-  height: 22px;
-  border: 2px solid #cbd5e1;
+.info-box {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  padding: 15px;
   border-radius: 8px;
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.info-box i {
+  font-size: 24px;
+  color: #ffc107;
+  flex-shrink: 0;
+}
+
+.info-box strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #856404;
+}
+
+.info-box ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #856404;
+}
+
+.info-box li {
+  margin-bottom: 5px;
+  font-size: 13px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btn-secondary, .btn-draft, .btn-primary {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-secondary {
+  background: #e0e0e0;
+  color: #2c3e50;
+}
+
+.btn-secondary:hover {
+  background: #d0d0d0;
+}
+
+.btn-draft {
+  background: #ffc107;
+  color: white;
+}
+
+.btn-draft:hover {
+  background: #e0a800;
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #17a2b8, #138496);
+  color: white;
+  box-shadow: 0 4px 6px rgba(23, 162, 184, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(23, 162, 184, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* History Section */
+.history-list {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.history-item {
+  display: flex;
+  gap: 15px;
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  transition: all 0.3s;
+}
+
+.history-item:hover {
+  background: #f8f9fa;
+}
+
+.history-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #d4edda;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.25s;
-  background: white;
+  flex-shrink: 0;
 }
 
-.room-checkbox-container input:checked + .room-checkbox-custom {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  border-color: transparent;
+.history-icon i {
+  color: #28a745;
+  font-size: 20px;
 }
 
-.room-checkbox-container input:checked + .room-checkbox-custom::after {
-  content: '✓';
-  color: white;
-  font-weight: bold;
-  font-size: 0.9rem;
-  transform: scale(1);
-  transition: transform 0.2s;
-}
-
-/* Thông tin phòng */
-.room-info {
+.history-content {
   flex: 1;
 }
 
-.room-name {
-  font-weight: 600;
-  color: #1e293b;
-  font-size: 1rem;
-  margin-bottom: 4px;
+.history-content h4 {
+  font-size: 16px;
+  color: #2c3e50;
+  margin: 0 0 8px 0;
+}
+
+.history-content p {
+  color: #555;
+  font-size: 13px;
+  margin: 0 0 10px 0;
+  line-height: 1.5;
+}
+
+.history-meta {
   display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.room-details {
-  color: #64748b;
-  font-size: 0.88rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.room-details span:first-child::before {
-  content: "📏";
-  font-size: 0.8rem;
-  margin-right: 4px;
-}
-
-.room-details span:last-child::before {
-  content: "💰";
-  font-size: 0.8rem;
-  margin-right: 4px;
-}
-
-/* Popup footer */
-.popup-footer {
-  padding: 1.2rem 1.5rem;
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
-  text-align: center;
-}
-
-.done-btn {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  padding: 0.8rem 2rem;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.25s;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
-}
-
-.done-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
-}
-
-.done-btn:active {
-  transform: translateY(0);
-}
-
-/* Scrollbar styling cho popup */
-.room-list::-webkit-scrollbar {
-  width: 8px;
-}
-
-.room-list::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 4px;
-}
-
-.room-list::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-
-.room-list::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-  .room-selector-popup {
-    width: 95%;
-    border-radius: 12px;
-  }
-  
-  .popup-header {
-    padding: 1rem 1.2rem;
-  }
-  
-  .room-item {
-    padding: 0.9rem 1.2rem;
-  }
-  
-  .room-name {
-    font-size: 0.95rem;
-  }
-  
-  .room-details {
-    font-size: 0.85rem;
-  }
-  
-  .selected-rooms-container {
-    padding: 10px 14px;
-    min-height: 52px;
-  }
-  
-  .room-chip {
-    padding: 7px 14px;
-    font-size: 0.85rem;
-  }
-  
-  .done-btn {
-    padding: 0.7rem 1.5rem;
-    font-size: 0.95rem;
-  }
-}
-
-/* Animation cho checkbox khi được chọn */
-@keyframes checkmarkAnimation {
-  0% {
-    transform: scale(0);
-  }
-  50% {
-    transform: scale(1.2);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.room-checkbox-container input:checked + .room-checkbox-custom::after {
-  animation: checkmarkAnimation 0.3s ease-out;
-}
-
-/* Hiệu ứng khi thêm/xóa chip */
-@keyframes chipSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.room-chip {
-  animation: chipSlideIn 0.3s ease-out;
-}
-/* ====================== PHẦN CHỌN KHÁCH - THIẾT KẾ GIỐNG PHÒNG ====================== */
-
-/* Container chính */
-.user-selection-container {
-  margin-bottom: 1.5rem;
-  position: relative;
-}
-
-.user-selection-container label {
-  display: block;
-  font-weight: 600;
-  color: #2d3748;
-  margin-bottom: 0.75rem;
-  font-size: 1rem;
-}
-
-/* Khu vực hiển thị khách đã chọn (chip) */
-.selected-users-container {
-  min-height: 56px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 12px 16px;
-  background: #f8fafc;
-  display: flex;
-  align-items: center;
+  gap: 15px;
+  font-size: 12px;
+  color: #7f8c8d;
   flex-wrap: wrap;
-  gap: 10px;
-  cursor: pointer;
-  transition: all 0.25s ease;
 }
 
-.selected-users-container:hover {
-  border-color: #8b5cf6;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-}
-
-.selected-users-placeholder {
-  color: #94a3b8;
-  font-style: italic;
-  font-size: 0.95rem;
-  padding: 4px 0;
-}
-
-/* Chip hiển thị khách đã chọn */
-.user-chip {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 24px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 3px 8px rgba(139, 92, 246, 0.25);
-  animation: chipAppear 0.3s ease-out;
-  transition: all 0.2s ease;
-}
-
-.user-chip:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 12px rgba(139, 92, 246, 0.35);
-}
-
-.remove-user-btn {
-  background: rgba(255, 255, 255, 0.25);
-  border: none;
-  color: white;
-  font-size: 1.4rem;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-left: 4px;
-  line-height: 1;
-}
-
-.remove-user-btn:hover {
-  background: rgba(255, 255, 255, 0.4);
-  transform: scale(1.15);
-}
-
-/* ====================== POPUP CHỌN KHÁCH ====================== */
-
-/* Popup container */
-.user-selector-popup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
-  width: 90%;
-  max-width: 480px;
-  max-height: 80vh;
-  overflow: hidden;
-  z-index: 1000;
-  animation: popupSlideIn 0.35s ease-out;
-}
-
-/* Popup header */
-.popup-header {
-  padding: 1.2rem 1.5rem;
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.popup-header strong {
-  font-size: 1.2rem;
+.sent-count {
+  color: #28a745;
   font-weight: 600;
 }
 
-.close-popup-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  font-size: 1.8rem;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+.history-actions {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  line-height: 1;
+  gap: 5px;
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
-.close-popup-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: rotate(90deg);
+.history-item:hover .history-actions {
+  opacity: 1;
 }
 
-/* Danh sách khách */
-.user-list {
-  max-height: 50vh;
-  overflow-y: auto;
-  padding: 0.8rem 0;
-}
-
-/* Loading state */
-.users-loading {
-  padding: 3rem 2rem;
-  text-align: center;
-  color: #94a3b8;
-  font-style: italic;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.users-loading .loading-spinner {
+.btn-icon {
   width: 32px;
   height: 32px;
-  border: 3px solid #e2e8f0;
-  border-top: 3px solid #8b5cf6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-/* Item khách */
-.user-item {
-  display: flex;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #f1f5f9;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.user-item:hover {
-  background: linear-gradient(90deg, rgba(139, 92, 246, 0.05) 0%, rgba(124, 58, 237, 0.05) 100%);
-  transform: translateX(2px);
-}
-
-.user-item:last-child {
-  border-bottom: none;
-}
-
-/* Checkbox custom cho khách */
-.user-checkbox-container {
-  position: relative;
-  margin-right: 16px;
-}
-
-.user-checkbox-container input[type="checkbox"] {
-  opacity: 0;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.user-checkbox-custom {
-  width: 22px;
-  height: 22px;
-  border: 2px solid #cbd5e1;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.25s;
-  background: white;
-}
-
-.user-checkbox-container input:checked + .user-checkbox-custom {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  border-color: transparent;
-}
-
-.user-checkbox-container input:checked + .user-checkbox-custom::after {
-  content: '✓';
-  color: white;
-  font-weight: bold;
-  font-size: 0.9rem;
-  transform: scale(1);
-  transition: transform 0.2s;
-  animation: checkmarkAnimation 0.3s ease-out;
-}
-
-/* Thông tin khách */
-.user-info {
-  flex: 1;
-}
-
-.user-name {
-  font-weight: 600;
-  color: #1e293b;
-  font-size: 1rem;
-  margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.user-details {
-  color: #64748b;
-  font-size: 0.88rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.user-details span:first-child::before {
-  content: "✉️";
-  font-size: 0.8rem;
-  margin-right: 4px;
-}
-
-.user-details span:last-child::before {
-  content: "📱";
-  font-size: 0.8rem;
-  margin-right: 4px;
-}
-
-/* Popup footer */
-.popup-footer {
-  padding: 1.2rem 1.5rem;
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
-  text-align: center;
-}
-
-.done-btn {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  color: white;
   border: none;
-  border-radius: 12px;
-  padding: 0.8rem 2rem;
-  font-weight: 600;
-  font-size: 1rem;
+  background: transparent;
+  color: #7f8c8d;
   cursor: pointer;
-  transition: all 0.25s;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+  border-radius: 6px;
+  transition: all 0.3s;
 }
 
-.done-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.35);
+.btn-icon:hover {
+  background: #e0e0e0;
+  color: #2c3e50;
 }
 
-.done-btn:active {
-  transform: translateY(0);
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-  .user-selector-popup {
-    width: 95%;
-    border-radius: 12px;
-  }
-  
-  .popup-header {
-    padding: 1rem 1.2rem;
-  }
-  
-  .user-item {
-    padding: 0.9rem 1.2rem;
-  }
-  
-  .user-name {
-    font-size: 0.95rem;
-  }
-  
-  .user-details {
-    font-size: 0.85rem;
-  }
-  
-  .selected-users-container {
-    padding: 10px 14px;
-    min-height: 52px;
-  }
-  
-  .user-chip {
-    padding: 7px 14px;
-    font-size: 0.85rem;
-  }
-  
-  .done-btn {
-    padding: 0.7rem 1.5rem;
-    font-size: 0.95rem;
+@media (max-width: 1024px) {
+  .main-content {
+    grid-template-columns: 1fr;
   }
 }
 
-/* Hiệu ứng khi thêm/xóa chip */
-.user-chip {
-  animation: chipSlideIn 0.3s ease-out;
+@media (max-width: 768px) {
+  .room-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .recipient-options {
+    flex-direction: column;
+  }
 }
