@@ -22,18 +22,62 @@
       </ng-container>
 
       <ng-container *ngIf="isLoggedIn && currentUser">
-        <button
-          type="button"
-          class="notification-btn"
-          (click)="goToNotification()"
-          *ngIf="currentUser && (currentUser.role === 1 || currentUser.role === 2)"
-        >
-          <i class="fa fa-bell"></i>
+         <!-- NOTIFICATION BELL ICON -->
+        <div class="notification-wrapper">
+          <button class="notification-bell" (click)="toggleNotifications($event)" title="Thông báo">
+            <i class="fa fa-bell"></i>
+            <span class="notif-badge" *ngIf="unreadCount > 0">
+              {{ unreadCount > 99 ? '99+' : unreadCount }}
+            </span>
+          </button>
 
-          <span class="notification-badge" *ngIf="notificationCount > 0">
-            {{ notificationCount }}
-          </span>
-        </button>
+          <!-- Notifications dropdown panel -->
+          <div class="notification-dropdown" *ngIf="showNotifications">
+            <div class="notif-header">
+              <strong>Thông báo</strong>
+              <button class="mark-all" (click)="markAll()" *ngIf="hasUnread">
+                Đánh dấu tất cả
+              </button>
+            </div>
+
+            <div *ngIf="notificationLoading" class="notif-loading">
+              <i class="fa fa-spinner fa-spin"></i> Đang tải...
+            </div>
+
+            <div *ngIf="!notificationLoading && notifications.length === 0" class="notif-empty">
+              Không có thông báo
+            </div>
+
+            <ul class="notif-list" *ngIf="!notificationLoading && notifications.length > 0">
+              <li *ngFor="let n of notifications" 
+                  class="notif-item" 
+                  [class.unread]="!n.isRead"
+                  [class.important]="isImportant(n)">
+                <div class="left" (click)="onNotificationClick(n, $event)">
+                  <div class="notif-icon-inline">{{ getNotificationIcon(n.type) }}</div>
+                  <div class="notif-content">
+                    <div class="notif-title">{{ n.title }}</div>
+                    <div class="notif-msg">
+                      {{ isExpanded(n) ? n.message : shortMessage(n) }}
+                    </div>
+                    <div class="time">{{ n.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
+                  </div>
+                </div>
+                <div class="right">
+                  <button class="btn-delete" (click)="onDeleteNotification(n.id, $event)" title="Xóa">
+                    <i class="fa fa-times"></i>
+                  </button>
+                </div>
+              </li>
+            </ul>
+
+            <div class="notif-footer" *ngIf="notifications.length > 0">
+              <a (click)="openAllNotifications()" class="view-all">
+                Xem tất cả <i class="fa fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
 
         <div class="user-dropdown">
           <button class="user-btn">
@@ -96,6 +140,17 @@
             </ng-container>
 
             <ng-container *ngIf="currentUser.role === 2">
+              <li>
+                <a [routerLink]="['notification']">
+                  <i class="fa fa-bell"></i> Thông báo
+                </a>
+              </li>
+
+              <li>
+                <a [routerLink]="['/tenant-feedback']">
+                  <i class="fa fa-comment"></i> Gửi phản hồi
+                </a>
+              </li>
 
               <li>
                 <a [routerLink]="['/tenant/bookings']">

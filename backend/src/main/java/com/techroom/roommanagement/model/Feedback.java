@@ -17,16 +17,24 @@ public class Feedback {
         TENANT_REJECTED,
         CANCELED
     }
+
+    public enum FeedbackType {
+        MAINTENANCE,
+        SUGGESTION,
+        COMPLAINT
+    }
+    @Enumerated(EnumType.STRING)
+    private FeedbackType type;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "sender_id", nullable = false)
+    @JoinColumn(name = "sender_id")
     private User sender; // Khách thuê
 
     @ManyToOne
-    @JoinColumn(name = "receiver_id", nullable = false)
+    @JoinColumn(name = "receiver_id")
     private User receiver; // Chủ trọ
 
     @ManyToOne
@@ -41,27 +49,22 @@ public class Feedback {
 
     @Column(columnDefinition = "TEXT")
     private String content;
-    @Column(name = "attachment_url", length = 255)
+
     private String attachmentUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status = Status.PENDING;
-    @Column(name = "created_at", updatable = false)
+
     private LocalDateTime createdAt = LocalDateTime.now();
-    @Column(name = "resolved_at")
+
     private LocalDateTime resolvedAt;
 
-    @Column(name = "landlord_note", columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String landlordNote;        // Ghi chú của chủ trọ
 
-    @Column(name = "tenant_feedback", columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String tenantFeedback;      // Phản hồi của khách sau xử lý
-    @Column(name = "tenant_satisfied")
-    private Boolean tenantSatisfied;    // true = hài lòng
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
+    private Boolean tenantSatisfied;    // true = hài lòng
 }

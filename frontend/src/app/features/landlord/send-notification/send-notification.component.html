@@ -1,184 +1,175 @@
-<div class="notification-page">
-
-<div class="notification-card modern-card">
-
-  <h3 class="notification-title modern-title">Gửi thông báo cho khách</h3>
-
-  <div class="notification-body" [formGroup]="form">
-
-    <!-- TIÊU ĐỀ -->
-    <div class="field-group">
-      <label class="form-label">Tiêu đề</label>
-      <input type="text" class="form-control" formControlName="title" />
+<div class="send-notification-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1><i class="fa fa-paper-plane"></i> Gửi thông báo mới</h1>
+      <p>Gửi thông báo đến khách thuê</p>
     </div>
+  </div>
 
-    <!-- NỘI DUNG -->
-    <div class="field-group">
-      <label class="form-label">Nội dung</label>
-      <textarea class="form-control" rows="5" formControlName="message"></textarea>
-    </div>
+  <div class="main-content">
+    <div class="form-section">
+      <div class="section-card">
+        <div class="card-header">
+          <h2><i class="fa fa-edit"></i> Tạo thông báo mới</h2>
+          <p>Điền thông tin để gửi thông báo đến khách thuê</p>
+        </div>
 
-    <!-- ĐỐI TƯỢNG -->
-    <div class="field-group">
-      <label class="form-label">Đối tượng</label>
-      <select class="form-control" formControlName="sendTo">
-        <option value="ALL_TENANTS">Toàn bộ khách</option>
-        <option value="ROOMS">Chọn phòng</option>
-        <option value="USERS">Chọn khách</option>
-      </select>
-    </div>
-     <!-- ====================== PHẦN CHỌN PHÒNG ====================== -->
-    <div *ngIf="form.get('sendTo')?.value === 'ROOMS'" class="room-selection-container">
-      <label class="form-label">Chọn phòng</label>
-      <!-- Khu vực hiển thị phòng đã chọn -->
-      <div class="selected-rooms-container" (click)="openRoomSelector = true">
-        <span *ngIf="selectedRoomIds.length === 0" class="selected-rooms-placeholder">
-          Nhấn để chọn phòng...
-        </span>
-        
-        <div *ngFor="let roomId of selectedRoomIds" class="room-chip">
-          {{ getRoomName(roomId) }}
-          <button type="button" class="remove-room-btn" 
-                  (click)="removeRoom(roomId); $event.stopPropagation()">×</button>
+        <div class="card-body">
+          <div class="form-group">
+            <label>Người nhận *</label>
+            <div class="recipient-options">
+              <label class="radio-option">
+                <input 
+                  type="radio" 
+                  name="sendTo" 
+                  value="ROOMS"
+                  [(ngModel)]="notification.sendTo">
+                <span>Gửi theo phòng</span>
+              </label>
+              <label class="radio-option">
+                <input 
+                  type="radio" 
+                  name="sendTo" 
+                  value="ALL_TENANTS"
+                  [(ngModel)]="notification.sendTo">
+                <span>Gửi tất cả khách thuê</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" *ngIf="notification.sendTo === 'ROOMS'">
+            <label>Chọn phòng *</label>
+            <div class="room-selection">
+              <div class="select-all">
+                <label class="checkbox-option">
+                  <input 
+                    type="checkbox" 
+                    [checked]="selectedRooms.length === rooms.length"
+                    (change)="selectAllRooms()">
+                  <span>Chọn tất cả ({{ rooms.length }} phòng)</span>
+                </label>
+              </div>
+
+              <div class="room-grid">
+                <label 
+                  *ngFor="let room of rooms" 
+                  class="room-card"
+                  [class.selected]="selectedRooms.includes(room.id)">
+                  <input 
+                    type="checkbox" 
+                    [checked]="selectedRooms.includes(room.id)"
+                    (change)="toggleRoomSelection(room.id)">
+                  <div class="room-info">
+                    <i class="fa fa-door-open"></i>
+                    <div>
+                      <strong>{{ room.name }}</strong>
+                      <span class="building" *ngIf="room.building">{{ room.building.name }}</span>
+                      <span class="tenant" *ngIf="room.tenant">
+                        {{ room.tenant.user.fullName }}
+                      </span>
+                      <span class="vacant" *ngIf="!room.tenant">Trống</span>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="selected-count" *ngIf="selectedRoomsCount > 0">
+                <i class="fa fa-check-circle"></i>
+                Đã chọn {{ selectedRoomsCount }} phòng
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Ngày gửi</label>
+            <input 
+              type="date" 
+              class="form-control"
+              [value]="getCurrentDate()">
+          </div>
+
+          <div class="form-group">
+            <label>Tiêu đề thông báo *</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              [(ngModel)]="notification.title"
+              placeholder="Ví dụ: Nhắc nhở đóng tiền phòng tháng 12...">
+          </div>
+
+          <div class="form-group">
+            <label>Nội dung thông báo *</label>
+            <textarea 
+              class="form-control" 
+              rows="6"
+              [(ngModel)]="notification.message"
+              placeholder="Nhập nội dung chi tiết thông báo tại đây..."></textarea>
+          </div>
+
+          <div class="info-box">
+            <i class="fa fa-info-circle"></i>
+            <div>
+              <strong>Lưu ý khi gửi thông báo:</strong>
+              <ul>
+                <li>Thông báo sẽ được gửi đến tất cả khách thuê trong phòng đã chọn</li>
+                <li>Khách thuê sẽ nhận được thông báo trong hệ thống</li>
+                <li>Bạn có thể lưu nháp để chỉnh sửa và gửi sau</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-secondary" (click)="resetForm()">
+              <i class="fa fa-times"></i> Hủy
+            </button>
+            <button class="btn-draft">
+              <i class="fa fa-save"></i> Lưu nháp
+            </button>
+            <button 
+              class="btn-primary" 
+              (click)="sendNotification()"
+              [disabled]="sending">
+              <i class="fa" [class.fa-spinner]="sending" [class.fa-spin]="sending" [class.fa-paper-plane]="!sending"></i>
+              {{ sending ? 'Đang gửi...' : 'Gửi ngay' }}
+            </button>
+          </div>
         </div>
       </div>
-      <!-- Popup chọn phòng -->
-      <div class="room-selector-popup" *ngIf="openRoomSelector">
-        <div class="popup-header">
-          <strong>Chọn phòng</strong>
-          <button type="button" class="close-popup-btn" (click)="openRoomSelector = false">×</button>
+    </div>
+
+    <div class="history-section">
+      <div class="section-card">
+        <div class="card-header">
+          <h2><i class="fa fa-history"></i> Lịch sử gửi</h2>
         </div>
-        
-        <div class="room-list">
-          <!-- Loading state -->
-          <div *ngIf="loadingRooms" class="rooms-loading">
-            <div class="loading-spinner"></div>
-            <div>Đang tải danh sách phòng...</div>
-          </div>
-          <!-- Danh sách phòng -->
-          <div
-                *ngFor="let room of rooms"
-                class="room-item"
-                (click)="toggleRoom(room.id, !isRoomSelected(room.id))"
-              >
-            <div class="room-checkbox-container">
-              <input
-                type="checkbox"
-                [checked]="isRoomSelected(room.id)"
-                (click)="$event.stopPropagation()"
-              />
-              <span class="room-checkbox-custom"></span>
-            </div>
-            <div class="room-info">
-              <div class="room-name">{{ room.name }}</div>
-              <div *ngIf="room.area || room.price" class="room-details">
-                <span *ngIf="room.area">{{ room.area }}m²</span>
-                <span *ngIf="room.price"> • {{ room.price | currency:'VND' }}/tháng</span>
+
+        <div class="card-body">
+          <div class="history-list">
+            <div *ngFor="let item of sentHistory" class="history-item">
+              <div class="history-icon">
+                <i class="fa fa-check-circle"></i>
+              </div>
+              <div class="history-content">
+                <h4>{{ item.title }}</h4>
+                <p>{{ item.message | slice:0:80 }}...</p>
+                <div class="history-meta">
+                  <span><i class="fa fa-users"></i> {{ item.recipient }}</span>
+                  <span><i class="fa fa-calendar"></i> {{ item.sentAt }}</span>
+                  <span class="sent-count">Đã gửi: {{ item.sentCount }}</span>
+                </div>
+              </div>
+              <div class="history-actions">
+                <button class="btn-icon" title="Chỉnh sửa">
+                  <i class="fa fa-edit"></i>
+                </button>
+                <button class="btn-icon" title="Xóa">
+                  <i class="fa fa-trash"></i>
+                </button>
               </div>
             </div>
           </div>
         </div>
-        
-        <div class="popup-footer">
-          <button type="button" class="done-btn" (click)="openRoomSelector = false">
-            Xong ({{ selectedRoomIds.length }} phòng)
-          </button>
-        </div>
-      </div>
-      <!-- Overlay khi mở popup -->
-      <div class="popup-overlay" *ngIf="openRoomSelector" 
-           (click)="openRoomSelector = false"></div>
-    </div>
-  
-    <!-- ====================== PHẦN CHỌN KHÁCH THUÊ ====================== -->
-<div *ngIf="form.get('sendTo')?.value === 'USERS'" class="user-selection-container">
-  <label class="form-label">Chọn khách thuê</label>
-  
-  <!-- Khu vực hiển thị khách đã chọn -->
-  <div class="selected-users-container" (click)="openUserSelector = true">
-    <span *ngIf="selectedUserIds.length === 0" class="selected-users-placeholder">
-      Nhấn để chọn khách...
-    </span>
-    
-    <div *ngFor="let userId of selectedUserIds" class="user-chip">
-      {{ getUserName(userId) }}
-      <button type="button" class="remove-user-btn" 
-              (click)="removeUser(userId); $event.stopPropagation()">×</button>
-    </div>
-  </div>
-  
-  <!-- Popup chọn khách -->
-  <div class="user-selector-popup" *ngIf="openUserSelector">
-    <div class="popup-header">
-      <strong>Chọn khách</strong>
-      <button type="button" class="close-popup-btn" (click)="openUserSelector = false">×</button>
-    </div>
-    
-    <div class="user-list">
-      <!-- Loading state -->
-      <div *ngIf="loadingTenants" class="users-loading">
-        <div class="loading-spinner"></div>
-        <div>Đang tải danh sách khách...</div>
-      </div>
-      
-      <!-- Danh sách khách -->
-      <div
-          *ngFor="let user of tenants"
-          class="user-item"
-          (click)="toggleUser(user.id, !isUserSelected(user.id))"
-        >
-        <div class="user-checkbox-container">
-          <input
-            type="checkbox"
-            [checked]="isUserSelected(user.id)"
-            (click)="$event.stopPropagation()"
-          />
-          <span class="user-checkbox-custom"></span>
-        </div>
-        <div class="user-info">
-          <div class="user-name">{{ user.fullName || user.username }}</div>
-          <div class="user-details">
-            <span *ngIf="user.email">{{ user.email }}</span>
-            <span *ngIf="user.phone"> • {{ user.phone }}</span>
-          </div>
-        </div>
       </div>
     </div>
-    
-    <div class="popup-footer">
-      <button type="button" class="done-btn" (click)="openUserSelector = false">
-        Đã chọn: {{ selectedUserIds.length }} • Tổng: {{ tenants.length }} khách
-      </button>
-    </div>
   </div>
-  
-  <!-- Overlay khi mở popup -->
-  <div class="popup-overlay" *ngIf="openUserSelector" 
-       (click)="openUserSelector = false"></div>
-</div>
-
-    <!-- GỬI EMAIL -->
-    <div class="field-group checkbox-group">
-      <input class="form-check-input" type="checkbox" id="sendEmail" formControlName="sendEmail" />
-      <label class="form-check-label" for="sendEmail">Gửi email kèm (nếu có)</label>
-    </div>
-
-    <!-- NÚT GỬI -->
-    <button type="button" class="btn btn-primary w-100" 
-            (click)="send()" 
-            [disabled]="sending || form.invalid">
-      {{ sending ? 'Đang gửi...' : 'Gửi' }}
-    </button>
-
-    <!-- KẾT QUẢ -->
-    <div *ngIf="alertMessage" class="alert mt-3" 
-         [ngClass]="alertType === 'success' ? 'alert-success' : 'alert-error'">
-      <strong>{{ alertMessage }}</strong>
-    </div>
-  </div>
-  </div>
-</div>
-<div *ngIf="activeTab === 'feedback'" class="empty-state">
-  <i>📭</i>
-  <p>Chưa có phản hồi nào</p>
 </div>

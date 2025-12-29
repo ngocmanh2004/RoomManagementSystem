@@ -1,11 +1,23 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Feedback } from '../models/feedback.model';
+export interface Feedback {
+  id: number;
+  title: string;
+  content: string;
+  attachmentUrl?: string;
+  status: 'PENDING'|'PROCESSING'|'RESOLVED'|'CANCELED'|'TENANT_CONFIRMED'|'TENANT_REJECTED';
+  room: { id: number; name: string };
+  createdAt: string;
+  resolvedAt?: string;
+  landlordNote?: string;
+  tenantFeedback?: string;
+  tenantSatisfied?: boolean;
+}
 
-/*@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: 'root' })
 export class FeedbackService {
-  private api = 'http://localhost:8081/api/feedbacks';
+  private api = 'http://localhost:8081/api/feedback';
 
   constructor(private http: HttpClient) {}
 
@@ -70,73 +82,5 @@ export class FeedbackService {
     if (filters.endDate) params = params.set('endDate', filters.endDate);
     
     return this.http.get(`${this.api}/landlord`, { params });
-  }
-}*/
-@Injectable({ providedIn: 'root' })
-export class FeedbackService {
-
-  private api = 'http://localhost:8081/api/feedbacks';
-
-  constructor(private http: HttpClient) {}
-
-  /* ================= TENANT ================= */
-
-  create(data: {
-    title: string;
-    content: string;
-    attachmentUrl?: string;
-  }): Observable<Feedback> {
-    return this.http.post<Feedback>(this.api, data);
-  }
-  
-  getMyFeedback(page = 0, size = 10): Observable<any> {
-    return this.http.get<any>(
-      `${this.api}/my?page=${page}&size=${size}`
-    );
-  }
-
-  tenantConfirm(
-    id: number,
-    satisfied: boolean,
-    tenantFeedback?: string
-  ): Observable<Feedback> {
-    return this.http.put<Feedback>(
-      `${this.api}/${id}/confirm`,
-      { satisfied, tenantFeedback }
-    );
-  }
-
-  /* ================= LANDLORD ================= */
-
-  getForLandlord(page = 0, size = 10): Observable<any> {
-    return this.http.get<any>(
-      `${this.api}/landlord?page=${page}&size=${size}`
-    );
-  }
-
-  process(
-    id: number,
-    status: 'PROCESSING' | 'RESOLVED' | 'CANCELED',
-    landlordNote?: string
-  ): Observable<Feedback> {
-    return this.http.put<Feedback>(
-      `${this.api}/${id}/process`,
-      { status, landlordNote }
-    );
-  }
-
-  /* ================= DELETE ================= */
-
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.api}/${id}`);
-  }
-  
-  cancel(id: number): Observable<Feedback> {
-    console.log('Cancel ID:', id);
-    return this.http.put<Feedback>(`${this.api}/${id}/cancel`, {});
-    }
-
-  tenantReject(id: number, feedback: string): Observable<Feedback> {
-    return this.http.put<Feedback>(`${this.api}/${id}/tenant-reject`, { feedback });
   }
 }
