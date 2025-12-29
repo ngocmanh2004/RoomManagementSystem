@@ -260,6 +260,241 @@
   background: transparent;
 }
 
+/* ================================================
+   NOTIFICATION BELL - DÙNG CHUNG CHO CẢ 3 HEADER
+   ================================================ */
+
+/* Notification Bell Container */
+.notification-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-right: 20px;
+}
+
+/* Bell Button */
+.notification-bell {
+  position: relative;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #333;
+  cursor: pointer;
+  padding: 8px 12px;
+  transition: all 0.3s ease;
+}
+
+.notification-bell:hover {
+  color: #007bff;
+  transform: scale(1.1);
+}
+
+/* Unread Badge */
+.notif-badge {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  background: #ff4444;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 5px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+/* Dropdown Panel */
+.notification-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 380px;
+  max-height: 500px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+/* Header */
+.notif-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  background: #f8f9fa;
+}
+
+.notif-header strong {
+  font-size: 16px;
+  color: #333;
+}
+
+.mark-all {
+  background: none;
+  border: none;
+  color: #007bff;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.mark-all:hover {
+  background: #e7f3ff;
+}
+
+/* Loading State */
+.notif-loading {
+  padding: 40px;
+  text-align: center;
+  color: #666;
+}
+
+/* Empty State */
+.notif-empty {
+  padding: 40px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+}
+
+/* Notification List */
+.notif-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+/* Individual Notification Item */
+.notif-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.notif-item:hover {
+  background: #f8f9fa;
+}
+
+.notif-item.unread {
+  background: #e7f3ff;
+}
+
+.notif-item.unread:hover {
+  background: #d4ebff;
+}
+
+.notif-item .left {
+  flex: 1;
+  padding-right: 10px;
+}
+
+.notif-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.notif-msg {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+  margin-bottom: 5px;
+}
+
+.notif-item .time {
+  font-size: 11px;
+  color: #999;
+  margin-top: 5px;
+}
+
+.notif-item .right {
+  display: flex;
+  align-items: flex-start;
+}
+
+.btn-delete {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 5px;
+  transition: all 0.2s;
+}
+
+.btn-delete:hover {
+  color: #ff4444;
+}
+
+/* Footer */
+.notif-footer {
+  padding: 12px 15px;
+  text-align: center;
+  border-top: 1px solid #eee;
+  background: #f8f9fa;
+}
+
+.view-all {
+  color: #007bff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.view-all:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+/* Scrollbar Styling */
+.notif-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notif-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.notif-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.notif-list::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .notification-dropdown {
+    width: 320px;
+    right: -20px;
+  }
+}
 /* Responsive */
 @media (max-width: 768px) {
   .header-container {

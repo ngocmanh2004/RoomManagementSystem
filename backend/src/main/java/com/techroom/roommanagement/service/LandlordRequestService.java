@@ -27,6 +27,7 @@ public class LandlordRequestService {
     private final LandlordRequestRepository requestRepository;
     private final UserRepository userRepository;
     private final LandlordRepository landlordRepository;
+    private final NotificationService notificationService;
 
     @Value("${file.upload-dir:./images/}")
     private String uploadPath;
@@ -43,7 +44,6 @@ public class LandlordRequestService {
             }
         } catch (IOException e) {
             log.error("Failed to create upload directory {}", uploadPath, e);
-            // don't throw here to avoid failing application startup; file ops will fail with clear error later
         }
     }
 
@@ -138,6 +138,13 @@ public class LandlordRequestService {
             LandlordRequest saved = requestRepository.save(request);
             log.info("Created landlord request {} for user {}", saved.getId(), userId);
 
+            // 7. ⭐ GỬI THÔNG BÁO CHO TẤT CẢ ADMIN
+            notificationService.notifyAllAdmins(
+                    "Yêu cầu đăng ký chủ trọ mới",
+                    "Người dùng " + user.getFullName() + " đã gửi yêu cầu đăng ký làm chủ trọ.",
+                    NotificationType.SYSTEM
+            );
+
             return saved;
 
         } catch (IOException e) {
@@ -192,6 +199,14 @@ public class LandlordRequestService {
         userRepository.save(user);
 
         log.info("Approved landlord request {} for user {}", requestId, user.getId());
+
+        // 7. ⭐ GỬI THÔNG BÁO CHO USER
+        notificationService.createNotification(
+                user.getId(),
+                "Yêu cầu đăng ký chủ trọ được chấp nhận",
+                "Chúc mừng! Yêu cầu đăng ký làm chủ trọ của bạn đã được chấp nhận. Bạn có thể bắt đầu đăng tin phòng trọ ngay bây giờ.",
+                NotificationType.LANDLORD_APPROVED
+        );
     }
 
     @Transactional
@@ -218,6 +233,14 @@ public class LandlordRequestService {
 
         log.info("Rejected landlord request {} for user {}: {}",
                 requestId, request.getUser().getId(), reason);
+
+        // 5. ⭐ GỬI THÔNG BÁO CHO USER
+        notificationService.createNotification(
+                request.getUser().getId(),
+                "Yêu cầu đăng ký chủ trọ bị từ chối",
+                "Yêu cầu đăng ký làm chủ trọ của bạn đã bị từ chối. Lý do: " + reason,
+                NotificationType.LANDLORD_REJECTED
+        );
     }
 
     @Transactional
@@ -252,18 +275,15 @@ public class LandlordRequestService {
             throw new BusinessException("File không được để trống");
         }
 
-        // Validate file size
         if (file.getSize() > MAX_FILE_SIZE) {
             throw new BusinessException("File không được lớn hơn 5MB");
         }
 
-        // Validate content type
         String contentType = file.getContentType();
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
             throw new BusinessException("Chỉ chấp nhận file JPG, PNG hoặc PDF");
         }
 
-        // Generate safe filename
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null) {
             throw new BusinessException("Tên file không hợp lệ");
@@ -277,13 +297,11 @@ public class LandlordRequestService {
 
         String filename = prefix + UUID.randomUUID() + extension;
 
-        // Create upload directory if not exists
         Path uploadDir = Paths.get(uploadPath);
         if (!Files.exists(uploadDir)) {
             Files.createDirectories(uploadDir);
         }
 
-        // Save file
         Path targetPath = uploadDir.resolve(filename);
         Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
