@@ -155,4 +155,21 @@ export class NotificationService {
       sendEmail
     });
   }
+
+  saveDraft(req: SendNotificationRequest) {
+    return this.http.post(
+      'http://localhost:8081/api/notifications/draft',
+      req,
+      { withCredentials: true }
+    );
+  }
+
+  getById(id: number) {
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  }
+
+  resend(id: number) {
+    return this.http.post(`${this.apiUrl}/${id}/resend`, {});
+  }
+
 }
