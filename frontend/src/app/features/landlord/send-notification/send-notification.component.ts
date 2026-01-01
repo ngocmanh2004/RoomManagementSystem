@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { NotificationService } from '../../../services/notification.service';
 import { SendNotificationRequest } from '../../../models/notification.model';
@@ -24,6 +24,7 @@ export class SendNotificationComponent implements OnInit {
   selectedRooms: number[] = [];
   loading = false;
   sending = false;
+  selectedHistoryId: number | null = null;
 
   notification: SendNotificationRequest = {
     title: '',
@@ -129,7 +130,9 @@ export class SendNotificationComponent implements OnInit {
       roomIds: [],
       sendEmail: false
     };
+
     this.selectedRooms = [];
+    this.selectedHistoryId = null; 
   }
 
   getCurrentDate(): string {
@@ -140,4 +143,51 @@ export class SendNotificationComponent implements OnInit {
   get selectedRoomsCount(): number {
     return this.selectedRooms.length;
   }
+
+  saveDraft() {
+    if (!this.notification.title || !this.notification.message) {
+      alert('Vui lòng nhập tiêu đề và nội dung');
+      return;
+    }
+
+    this.notification.roomIds = this.selectedRooms;
+
+    this.notificationService.saveDraft(this.notification).subscribe({
+      next: (res) => {
+        console.log('Draft saved:', res);
+        alert('Đã lưu nháp thành công');
+      },
+      error: (err) => {
+        console.error('Save draft error', err);
+        alert('Lưu nháp thất bại');
+      }
+    });
+  }
+
+  viewHistory(id: number) {
+    this.selectedHistoryId = id; 
+
+    this.notificationService.getById(id).subscribe({
+      next: (data) => {
+        this.notification.title = data.title;
+        this.notification.message = data.message;
+        this.notification.sendTo = data.sendTo;
+
+        this.selectedRooms = data.roomIds
+          ? JSON.parse(data.roomIds)
+          : [];
+      },
+      error: () => alert('Không tải được chi tiết')
+    });
+  }
+
+  resendNotification(id: number) {
+    if (!confirm('Bạn có chắc muốn gửi lại thông báo này?')) return;
+
+    this.notificationService.resend(id).subscribe({
+      next: () => alert('Đã gửi lại thông báo'),
+      error: () => alert('Gửi lại thất bại')
+    });
+  }
+
 }
