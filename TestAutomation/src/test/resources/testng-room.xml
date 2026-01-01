@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="RoomSuite" parallel="none">
+    <test name="RoomTests">
+     <parameter name="startUrl" value="http://localhost:4200/"/>
+        <classes>
+            <class name="tests.rooms.RoomFilterTests"/>
+            <class name="tests.rooms.RoomBookingTests"/>
+            <!-- Thêm các Room tests khác nếu có -->
+        </classes>
+    </test>
+</suite>

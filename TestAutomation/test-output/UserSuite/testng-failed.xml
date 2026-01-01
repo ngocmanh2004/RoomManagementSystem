@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Failed suite [UserSuite]" guice-stage="DEVELOPMENT">
+  <test thread-count="5" name="UserTests(failed)">
+    <classes>
+      <class name="tests.users.UserManagementTests">
+        <methods>
+          <include name="setUp"/>
+          <include name="tearDown"/>
+          <include name="testFilterByStatus"/>
+          <include name="testSearchAndFilterCombined"/>
+          <include name="setupPage"/>
+          <include name="testFilterByRole"/>
+        </methods>
+      </class> <!-- tests.users.UserManagementTests -->
+    </classes>
+  </test> <!-- UserTests(failed) -->
+</suite> <!-- Failed suite [UserSuite] -->
