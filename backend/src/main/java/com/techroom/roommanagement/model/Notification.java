@@ -29,6 +29,9 @@ public class Notification {
     @Column(name = "user_id", nullable = false)
     private Integer userId;
 
+    @Column(name = "sender_id")
+    private Integer senderId;
+
     @Column(nullable = false, length = 100)
     private String title;
 
@@ -39,12 +42,30 @@ public class Notification {
     @Column(nullable = false, length = 50)
     private NotificationType type;
 
+    // ==========================
+    // TRẠNG THÁI GỬI
+    // ==========================
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private NotificationStatus status; // DRAFT | SENT
+
+    // ==========================
+    // CÁCH GỬI
+    // ==========================
+    @Column(length = 20)
+    private String sendTo; // ROOMS | ALL_TENANTS
+
+    @Column(columnDefinition = "JSON")
+    private String roomIds; // "[1,2,3]"
+
     @Column(name = "is_read", nullable = false)
     private Boolean isRead;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    private LocalDateTime sentAt;
 
     @PrePersist
     protected void onCreate() {
@@ -57,6 +78,7 @@ public class Notification {
         if (type == null) {
             type = NotificationType.SYSTEM;
         }
+        if (status == null) status = NotificationStatus.DRAFT;
     }
 
     /**

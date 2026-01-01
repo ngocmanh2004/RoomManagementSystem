@@ -1,8 +1,13 @@
 package com.techroom.roommanagement.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.security.auth.UserPrincipal;
 import com.techroom.roommanagement.dto.SendNotificationRequest;
 import com.techroom.roommanagement.dto.SendNotificationResponse;
 import com.techroom.roommanagement.model.Notification;
+import com.techroom.roommanagement.model.NotificationStatus;
+import com.techroom.roommanagement.model.NotificationType;
+import com.techroom.roommanagement.repository.NotificationRepository;
 import com.techroom.roommanagement.security.CustomUserDetails;
 import com.techroom.roommanagement.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +18,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import com.techroom.roommanagement.security.CustomUserDetails;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +32,8 @@ import java.util.Map;
 public class NotificationController {
 
     private final NotificationService notificationService;
-
+    private final NotificationRepository notificationRepository;
+    private final ObjectMapper objectMapper;
     /**
      * Gửi notification hàng loạt (Landlord gửi cho tenant)
      */
@@ -159,4 +167,111 @@ public class NotificationController {
         response.put("message", "Đã xóa thông báo");
         return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize("hasRole('LANDLORD')")
+    @PostMapping("/draft")
+    public ResponseEntity<Notification> saveDraft(
+            @RequestBody SendNotificationRequest req,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) throws Exception {
+
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        Notification notification = Notification.builder()
+                .senderId(userDetails.getId())   // 🔥 BẮT BUỘC
+                .userId(userDetails.getId())     // để thỏa NOT NULL
+                .title(req.getTitle())
+                .message(req.getMessage())
+                .type(NotificationType.SYSTEM)   // 🔥 ép SYSTEM
+                .status(NotificationStatus.DRAFT)
+                .sendTo(req.getSendTo())
+                .roomIds(objectMapper.writeValueAsString(req.getRoomIds()))
+                .build();
+
+        return ResponseEntity.ok(notificationRepository.save(notification));
+    }
+
+    @PreAuthorize("hasRole('LANDLORD')")
+    @PostMapping("/{id}/send")
+    public ResponseEntity<?> sendDraft(
+            @PathVariable Integer id,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        // check quyền: chỉ chủ trọ tạo mới được gửi
+        if (!notification.getSenderId().equals(userDetails.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
+        notification.setStatus(NotificationStatus.SENT);
+        notification.setSentAt(LocalDateTime.now());
+
+        notificationRepository.save(notification);
+        return ResponseEntity.ok().build();
+    }
+
+    @PreAuthorize("hasRole('LANDLORD')")
+    @GetMapping("/{id}")
+    public ResponseEntity<Notification> getDetail(
+            @PathVariable Integer id,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        // chỉ cho xem nếu là người tạo hoặc người nhận
+        if (
+                notification.getSenderId() != null &&
+                        !notification.getSenderId().equals(userDetails.getId()) &&
+                        !notification.getUserId().equals(userDetails.getId())
+        ) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
+        return ResponseEntity.ok(notification);
+    }
+
+    @PreAuthorize("hasRole('LANDLORD')")
+    @PostMapping("/{id}/resend")
+    public ResponseEntity<?> resend(
+            @PathVariable Integer id,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        Notification old = notificationRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        // 🔥 TẠO BẢN GHI MỚI
+        Notification resend = Notification.builder()
+                .senderId(userDetails.getId())          // ✅ luôn có
+                .userId(old.getUserId())                // người nhận
+                .title(old.getTitle())
+                .message(old.getMessage())
+                .type(old.getType())
+                .sendTo(old.getSendTo())
+                .roomIds(old.getRoomIds())
+                .status(NotificationStatus.SENT)
+                .sentAt(LocalDateTime.now())
+                .build();
+
+        notificationRepository.save(resend);
+
+        return ResponseEntity.ok().build();
+    }
+
 }

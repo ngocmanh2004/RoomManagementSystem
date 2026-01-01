@@ -122,7 +122,7 @@
             <button class="btn-secondary" (click)="resetForm()">
               <i class="fa fa-times"></i> Hủy
             </button>
-            <button class="btn-draft">
+            <button class="btn-draft" (click)="saveDraft()">
               <i class="fa fa-save"></i> Lưu nháp
             </button>
             <button 
@@ -131,6 +131,12 @@
               [disabled]="sending">
               <i class="fa" [class.fa-spinner]="sending" [class.fa-spin]="sending" [class.fa-paper-plane]="!sending"></i>
               {{ sending ? 'Đang gửi...' : 'Gửi ngay' }}
+            </button>
+            <button 
+              class="btn-primary"
+              *ngIf="selectedHistoryId"
+              (click)="resendNotification(selectedHistoryId)">
+              <i class="fa fa-paper-plane"></i> Gửi lại
             </button>
           </div>
         </div>
@@ -145,7 +151,11 @@
 
         <div class="card-body">
           <div class="history-list">
-            <div *ngFor="let item of sentHistory" class="history-item">
+            <div 
+                *ngFor="let item of sentHistory" 
+                class="history-item"
+                (click)="viewHistory(item.id)"
+              >
               <div class="history-icon">
                 <i class="fa fa-check-circle"></i>
               </div>
@@ -158,12 +168,19 @@
                   <span class="sent-count">Đã gửi: {{ item.sentCount }}</span>
                 </div>
               </div>
-              <div class="history-actions">
-                <button class="btn-icon" title="Chỉnh sửa">
+              <div class="history-actions" (click)="$event.stopPropagation()">
+                <button 
+                  class="btn-icon" 
+                  title="Xem / chỉnh sửa"
+                  (click)="viewHistory(item.id)">
                   <i class="fa fa-edit"></i>
                 </button>
-                <button class="btn-icon" title="Xóa">
-                  <i class="fa fa-trash"></i>
+
+                <button 
+                  class="btn-icon"
+                  title="Gửi lại"
+                  (click)="resendNotification(item.id)">
+                  <i class="fa fa-paper-plane"></i>
                 </button>
               </div>
             </div>
