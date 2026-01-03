@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Failed suite [RoomManagement_Suite]" guice-stage="DEVELOPMENT">
+  <test thread-count="5" name="Test_Full(failed)">
+    <classes>
+      <class name="Epic6.Test_US_6_1">
+        <methods>
+          <include name="TC01_GuiThongBao_MotPhong"/>
+          <include name="setupAndNavigate"/>
+          <include name="TC09_Chon_NhieuPhong"/>
+          <include name="TC07_TieuDe_KyTuDacBiet"/>
+          <include name="tearDown"/>
+          <include name="TC02_GuiThongBao_TatCa"/>
+          <include name="TC08_NoiDung_Dai"/>
+        </methods>
+      </class> <!-- Epic6.Test_US_6_1 -->
+      <class name="Epic4.Test_US_4_2">
+        <methods>
+          <include name="TC01_CheckUI_Statistics"/>
+          <include name="TC03_CheckAddPopup"/>
+          <include name="TC02_CheckSearchPlaceholder"/>
+          <include name="TC09_AddNewRecord_Success"/>
+          <include name="setupAndNavigate"/>
+          <include name="TC44_ExportExcel"/>
+          <include name="TC22_AutoCalculate"/>
+          <include name="TC10_AddNewRecord_MissingRoom"/>
+          <include name="tearDown"/>
+          <include name="TC13_AddNewRecord_NewIndexLessThanOld"/>
+          <include name="TC17_InputCharacterInNumberFields"/>
+          <include name="TC34_Search"/>
+          <include name="TC45_EditRecord"/>
+          <include name="TC64_DeleteRecord"/>
+        </methods>
+      </class> <!-- Epic4.Test_US_4_2 -->
+      <class name="Epic10.Test_US_10_1">
+        <methods>
+          <include name="setupAndNavigate"/>
+          <include name="tearDown"/>
+          <include name="TC01_CheckBellAndDropdown"/>
+        </methods>
+      </class> <!-- Epic10.Test_US_10_1 -->
+      <class name="Epic4.Test_US_4_4">
+        <methods>
+          <include name="TC01_CheckUI_Statistics"/>
+          <include name="tearDown"/>
+          <include name="TC04_Validate_NegativeAmount"/>
+          <include name="TC03_AddNewRecord_Success"/>
+          <include name="TC09_FutureDateCheck"/>
+          <include name="TC02_CheckAddPopup"/>
+          <include name="TC07_DeleteRecord"/>
+          <include name="TC06_EditRecord"/>
+          <include name="setupAndNavigate"/>
+        </methods>
+      </class> <!-- Epic4.Test_US_4_4 -->
+      <class name="Epic4.Test_US_4_3">
+        <methods>
+          <include name="tearDown"/>
+          <include name="TC02_CheckFilters"/>
+          <include name="TC13_Validate_IndexLogic"/>
+          <include name="TC03_CheckAddPopup"/>
+          <include name="TC45_EditRecord"/>
+          <include name="TC09_AddNewRecord_Success"/>
+          <include name="TC64_DeleteRecord"/>
+          <include name="TC01_CheckUI_Statistics"/>
+          <include name="setupAndNavigate"/>
+        </methods>
+      </class> <!-- Epic4.Test_US_4_3 -->
+      <class name="Epic6.Test_US_6_2">
+        <methods>
+          <include name="tearDown"/>
+          <include name="TC05_HuyPhanHoi"/>
+          <include name="TC07_KiemTraHinhAnh"/>
+          <include name="TC03_XemChiTietPhanHoi"/>
+          <include name="setupAndNavigate"/>
+          <include name="TC01_TruyCapManHinh"/>
+        </methods>
+      </class> <!-- Epic6.Test_US_6_2 -->
+      <class name="Epic10.Test_US_10_2">
+        <methods>
+          <include name="TC03_InputData"/>
+          <include name="TC05_SubmitFeedbackSuccess"/>
+          <include name="tearDown"/>
+          <include name="TC02_OpenModalAndCheckTips"/>
+          <include name="setupAndNavigate"/>
+          <include name="TC01_AccessFeedbackPage"/>
+        </methods>
+      </class> <!-- Epic10.Test_US_10_2 -->
+    </classes>
+  </test> <!-- Test_Full(failed) -->
+</suite> <!-- Failed suite [RoomManagement_Suite] -->
