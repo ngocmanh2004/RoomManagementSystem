@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './features/home/home.component';
 import { RoomsComponent } from './features/rooms/rooms.component';
+import { BuildingRoomsComponent } from './features/building-rooms/building-rooms.component';
 import { AboutComponent } from './features/about/about.component';
 import { ContactComponent } from './features/contact/contact.component';
 import { RoomDetailComponent } from './features/room-detail/room-detail.component';
@@ -42,6 +43,7 @@ export const routes: Routes = [
     path: '', component: PublicLayoutComponent,
     children: [
       { path: '', component: HomeComponent },
+      { path: 'buildings/:id', component: BuildingRoomsComponent },
       { path: 'rooms', component: RoomsComponent },
       { path: 'rooms/:id', component: RoomDetailComponent },
       { path: 'about', component: AboutComponent },

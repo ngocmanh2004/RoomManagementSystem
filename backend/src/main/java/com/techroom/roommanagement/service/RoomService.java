@@ -111,6 +111,22 @@ public class RoomService {
     }
 
     @Transactional(readOnly = true)
+    public List<Room> getRoomsByBuilding(Integer buildingId) {
+        List<Room> rooms = roomRepository.findByBuildingId(buildingId);
+        rooms.forEach(room -> {
+            if (room.getImages() != null)
+                room.getImages().size();
+            if (room.getAmenities() != null)
+                room.getAmenities().size();
+            if (room.getStatus() == Room.RoomStatus.OCCUPIED) {
+                contractRepository.findActiveTenantFullNameByRoomId(room.getId())
+                        .ifPresent(fullName -> room.setTenantName(fullName));
+            }
+        });
+        return rooms;
+    }
+
+    @Transactional(readOnly = true)
     public List<Room> filterRooms(Integer provinceCode, Integer districtCode,
             Double minPrice, Double maxPrice,
             String type, Integer minArea, Integer maxArea,

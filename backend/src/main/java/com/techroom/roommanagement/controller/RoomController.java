@@ -79,6 +79,12 @@ public class RoomController {
         return ResponseEntity.ok(rooms);
     }
 
+    @GetMapping("/by-building/{buildingId}")
+    public ResponseEntity<List<Room>> getRoomsByBuildingId(@PathVariable Integer buildingId) {
+        List<Room> rooms = roomService.getRoomsByBuilding(buildingId);
+        return ResponseEntity.ok(rooms);
+    }
+
     @GetMapping("/filter")
     public ResponseEntity<List<Room>> filterRooms(
             @RequestParam(required = false) Integer provinceCode,

@@ -131,4 +131,8 @@ export class RoomService {
   getMyRooms(): Observable<Room[]> {
     return this.http.get<Room[]>(`${this.apiBase}/rooms/my`);
   }
+
+  getRoomsByBuilding(buildingId: number): Observable<Room[]> {
+    return this.http.get<Room[]>(`${this.apiBase}/rooms/by-building/${buildingId}`);
+  }
 }

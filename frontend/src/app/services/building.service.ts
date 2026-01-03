@@ -1,13 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Building } from '../models/building.model';
 
-// Tạo interface để code an toàn hơn
-export interface Building {
-  id: number;
-  name: string;
-  address: string;
-}
+export type { Building };
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +15,10 @@ export class BuildingService {
 
   getAllBuildings(): Observable<Building[]> {
     return this.http.get<Building[]>(this.api);
+  }
+
+  getBuildingById(id: number): Observable<Building> {
+    return this.http.get<Building>(`${this.api}/${id}`);
   }
 
   getBuildingsByLandlord(landlordId: number): Observable<Building[]> {

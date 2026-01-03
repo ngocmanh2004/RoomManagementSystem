@@ -23,6 +23,14 @@ public class BuildingController {
                 .map(BuildingDTO::new)
                 .toList();
     }
+
+    @GetMapping("/{id}")
+    public BuildingDTO getBuildingById(@PathVariable int id) {
+        return buildingService.getBuildingById(id)
+                .map(BuildingDTO::new)
+                .orElseThrow(() -> new RuntimeException("Building not found with id: " + id));
+    }
+
     @GetMapping("/{buildingId}/rooms")
     public List<RoomDTO> getRoomsByBuilding(@PathVariable int buildingId) {
         return buildingService.getRoomsByBuildingId(buildingId).stream()
