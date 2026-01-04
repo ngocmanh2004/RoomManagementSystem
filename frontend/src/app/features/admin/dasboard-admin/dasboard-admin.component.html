@@ -1,1 +1,155 @@
-<p>dasboard-admin works!</p>
+<div class="dashboard-container">
+  <div class="header">
+    <h2>Dashboard Quản Trị</h2>
+    <div class="date-display">{{ currentDate | date:'EEEE, d MMMM, y' }}</div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-info">
+        <span class="stat-label">Tổng số người dùng</span>
+        <h3 class="stat-value">{{ totalUsers | number }}</h3>
+        <span class="stat-trend positive">
+          <i class="fa-solid fa-arrow-up"></i> +12% so với tháng trước
+        </span>
+      </div>
+      <div class="stat-icon blue">
+        <i class="fa-solid fa-users"></i>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-info">
+        <span class="stat-label">Tổng số chủ trọ</span>
+        <h3 class="stat-value">{{ totalLandlords | number }}</h3>
+        <span class="stat-trend positive">
+          <i class="fa-solid fa-arrow-up"></i> +5% so với tháng trước
+        </span>
+      </div>
+      <div class="stat-icon green">
+        <i class="fa-solid fa-user-tie"></i>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-info">
+        <span class="stat-label">Tổng số phòng trọ</span>
+        <h3 class="stat-value">{{ totalRooms | number }}</h3>
+        <span class="stat-trend positive">
+          <i class="fa-solid fa-arrow-up"></i> +15% so với tháng trước
+        </span>
+      </div>
+      <div class="stat-icon purple">
+        <i class="fa-solid fa-door-open"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card large">
+      <h3>Tăng trưởng người dùng</h3>
+      <div class="chart-container">
+        <canvas #userGrowthChart></canvas>
+      </div>
+    </div>
+    <div class="chart-card small">
+      <h3>Tỉ lệ người dùng</h3>
+      <div class="chart-container">
+        <canvas #userRatioChart></canvas>
+        <div class="chart-center-text">
+          <strong>{{ totalUsers + totalLandlords }}</strong>
+          <span>Tổng</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tables-section">
+    <div class="table-card">
+      <div class="table-header">
+        <h3>Yêu cầu đăng ký chủ trọ gần đây</h3>
+        <a routerLink="/admin/landlords" class="view-all">Xem tất cả</a>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Họ tên</th>
+            <th>CCCD</th>
+            <th>Địa chỉ đăng ký</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let req of pendingRequests">
+            <td>
+              <div class="user-cell">
+                <div class="avatar-circle">{{ req.user.fullName.charAt(0) }}</div>
+                <div>
+                  <div class="fw-bold">{{ req.user.fullName }}</div>
+                  <small class="text-muted">{{ req.user.email }}</small>
+                </div>
+              </div>
+            </td>
+            <td>{{ req.cccd }}</td>
+            <td>{{ req.address }}</td>
+            <td><span class="badge warning">Chờ duyệt</span></td>
+            <td>
+              <button class="btn-icon approve" (click)="approveRequest(req.id)" title="Duyệt">
+                <i class="fa-solid fa-check"></i>
+              </button>
+              <button class="btn-icon reject" (click)="rejectRequest(req.id)" title="Từ chối">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="pendingRequests.length === 0">
+            <td colspan="5" class="empty-state">Không có yêu cầu nào mới.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-card mt-4">
+      <div class="table-header">
+        <h3>Báo cáo vi phạm gần đây</h3>
+        <a routerLink="/admin/report-management" class="view-all">Xem tất cả</a>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Người gửi</th>
+            <th>Đối tượng bị báo cáo</th>
+            <th>Lý do</th>
+            <th>Ngày gửi</th>
+            <th>Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let report of recentReports">
+            <td>{{ report.reporterName }}</td>
+            <td>{{ report.reportedUserName }}</td>
+            <td>
+              <span *ngIf="report.reason === 'SPAM'">Spam/Quảng cáo</span>
+              <span *ngIf="report.reason === 'OFFENSIVE'">Ngôn từ đả kích</span>
+              <span *ngIf="report.reason === 'FALSE'">Thông tin sai lệch</span>
+              <span *ngIf="report.reason === 'OTHER'">Khác</span>
+            </td>
+            <td>{{ report.createdAt | date:'dd/MM/yyyy' }}</td>
+            <td>
+              <span class="badge" 
+                [class.warning]="report.status === 'PENDING'"
+                [class.info]="report.status === 'PROCESSING'"
+                [class.success]="report.status === 'RESOLVED'">
+                {{ report.status }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="recentReports.length === 0">
+            <td colspan="5" class="empty-state">Không có báo cáo nào.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

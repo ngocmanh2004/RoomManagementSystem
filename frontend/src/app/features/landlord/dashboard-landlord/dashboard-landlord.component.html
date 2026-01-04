@@ -1,1 +1,99 @@
-<p>dashboard-landlord works!</p>
+<div class="dashboard-container">
+  <div class="header">
+    <h2>Dashboard</h2>
+    <div class="date-display">{{ currentDate | date:'EEEE, d MMMM, y' }}</div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-info">
+        <span class="stat-label">Tổng số phòng</span>
+        <h3 class="stat-value">{{ totalRooms }}</h3>
+        <span class="stat-trend positive">+2 so với tháng trước</span>
+      </div>
+      <div class="stat-icon blue"><i class="fa-solid fa-home"></i></div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-info">
+        <span class="stat-label">Phòng trống</span>
+        <h3 class="stat-value">{{ emptyRooms }}</h3>
+        <span class="stat-trend negative" *ngIf="emptyRooms > 0">{{ emptyRooms }} phòng cần cho thuê</span>
+      </div>
+      <div class="stat-icon green"><i class="fa-solid fa-door-open"></i></div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-info">
+        <span class="stat-label">Khách thuê</span>
+        <h3 class="stat-value">{{ totalTenants }}</h3>
+        <span class="stat-trend positive">Ổn định</span>
+      </div>
+      <div class="stat-icon purple"><i class="fa-solid fa-user"></i></div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-info">
+        <span class="stat-label">Doanh thu tháng</span>
+        <h3 class="stat-value">{{ monthlyRevenue | currency:'VND':'symbol':'1.0-0' }}</h3>
+        <span class="stat-trend positive">+12% so với tháng trước</span>
+      </div>
+      <div class="stat-icon orange"><i class="fa-solid fa-coins"></i></div>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Tổng Quan Doanh Thu</h3>
+      <div class="chart-container-line">
+        <canvas #revenueChart></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>Tổng số phòng</h3>
+      <div class="chart-container-donut">
+        <canvas #roomStatusChart></canvas>
+        <div class="chart-center-text">
+          <strong>{{ totalRooms }}</strong>
+          <span>Phòng</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <h3>Hóa Đơn Gần Đây</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Mã HĐ</th>
+          <th>Khách thuê</th>
+          <th>Phòng</th>
+          <th>Số tiền</th>
+          <th>Trạng thái</th>
+          <th>Ngày tạo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let inv of recentInvoices">
+          <td>#{{ inv.contractCode }}</td>
+          <td>{{ inv.tenantName }}</td>
+          <td>{{ inv.roomName }}</td>
+          <td class="font-bold">{{ inv.totalAmount | currency:'VND':'symbol':'1.0-0' }}</td>
+          <td>
+            <span class="badge" 
+              [class.success]="inv.status === 'PAID'"
+              [class.danger]="inv.status === 'OVERDUE'"
+              [class.warning]="inv.status === 'UNPAID'">
+              {{ inv.status === 'PAID' ? 'Đã thanh toán' : (inv.status === 'UNPAID' ? 'Chưa thanh toán' : 'Quá hạn') }}
+            </span>
+          </td>
+          <td>{{ inv.createdAt | date:'dd MMM, yyyy' }}</td>
+        </tr>
+        <tr *ngIf="recentInvoices.length === 0">
+          <td colspan="6" class="empty-state">Chưa có hóa đơn nào.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
