@@ -11,6 +11,7 @@ import {
   ElementRef,
   effect,
 } from '@angular/core';
+import {InvoiceService } from '../../../services/invoice.service';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Chart, registerables, ChartConfiguration } from 'chart.js';
@@ -40,6 +41,7 @@ export class WaterManagementComponent
   readonly UtilityStatus = UtilityStatus;
   private waterService = inject(WaterService);
   private roomService = inject(RoomService);
+  private invoiceService = inject(InvoiceService);
 
   // ===============================
   // CHART VARIABLES
@@ -56,6 +58,7 @@ export class WaterManagementComponent
   roomList = signal<Room[]>([]);
   records = signal<WaterRecord[]>([]);
   currentName = signal<string>('');
+  invoices = signal<any[]>([]);
 
   filters = signal<{
     month: string;
@@ -101,17 +104,55 @@ export class WaterManagementComponent
     });
   }
 
+  loadInvoices() {
+  this.invoiceService.getAll().subscribe({
+    next: (response: any) => {
+      if (response && response.data) {
+        this.invoices.set(response.data);
+      } else if (Array.isArray(response)) {
+        this.invoices.set(response);
+      } else {
+        this.invoices.set([]);
+      }
+    },
+    error: (err: any) => {
+      console.error('Lỗi tải hóa đơn:', err);
+      this.invoices.set([]);
+    },
+  });
+}
   // ===============================
   // LIFECYCLE
   // ===============================
   ngOnInit() {
-    const now = new Date();
-    this.maxMonth = `${now.getFullYear()}-${(now.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}`;
-    this.loadData();
-    this.loadRooms();
-  }
+  const now = new Date();
+  this.maxMonth = `${now.getFullYear()}-${(now.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}`;
+    
+  this.loadRooms();
+  
+  // Load invoices trước, sau đó mới load data
+  this.invoiceService.getAll().subscribe({
+    next: (response: any) => {
+      if (response && response.data) {
+        this.invoices.set(response.data);
+      } else if (Array.isArray(response)) {
+        this.invoices.set(response);
+      } else {
+        this.invoices.set([]);
+      }
+      
+      // Sau khi invoices load xong, mới load data
+      this.loadData();
+    },
+    error: (err: any) => {
+      console.error('Lỗi tải hóa đơn:', err);
+      this.invoices.set([]);
+      this.loadData();
+    },
+  });
+}
 
   ngAfterViewInit() {
     this.renderSmartChart(this.filteredRecords(), this.filters());
@@ -127,18 +168,36 @@ export class WaterManagementComponent
   // LOAD DATA
   // ===============================
   loadData() {
-    this.waterService.getAll().subscribe({
-      next: (data) => {
-        this.records.set(data);
-        const uniqueMonths = Array.from(new Set(data.map((r) => r.month)))
-          .filter(Boolean)
-          .sort()
-          .reverse();
-        this.months.set(uniqueMonths);
-      },
-      error: (err) => console.error('Lỗi tải dữ liệu:', err),
-    });
-  }
+  this.waterService.getAll().subscribe({
+    next: (data) => {
+      // Sync trạng thái với hóa đơn
+      const invoiceList = this.invoices();
+      const syncedData = data.map(record => {
+        // Tìm hóa đơn tương ứng với phòng và tháng
+        const matchingInvoice = invoiceList.find(
+          inv => inv.roomId === record.roomId && inv.month === record.month
+        );
+        
+        // Nếu có hóa đơn và hóa đơn đã thanh toán, cập nhật trạng thái nước
+        if (matchingInvoice && matchingInvoice.status === 'PAID') {
+          return { ...record, status: UtilityStatus.PAID };
+        }
+        
+        return record;
+      });
+      
+      this.records.set(syncedData);
+
+      const uniqueMonths = Array.from(new Set(syncedData.map((r) => r.month)))
+        .filter(Boolean)
+        .sort()
+        .reverse();
+
+      this.months.set(uniqueMonths);
+    },
+    error: (err) => console.error('Lỗi tải dữ liệu:', err),
+  });
+}
 
   loadRooms() {
     this.roomService.getMyRooms().subscribe({
@@ -402,6 +461,7 @@ export class WaterManagementComponent
     obs$.subscribe({
       next: () => {
         this.loadData();
+        this.loadInvoices(); 
         this.closeModal();
         alert(
           this.isEditMode()
@@ -432,6 +492,7 @@ export class WaterManagementComponent
     this.waterService.markPaid(id).subscribe({
       next: () => {
         this.loadData();
+        this.loadInvoices(); 
         this.closeConfirmModal();
         alert('Đã xác nhận thanh toán!');
       },

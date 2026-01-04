@@ -13,11 +13,13 @@ import {
   UtilityStatus,
   UtilitySource,
   FilterState,
-} from '../../../models/electricity.model';
+} 
+from '../../../models/electricity.model';
 import { Room } from '../../../models/room.model';
 import { RoomService } from '../../../services/room.service';
 import { UtilityService } from '../../../services/utility.service';
 import { AuthService } from '../../../services/auth.service';
+import {InvoiceService } from '../../../services/invoice.service';
 
 const DEFAULT_UNIT_PRICE = 3500;
 
@@ -29,6 +31,7 @@ const DEFAULT_UNIT_PRICE = 3500;
   styleUrl: './electricity-management.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class ElectricityManagementComponent implements OnInit {
   readonly UtilityStatus = UtilityStatus;
   readonly FIXED_UNIT_PRICE = DEFAULT_UNIT_PRICE;
@@ -70,38 +73,94 @@ export class ElectricityManagementComponent implements OnInit {
   isConfirmModalOpen = signal(false);
   isDeleteMode = signal(false);
   recordToConfirm = signal<ElectricRecord | null>(null);
+  invoices = signal<any[]>([]);
 
   constructor(
     private utilityService: UtilityService,
     private authService: AuthService,
-    private roomService: RoomService
+    private roomService: RoomService,
+    private invoiceService: InvoiceService
   ) {}
 
   ngOnInit() {
-    const now = new Date();
-    this.maxMonth = `${now.getFullYear()}-${(now.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}`;
+  const now = new Date();
+  this.maxMonth = `${now.getFullYear()}-${(now.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}`;
 
-    this.loadData();
-    this.loadRooms();
-  }
+  this.loadRooms();
+  
+  // Load invoices trước, sau đó mới load data
+  this.invoiceService.getAll().subscribe({
+    next: (response: any) => {
+      if (response && response.data) {
+        this.invoices.set(response.data);
+      } else if (Array.isArray(response)) {
+        this.invoices.set(response);
+      } else {
+        this.invoices.set([]);
+      }
+      
+      // Sau khi invoices load xong, mới load data để sync
+      this.loadData();
+    },
+    error: (err: any) => {
+      console.error('Lỗi tải hóa đơn:', err);
+      this.invoices.set([]);
+      this.loadData(); // Vẫn load data ngay cả khi lỗi
+    },
+  });
+}
+
+  loadInvoices() {
+  this.invoiceService.getAll().subscribe({
+    next: (response: any) => {
+      if (response && response.data) {
+        this.invoices.set(response.data);
+      } else if (Array.isArray(response)) {
+        this.invoices.set(response);
+      } else {
+        this.invoices.set([]);
+      }
+    },
+    error: (err: any) => {
+      console.error('Lỗi tải hóa đơn:', err);
+      this.invoices.set([]);
+    },
+  });
+}
 
   // ===============================
   // LOAD DATA
   // ===============================
   loadData() {
-    this.utilityService.getAll().subscribe((data) => {
-      this.records.set(data);
-
-      const uniqueMonths = Array.from(new Set(data.map((r) => r.month)))
-        .filter(Boolean)
-        .sort()
-        .reverse();
-
-      this.months.set(uniqueMonths);
+  this.utilityService.getAll().subscribe((data) => {
+    // Sync trạng thái với hóa đơn
+    const invoiceList = this.invoices();
+    const syncedData = data.map(record => {
+      // Tìm hóa đơn tương ứng với phòng và tháng
+      const matchingInvoice = invoiceList.find(
+        inv => inv.roomId === record.roomId && inv.month === record.month
+      );
+      
+      // Nếu có hóa đơn và hóa đơn đã thanh toán, cập nhật trạng thái điện
+      if (matchingInvoice && matchingInvoice.status === 'PAID') {
+        return { ...record, status: UtilityStatus.PAID };
+      }
+      
+      return record;
     });
-  }
+    
+    this.records.set(syncedData);
+
+    const uniqueMonths = Array.from(new Set(syncedData.map((r) => r.month)))
+      .filter(Boolean)
+      .sort()
+      .reverse();
+
+    this.months.set(uniqueMonths);
+  });
+}
 
   loadRooms() {
     this.roomService.getMyRooms().subscribe({
@@ -275,6 +334,7 @@ export class ElectricityManagementComponent implements OnInit {
       this.utilityService.update(data.id, data).subscribe({
         next: () => {
           this.loadData();
+          this.loadInvoices(); 
           this.closeModal();
           alert('Cập nhật hóa đơn điện thành công!');
         },
@@ -312,6 +372,7 @@ export class ElectricityManagementComponent implements OnInit {
 
     this.utilityService.markPaid(id).subscribe(() => {
       this.loadData();
+      this.loadInvoices(); 
       this.closeConfirmModal();
       alert('Đã xác nhận thanh toán!');
     });

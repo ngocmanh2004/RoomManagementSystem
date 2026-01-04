@@ -13,6 +13,8 @@ import { Invoice } from '../../../models/invoice.model';
 import { Contract } from '../../../models/contract.model';
 import { InvoiceService } from '../../../services/invoice.service';
 import { ContractService } from '../../../services/contract.service';
+import { Room } from '../../../models/room.model';
+import { RoomService } from '../../../services/room.service';
 
 @Component({
   selector: 'app-invoice-management',
@@ -34,6 +36,7 @@ export class InvoiceManagementComponent implements OnInit, OnDestroy {
 
   private invoiceService = inject(InvoiceService);
   private contractService = inject(ContractService);
+  private roomService = inject(RoomService);
 
   // ===============================
   // STATE SIGNALS
@@ -98,6 +101,7 @@ export class InvoiceManagementComponent implements OnInit, OnDestroy {
     });
   }
 
+  
   loadContracts() {
     this.contractService.getContracts('').subscribe({
       next: (response: any) => {

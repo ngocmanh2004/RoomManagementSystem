@@ -11,6 +11,7 @@ import {
   OnDestroy,
   effect,
 } from '@angular/core';
+import {InvoiceService } from '../../../services/invoice.service';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Chart, registerables, ChartConfiguration } from 'chart.js';
@@ -43,6 +44,7 @@ export class ExtraCostManagementComponent
 
   private extraCostService = inject(ExtraCostService);
   private roomService = inject(RoomService);
+  private invoiceService = inject(InvoiceService);
 
   // ===============================
   // CHART CONFIG
@@ -66,6 +68,7 @@ export class ExtraCostManagementComponent
   roomList = signal<Room[]>([]);
   records = signal<ExtraCost[]>([]);
   currentName = signal<string>('');
+  invoices = signal<any[]>([]);
 
   filters = signal<{
     month: string;
@@ -111,14 +114,52 @@ export class ExtraCostManagementComponent
     });
   }
 
+  loadInvoices() {
+  this.invoiceService.getAll().subscribe({
+    next: (response: any) => {
+      if (response && response.data) {
+        this.invoices.set(response.data);
+      } else if (Array.isArray(response)) {
+        this.invoices.set(response);
+      } else {
+        this.invoices.set([]);
+      }
+    },
+    error: (err: any) => {
+      console.error('Lỗi tải hóa đơn:', err);
+      this.invoices.set([]);
+    },
+  });
+}
   ngOnInit() {
-    const now = new Date();
-    this.maxMonth = `${now.getFullYear()}-${(now.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}`;
-    this.loadRooms();
-    this.loadData();
-  }
+  const now = new Date();
+  this.maxMonth = `${now.getFullYear()}-${(now.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}`;
+    
+  this.loadRooms();
+  
+  // Load invoices trước, sau đó mới load data
+  this.invoiceService.getAll().subscribe({
+    next: (response: any) => {
+      if (response && response.data) {
+        this.invoices.set(response.data);
+      } else if (Array.isArray(response)) {
+        this.invoices.set(response);
+      } else {
+        this.invoices.set([]);
+      }
+      
+      // Sau khi invoices load xong, mới load data
+      this.loadData();
+    },
+    error: (err: any) => {
+      console.error('Lỗi tải hóa đơn:', err);
+      this.invoices.set([]);
+      this.loadData();
+    },
+  });
+}
 
   ngAfterViewInit() {
     this.renderSmartChart();
@@ -144,18 +185,36 @@ export class ExtraCostManagementComponent
   }
 
   loadData() {
-    this.extraCostService.getAll().subscribe({
-      next: (data) => {
-        this.records.set(data);
-        const uniqueMonths = Array.from(new Set(data.map((r) => r.month)))
-          .filter(Boolean)
-          .sort()
-          .reverse();
-        this.months.set(uniqueMonths);
-      },
-      error: (err) => console.error('Lỗi tải chi phí:', err),
-    });
-  }
+  this.extraCostService.getAll().subscribe({
+    next: (data) => {
+      // Sync trạng thái với hóa đơn
+      const invoiceList = this.invoices();
+      const syncedData = data.map(record => {
+        // Tìm hóa đơn tương ứng với phòng và tháng
+        const matchingInvoice = invoiceList.find(
+          inv => inv.roomId === record.roomId && inv.month === record.month
+        );
+        
+        // Nếu có hóa đơn và hóa đơn đã thanh toán, cập nhật trạng thái chi phí khác
+        if (matchingInvoice && matchingInvoice.status === 'PAID') {
+          return { ...record, status: ExtraCostStatus.PAID };
+        }
+        
+        return record;
+      });
+      
+      this.records.set(syncedData);
+
+      const uniqueMonths = Array.from(new Set(syncedData.map((r) => r.month)))
+        .filter(Boolean)
+        .sort()
+        .reverse();
+
+      this.months.set(uniqueMonths);
+    },
+    error: (err) => console.error('Lỗi tải chi phí:', err),
+  });
+}
 
   removeAccents(str: string): string {
     if (!str) return '';
@@ -505,6 +564,7 @@ export class ExtraCostManagementComponent
       this.extraCostService.update(data.id, data).subscribe({
         next: () => {
           this.loadData();
+          this.loadInvoices(); 
           this.closeModal();
           alert('Cập nhật thành công!');
         },
@@ -535,6 +595,7 @@ export class ExtraCostManagementComponent
     this.extraCostService.markPaid(id).subscribe({
       next: () => {
         this.loadData();
+        this.loadInvoices(); 
         this.closeConfirmModal();
         alert('Đã xác nhận thanh toán!');
       },
