@@ -38,8 +38,7 @@ describe('ReviewListComponent - Sprint 2', () => {
     content: mockReviews,
     totalElements: 2,
     totalPages: 1,
-    size: 10,
-    number: 0
+    currentPage: 0
   };
 
   beforeEach(async () => {
