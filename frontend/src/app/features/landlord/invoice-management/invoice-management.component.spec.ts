@@ -56,17 +56,30 @@ describe('InvoiceManagementComponent - Sprint 3', () => {
   const mockContracts: Contract[] = [
     {
       id: 1,
-      code: 'HD001',
-      roomId: 1,
+      contractCode: 'HD001',
+      contractCodeGenerated: 'HD001',
       roomName: 'Phòng 101',
-      tenantId: 10,
-      tenantName: 'Nguyễn Văn A',
-      startDate: new Date('2025-01-01'),
-      endDate: new Date('2026-01-01'),
-      monthlyRent: 3000000,
+      buildingName: 'Dãy A',
+      fullName: 'Nguyễn Văn A',
+      cccd: '123456789',
+      phone: '0912345678',
+      address: 'Quy Nhơn',
+      landlordName: 'Chủ trọ A',
+      landlordPhone: '0987654321',
+      startDate: '2025-01-01',
+      endDate: '2026-01-01',
       deposit: 6000000,
-      status: 'ACTIVE'
-    } as Contract
+      monthlyRent: 3000000,
+      monthlyRentCalculated: 3000000,
+      totalInitialCost: 9000000,
+      notes: '',
+      status: 'ACTIVE',
+      statusDisplayName: 'Đang hiệu lực',
+      durationMonths: 12,
+      terms: [],
+      createdAt: '2025-01-01T00:00:00',
+      updatedAt: '2025-01-01T00:00:00'
+    }
   ];
 
   beforeEach(async () => {

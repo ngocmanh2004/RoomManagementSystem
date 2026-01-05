@@ -19,11 +19,14 @@ describe('BookingModalComponent - Sprint 2', () => {
     name: 'Phòng Test 101',
     price: 3000000,
     area: 25,
-    address: 'Quy Nhơn',
     description: 'Phòng đẹp',
-    maxOccupants: 2,
     status: 'AVAILABLE',
-    images: []
+    images: [],
+    building: {
+      id: 1,
+      name: 'Dãy A',
+      address: 'Quy Nhơn'
+    }
   };
 
   beforeEach(async () => {
@@ -99,7 +102,7 @@ describe('BookingModalComponent - Sprint 2', () => {
         notes: 'Muốn xem phòng trước'
       });
       
-      component.submitBooking();
+      component.submit();
       
       expect(mockBookingService.createBooking).toHaveBeenCalled();
       expect(component.successMessage).toContain('thành công');
@@ -120,7 +123,7 @@ describe('BookingModalComponent - Sprint 2', () => {
         startDate: '2024-02-01'
       });
       
-      component.submitBooking();
+      component.submit();
       
       expect(component.errorMessage).toBeTruthy();
     });
@@ -129,7 +132,7 @@ describe('BookingModalComponent - Sprint 2', () => {
     it('should close modal and emit event', () => {
       spyOn(component.closeModal, 'emit');
       
-      component.onClose();
+      component.close();
       
       expect(component.closeModal.emit).toHaveBeenCalled();
     });
@@ -141,7 +144,7 @@ describe('BookingModalComponent - Sprint 2', () => {
         phoneNumber: '0912345678'
       });
       
-      component.onClose();
+      component.close();
       
       expect(component.bookingForm.get('fullName')?.value).toBe('');
       expect(component.errorMessage).toBe('');

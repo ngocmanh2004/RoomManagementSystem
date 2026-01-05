@@ -39,7 +39,7 @@ describe('RoomDetailComponent - Sprint 2', () => {
 
   beforeEach(async () => {
     mockRoomService = jasmine.createSpyObj('RoomService', ['getRoomById']);
-    mockAmenityService = jasmine.createSpyObj('AmenityService', ['getAmenitiesByRoomId']);
+    mockAmenityService = jasmine.createSpyObj('AmenityService', ['getAmenitiesByRoom']);
     mockAuthService = jasmine.createSpyObj('AuthService', ['isLoggedIn', 'getUserRole']);
     mockSanitizer = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustResourceUrl']);
     
@@ -72,7 +72,7 @@ describe('RoomDetailComponent - Sprint 2', () => {
     // TEST 1: Load thông tin phòng và hiển thị map
     it('should load room and display Google Map', () => {
       mockRoomService.getRoomById.and.returnValue(of(mockRoom));
-      mockAmenityService.getAmenitiesByRoomId.and.returnValue(of([]));
+      mockAmenityService.getAmenitiesByRoom.and.returnValue(of([]));
       mockSanitizer.bypassSecurityTrustResourceUrl.and.returnValue('safe-url' as any);
       
       component.ngOnInit();
@@ -86,7 +86,7 @@ describe('RoomDetailComponent - Sprint 2', () => {
     // TEST 2: Tạo URL Google Maps từ địa chỉ phòng
     it('should create Google Maps URL from room address', () => {
       mockRoomService.getRoomById.and.returnValue(of(mockRoom));
-      mockAmenityService.getAmenitiesByRoomId.and.returnValue(of([]));
+      mockAmenityService.getAmenitiesByRoom.and.returnValue(of([]));
       mockSanitizer.bypassSecurityTrustResourceUrl.and.returnValue('safe-url' as any);
       
       component.loadRoomDetail();
@@ -99,7 +99,7 @@ describe('RoomDetailComponent - Sprint 2', () => {
     // TEST 3: Sanitize Google Maps URL để embed an toàn
     it('should sanitize Google Maps URL for safe embedding', () => {
       mockRoomService.getRoomById.and.returnValue(of(mockRoom));
-      mockAmenityService.getAmenitiesByRoomId.and.returnValue(of([]));
+      mockAmenityService.getAmenitiesByRoom.and.returnValue(of([]));
       mockSanitizer.bypassSecurityTrustResourceUrl.and.returnValue('safe-url' as any);
       
       component.loadRoomDetail();
@@ -112,7 +112,7 @@ describe('RoomDetailComponent - Sprint 2', () => {
     it('should handle room without address', () => {
       const roomWithoutAddress = { ...mockRoom, building: null };
       mockRoomService.getRoomById.and.returnValue(of(roomWithoutAddress as any));
-      mockAmenityService.getAmenitiesByRoomId.and.returnValue(of([]));
+      mockAmenityService.getAmenitiesByRoom.and.returnValue(of([]));
       
       component.loadRoomDetail();
       
@@ -126,7 +126,7 @@ describe('RoomDetailComponent - Sprint 2', () => {
     // TEST 5: Load chi tiết phòng thành công
     it('should load room details successfully', () => {
       mockRoomService.getRoomById.and.returnValue(of(mockRoom));
-      mockAmenityService.getAmenitiesByRoomId.and.returnValue(of([]));
+      mockAmenityService.getAmenitiesByRoom.and.returnValue(of([]));
       mockSanitizer.bypassSecurityTrustResourceUrl.and.returnValue('safe-url' as any);
       
       component.roomId = 1;
@@ -153,7 +153,7 @@ describe('RoomDetailComponent - Sprint 2', () => {
     // TEST 7: Hiển thị ảnh đầu tiên làm ảnh chính
     it('should display first image as main image', () => {
       mockRoomService.getRoomById.and.returnValue(of(mockRoom));
-      mockAmenityService.getAmenitiesByRoomId.and.returnValue(of([]));
+      mockAmenityService.getAmenitiesByRoom.and.returnValue(of([]));
       mockSanitizer.bypassSecurityTrustResourceUrl.and.returnValue('safe-url' as any);
       
       component.loadRoomDetail();
