@@ -8,10 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/buildings")
@@ -89,5 +91,26 @@ public class BuildingController {
         return buildingService.getBuildingsByLandlord(landlordId).stream()
                 .map(BuildingDTO::new)
                 .toList();
+    }
+
+    // CRUD Building cho Landlord
+    @PostMapping
+    public BuildingDTO createBuilding(@RequestBody BuildingDTO buildingDTO) {
+        return new BuildingDTO(buildingService.createBuilding(buildingDTO));
+    }
+
+    @PutMapping("/{id}")
+    public BuildingDTO updateBuilding(@PathVariable Integer id, @RequestBody BuildingDTO buildingDTO) {
+        return new BuildingDTO(buildingService.updateBuilding(id, buildingDTO));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteBuilding(@PathVariable Integer id) {
+        try {
+            buildingService.deleteBuilding(id);
+            return ResponseEntity.ok().body(Map.of("message", "Xóa dãy trọ thành công"));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(409).body(Map.of("error", e.getMessage()));
+        }
     }
 }

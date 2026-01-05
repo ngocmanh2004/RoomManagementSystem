@@ -27,19 +27,104 @@ public class FileStorageService {
     }
 
     /**
-     * Lưu file và trả về đường dẫn tương đối (để lưu vào DB)
+     * Lưu ảnh building vào images/buildingId/main.{ext}
      * @param file File tải lên
-     * @param roomId ID của phòng để tạo thư mục con
-     * @return Đường dẫn tương đối (ví dụ: /images/1/abc.jpg)
+     * @param buildingId ID của dãy trọ
+     * @return Đường dẫn tương đối (ví dụ: /images/1/main.jpg)
      */
-    public String save(MultipartFile file, Integer roomId) {
+    public String saveBuildingImage(MultipartFile file, Integer buildingId) {
         try {
             if (file.isEmpty()) {
                 throw new RuntimeException("Failed to store empty file.");
             }
 
-            // Tạo thư mục con cho phòng (ví dụ: images/1, images/2)
-            Path roomDirectory = this.rootLocation.resolve(String.valueOf(roomId));
+            // Tạo thư mục: images/buildingId
+            Path buildingDirectory = this.rootLocation.resolve(String.valueOf(buildingId));
+            Files.createDirectories(buildingDirectory);
+
+            // Lấy extension
+            String originalFilename = file.getOriginalFilename();
+            String extension = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+
+            // Đặt tên file là main.{ext}
+            String filename = "main" + extension;
+            Path destinationFile = buildingDirectory.resolve(filename).normalize().toAbsolutePath();
+
+            try (InputStream inputStream = file.getInputStream()) {
+                Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            // Trả về đường dẫn: /images/buildingId/main.jpg
+            return "/images/" + buildingId + "/" + filename;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store building image.", e);
+        }
+    }
+
+    /**
+     * Lưu ảnh room vào images/buildingId/roomId/
+     * @param file File tải lên
+     * @param buildingId ID của dãy trọ
+     * @param roomId ID của phòng
+     * @param filename Tên file (main.jpg, detail1.jpg, ...)
+     * @return Đường dẫn tương đối (ví dụ: /images/1/2/main.jpg)
+     */
+    public String saveRoomImage(MultipartFile file, Integer buildingId, Integer roomId, String filename) {
+        try {
+            if (file.isEmpty()) {
+                throw new RuntimeException("Failed to store empty file.");
+            }
+
+            // Tạo thư mục: images/buildingId/roomId
+            Path buildingDirectory = this.rootLocation.resolve(String.valueOf(buildingId));
+            Path roomDirectory = buildingDirectory.resolve(String.valueOf(roomId));
+            Files.createDirectories(roomDirectory);
+
+            // Lấy extension nếu filename chưa có
+            if (!filename.contains(".")) {
+                String originalFilename = file.getOriginalFilename();
+                String extension = "";
+                if (originalFilename != null && originalFilename.contains(".")) {
+                    extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                }
+                filename = filename + extension;
+            }
+
+            Path destinationFile = roomDirectory.resolve(filename).normalize().toAbsolutePath();
+
+            try (InputStream inputStream = file.getInputStream()) {
+                Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            // Trả về đường dẫn: /images/buildingId/roomId/filename
+            return "/images/" + buildingId + "/" + roomId + "/" + filename;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store room image.", e);
+        }
+    }
+
+    /**
+     * Lưu file và trả về đường dẫn tương đối (để lưu vào DB)
+     * Phương thức này được giữ lại để backward compatible
+     * @param file File tải lên
+     * @param buildingId ID của dãy trọ
+     * @param roomId ID của phòng để tạo thư mục con
+     * @return Đường dẫn tương đối (ví dụ: /images/1/2/abc.jpg)
+     */
+    public String save(MultipartFile file, Integer buildingId, Integer roomId) {
+        try {
+            if (file.isEmpty()) {
+                throw new RuntimeException("Failed to store empty file.");
+            }
+
+            // Tạo thư mục theo cấu trúc: images/buildingId/roomId
+            Path buildingDirectory = this.rootLocation.resolve(String.valueOf(buildingId));
+            Path roomDirectory = buildingDirectory.resolve(String.valueOf(roomId));
             Files.createDirectories(roomDirectory);
 
             // Tạo tên file duy nhất
@@ -56,9 +141,8 @@ public class FileStorageService {
                 Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
             }
 
-            // Trả về đường dẫn mà frontend có thể gọi
-            // (ví dụ: /images/1/ten_file_duy_nhat.jpg)
-            return "/images/" + roomId + "/" + uniqueFilename;
+            // Trả về đường dẫn: /images/buildingId/roomId/filename
+            return "/images/" + buildingId + "/" + roomId + "/" + uniqueFilename;
 
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file.", e);

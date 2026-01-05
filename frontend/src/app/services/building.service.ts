@@ -60,4 +60,26 @@ export class BuildingService {
       .set('size', size.toString());
     return this.http.get<PageResponse<Room>>(`${this.api}/${buildingId}/rooms`, { params });
   }
+
+  createBuilding(building: Partial<Building>): Observable<Building> {
+    return this.http.post<Building>(this.api, building);
+  }
+
+  updateBuilding(id: number, building: Partial<Building>): Observable<Building> {
+    return this.http.put<Building>(`${this.api}/${id}`, building);
+  }
+
+  deleteBuilding(id: number): Observable<any> {
+    return this.http.delete(`${this.api}/${id}`);
+  }
+
+  uploadBuildingImage(buildingId: number, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.api}/${buildingId}/image`, formData);
+  }
+
+  deleteBuildingImage(buildingId: number): Observable<any> {
+    return this.http.delete(`${this.api}/${buildingId}/image`);
+  }
 }

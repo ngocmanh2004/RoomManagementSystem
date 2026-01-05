@@ -14,6 +14,8 @@ import { PublicLayoutComponent } from './shared/layout/public-layout/public-layo
 import { DashboardAdminComponent } from './features/admin/dasboard-admin/dasboard-admin.component';
 import { TenantManagementComponent } from './features/landlord/tenant-management/tenant-management.component';
 import { RoomManagementComponent } from './features/landlord/room-management/room-management.component';
+import { BuildingManagementComponent } from './features/landlord/building-management/building-management.component';
+import { BuildingRoomManagementComponent } from './features/landlord/building-room-management/building-room-management.component';
 import { TenantProfileComponent } from './features/tenant-profile/tenant-profile.component';
 import { UserManagementComponent } from './features/admin/user-management/user-management.component';
 import { RegisterLandlordComponent } from './features/register-landlord/register-landlord.component';
@@ -84,6 +86,8 @@ export const routes: Routes = [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     { path: 'dashboard', component: DashboardLandlordComponent },
     { path: 'tenants', component: TenantManagementComponent },
+    { path: 'buildings', component: BuildingManagementComponent },
+    { path: 'buildings/:id/rooms', component: BuildingRoomManagementComponent },
     { path: 'rooms', component: RoomManagementComponent },
     { path: 'bookings', component: LandlordBookingComponent },
     { path: 'bookings/create', component: CreateDirectContractComponent },

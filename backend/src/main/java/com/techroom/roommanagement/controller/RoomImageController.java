@@ -41,16 +41,21 @@ public class RoomImageController {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy phòng với id: " + roomId));
 
+        if (room.getBuilding() == null || room.getBuilding().getId() == null) {
+            throw new RuntimeException("Phòng chưa được gán vào dãy trọ");
+        }
+
+        Integer buildingId = room.getBuilding().getId();
         List<RoomImage> savedImages = new ArrayList<>();
     
         for (MultipartFile file : files) {
-            // 1. Lưu file vào ổ đĩa
-            String relativePath = fileStorageService.save(file, roomId);
+            // 1. Lưu file vào ổ đĩa theo cấu trúc buildingId/roomId
+            String relativePath = fileStorageService.save(file, buildingId, roomId);
 
             // 2. Lưu đường dẫn vào CSDL
             RoomImage roomImage = new RoomImage();
             roomImage.setRoom(room);
-            roomImage.setImageUrl(relativePath); // Lưu đường dẫn (ví dụ: /uploads/1/abc.jpg)
+            roomImage.setImageUrl(relativePath); // Lưu đường dẫn: /images/buildingId/roomId/abc.jpg
             roomImage.setCreatedAt(LocalDateTime.now());
 
             savedImages.add(roomImageRepository.save(roomImage));

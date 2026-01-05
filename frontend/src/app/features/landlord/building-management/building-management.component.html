@@ -1,0 +1,147 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-left">
+      <h2 class="page-title">Quản lý dãy trọ</h2>
+      <p class="page-subtitle">Thứ Hai, ngày {{currentDate | date:'dd tháng MM, yyyy'}}</p>
+    </div>
+    <div class="header-right">
+      <button class="btn-add" (click)="openModal()">
+        <span>+</span> Thêm dãy trọ mới
+      </button>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div class="table-filters">
+      <input
+        type="text"
+        placeholder="Tìm kiếm dãy trọ..."
+        [(ngModel)]="searchTerm"
+        (input)="searchBuildings()"
+        class="search-input"
+      />
+    </div>
+
+    <table *ngIf="filteredBuildings.length > 0; else noBuildings">
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Ảnh</th>
+          <th>Tên dãy trọ</th>
+          <th>Địa chỉ</th>
+          <th>Số phòng</th>
+          <th>Phòng trống</th>
+          <th>Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let building of filteredBuildings; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>
+            <img 
+              [src]="'http://localhost:8080' + building.imageUrl" 
+              alt="Building"
+              class="building-image"
+              onerror="this.src='https://via.placeholder.com/80x60?text=No+Image'"
+            />
+          </td>
+          <td class="building-name">{{ building.name }}</td>
+          <td>{{ building.address }}</td>
+          <td class="text-center">{{ getRoomCount(building) }}</td>
+          <td class="text-center">{{ getAvailableRoomCount(building) }}</td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-view" (click)="viewRooms(building.id!)" title="Xem phòng">
+                <i class="fas fa-door-open"></i>
+              </button>
+              <button class="btn-edit" (click)="openModal(building)" title="Sửa">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn-delete" (click)="openDeleteModal(building)" title="Xóa">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #noBuildings>
+      <div class="no-data">
+        <p>Không tìm thấy dãy trọ nào.</p>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- Modal Create/Edit Building -->
+<div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ isEditMode ? 'Cập nhật dãy trọ' : 'Thêm dãy trọ mới' }}</h3>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+
+    <form class="modal-body" [formGroup]="buildingForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>Tên dãy trọ <span class="required">*</span></label>
+        <input type="text" formControlName="name" placeholder="Nhập tên dãy trọ" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tỉnh/TP <span class="required">*</span></label>
+          <input type="number" formControlName="provinceCode" placeholder="Mã tỉnh" />
+        </div>
+        <div class="form-group">
+          <label>Quận/Huyện <span class="required">*</span></label>
+          <input type="number" formControlName="districtCode" placeholder="Mã quận" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Địa chỉ <span class="required">*</span></label>
+        <input type="text" formControlName="address" placeholder="Nhập địa chỉ đầy đủ" />
+      </div>
+
+      <div class="form-group">
+        <label>Mô tả</label>
+        <textarea formControlName="description" rows="3" placeholder="Nhập mô tả về dãy trọ"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Ảnh đại diện</label>
+        <input type="file" accept="image/*" (change)="onImageSelected($event)" />
+        <img *ngIf="imagePreview" [src]="imagePreview" alt="Preview" class="image-preview" />
+      </div>
+
+      <div class="error-message" *ngIf="formError">{{ formError }}</div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeModal()">Hủy</button>
+        <button type="submit" class="btn-submit">
+          {{ isEditMode ? 'Cập nhật' : 'Thêm mới' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Delete Confirmation -->
+<div class="modal-overlay" *ngIf="isDeleteModalOpen" (click)="closeDeleteModal()">
+  <div class="modal-content modal-delete" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Xác nhận xóa</h3>
+      <button class="close-btn" (click)="closeDeleteModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Bạn có chắc chắn muốn xóa dãy trọ <strong>{{ buildingToDelete?.name }}</strong>?</p>
+      <p class="warning-text">Lưu ý: Không thể xóa dãy trọ đã có phòng!</p>
+      <div class="error-message" *ngIf="deleteError">{{ deleteError }}</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeDeleteModal()">Hủy</button>
+      <button class="btn-delete-confirm" (click)="confirmDelete()">Xóa</button>
+    </div>
+  </div>
+</div>

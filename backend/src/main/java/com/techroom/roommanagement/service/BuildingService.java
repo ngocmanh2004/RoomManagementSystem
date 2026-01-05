@@ -1,5 +1,6 @@
 package com.techroom.roommanagement.service;
 
+import com.techroom.roommanagement.dto.BuildingDTO;
 import com.techroom.roommanagement.model.Building;
 import com.techroom.roommanagement.model.Room;
 import com.techroom.roommanagement.repository.BuildingRepository;
@@ -128,6 +129,46 @@ public class BuildingService {
     @Transactional(readOnly = true)
     public List<Building> getBuildingsByLandlord(Integer landlordId) {
         return buildingRepository.findByLandlordId(landlordId);
+    }
+
+    // CRUD Building
+    @Transactional
+    public Building createBuilding(BuildingDTO dto) {
+        Building building = new Building();
+        building.setName(dto.getName());
+        building.setAddress(dto.getAddress());
+        building.setDescription(dto.getDescription());
+        building.setProvinceCode(dto.getProvinceCode());
+        building.setDistrictCode(dto.getDistrictCode());
+        // Landlord sẽ được set từ controller hoặc security context
+        return buildingRepository.save(building);
+    }
+
+    @Transactional
+    public Building updateBuilding(Integer id, BuildingDTO dto) {
+        Building building = buildingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy dãy trọ với id: " + id));
+        
+        building.setName(dto.getName());
+        building.setAddress(dto.getAddress());
+        building.setDescription(dto.getDescription());
+        building.setProvinceCode(dto.getProvinceCode());
+        building.setDistrictCode(dto.getDistrictCode());
+        
+        return buildingRepository.save(building);
+    }
+
+    @Transactional
+    public void deleteBuilding(Integer id) {
+        Building building = buildingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy dãy trọ với id: " + id));
+        
+        // Kiểm tra xem có phòng nào đang thuê không
+        if (building.getRooms() != null && building.getRooms().stream().anyMatch(r -> r.getStatus() == Room.RoomStatus.OCCUPIED)) {
+            throw new IllegalStateException("Không thể xóa dãy trọ có phòng đang được thuê");
+        }
+        
+        buildingRepository.deleteById(id);
     }
 
     // Tìm kiếm và lọc building
