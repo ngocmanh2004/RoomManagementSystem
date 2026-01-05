@@ -1,7 +1,12 @@
 <div class="page-container">
+  <button class="btn-back" (click)="router.navigate(['/landlord/buildings'])" *ngIf="currentBuilding">
+    <i class="fa-solid fa-arrow-left"></i>
+  </button>
+
   <div class="page-header">
     <div class="header-left">
-      <h2>Quản lý phòng trọ</h2>
+      <h2 *ngIf="!currentBuilding">Quản lý phòng trọ</h2>
+      <h2 *ngIf="currentBuilding">Quản lý phòng - {{ currentBuilding.name }}</h2>
       <p>{{ currentDate | date: 'EEEE, \'ngày\' dd \'tháng\' MM, yyyy' : undefined : 'vi-VN' }}</p>
     </div>
     <div class="header-right">

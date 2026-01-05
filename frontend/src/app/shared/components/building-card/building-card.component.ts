@@ -14,18 +14,24 @@ export class BuildingCardComponent {
   @Input() building!: Building;
 
   get mainImage(): string {
-    const baseUrl = 'http://localhost:8081/images/';
+    const baseUrl = 'http://localhost:8081';
     
     // Ưu tiên lấy ảnh chính của building
     if (this.building.imageUrl) {
-      return baseUrl + this.building.imageUrl;
+      const imagePath = this.building.imageUrl.startsWith('/') 
+        ? this.building.imageUrl 
+        : '/images/' + this.building.imageUrl;
+      return baseUrl + imagePath;
     }
     
     // Fallback: Lấy ảnh từ phòng đầu tiên
     if (this.building.rooms && this.building.rooms.length > 0) {
       const firstRoom = this.building.rooms[0];
       if (firstRoom.images && firstRoom.images.length > 0) {
-        return baseUrl + firstRoom.images[0].imageUrl;
+        const imagePath = firstRoom.images[0].imageUrl.startsWith('/')
+          ? firstRoom.images[0].imageUrl
+          : '/images/' + firstRoom.images[0].imageUrl;
+        return baseUrl + imagePath;
       }
     }
     

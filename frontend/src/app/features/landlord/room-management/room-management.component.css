@@ -598,3 +598,104 @@ td.actions {
     transform: translateY(0);
   }
 }
+
+/* =========================================== */
+/* BREADCRUMB / BACK BUTTON
+/* =========================================== */
+.breadcrumb {
+  margin-top: 8px;
+}
+
+.breadcrumb a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background-color: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.breadcrumb a:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  transform: translateX(-2px);
+}
+
+.breadcrumb a i {
+  font-size: 14px;
+  transition: transform 0.2s ease;
+}
+
+.breadcrumb a:hover i {
+  transform: translateX(-2px);
+}
+
+/* =========================================== */
+/* BACK BUTTON (Góc trên trái)
+/* =========================================== */
+.btn-back {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  width: 40px;
+  height: 40px;
+  background-color: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+  color: var(--text-secondary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-back:hover {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--white);
+  transform: translateX(-3px);
+  box-shadow: 0 2px 8px rgba(74, 108, 247, 0.3);
+}
+
+.btn-back i {
+  font-size: 16px;
+}
+
+/* =========================================== */
+/* TỔNG QUAN & BIẾN MÀU
+/* =========================================== */
+:host {
+  --primary-color: #4a6cf7;
+  --primary-light: #f0f2fe;
+  --text-primary: #1a202c;
+  --text-secondary: #5a6a85;
+  --border-color: #e5e7eb;
+  --bg-color: #f8f9fa;
+  --white: #ffffff;
+  --green: #04ce77;
+  --green-light: #e6fbf3;
+  --orange: #ffab00;
+  --orange-light: #fff7e6;
+  --blue-gray: #334155;
+  --blue-gray-light: #f1f5f9;
+  --red: #ef4444;
+  --red-light: #fef2f2;
+}
+
+.page-container {
+  padding: 24px 24px 24px 80px; /* Thêm padding-left để tránh nút back */
+  background-color: var(--bg-color);
+  height: 100%;
+  position: relative;
+}

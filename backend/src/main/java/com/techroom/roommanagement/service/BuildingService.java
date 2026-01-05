@@ -2,8 +2,12 @@ package com.techroom.roommanagement.service;
 
 import com.techroom.roommanagement.dto.BuildingDTO;
 import com.techroom.roommanagement.model.Building;
+import com.techroom.roommanagement.model.Landlord;
 import com.techroom.roommanagement.model.Room;
+import com.techroom.roommanagement.model.User;
 import com.techroom.roommanagement.repository.BuildingRepository;
+import com.techroom.roommanagement.repository.LandlordRepository;
+import com.techroom.roommanagement.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +23,12 @@ public class BuildingService {
 
     @Autowired
     private BuildingRepository buildingRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Autowired
+    private LandlordRepository landlordRepository;
 
     @Transactional(readOnly = true)
     public List<Building> getAllBuildings() {
@@ -133,14 +143,23 @@ public class BuildingService {
 
     // CRUD Building
     @Transactional
-    public Building createBuilding(BuildingDTO dto) {
+    public Building createBuilding(BuildingDTO dto, String username) {
+        // Tìm user từ username
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy user với username: " + username));
+        
+        // Tìm landlord từ user
+        Landlord landlord = landlordRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new RuntimeException("User này không phải là chủ trọ"));
+        
         Building building = new Building();
         building.setName(dto.getName());
         building.setAddress(dto.getAddress());
         building.setDescription(dto.getDescription());
         building.setProvinceCode(dto.getProvinceCode());
         building.setDistrictCode(dto.getDistrictCode());
-        // Landlord sẽ được set từ controller hoặc security context
+        building.setLandlord(landlord);
+        
         return buildingRepository.save(building);
     }
 

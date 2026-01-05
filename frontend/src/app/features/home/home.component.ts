@@ -67,9 +67,15 @@ export class HomeComponent implements OnInit {
   }
 
   onPageChange(page: number): void {
-    this.currentPage = page;
-    this.loadAllBuildings();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Chỉ load khi không có filter (chế độ xem tất cả)
+    const hasFilter = this.selectedProvinceCode || this.selectedDistrictCode || 
+                      this.selectedPrice || this.selectedAcreage;
+    
+    if (!hasFilter) {
+      this.currentPage = page;
+      this.loadAllBuildings();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   loadProvinces(): void {
@@ -131,11 +137,17 @@ export class HomeComponent implements OnInit {
       this.buildingService.searchBuildings(filterParams).subscribe({
         next: (data) => {
           this.buildings = data;
+          // Reset pagination khi filter (vì API search không trả về phân trang)
+          this.currentPage = 0;
+          this.totalPages = 1;
+          this.totalElements = data.length;
           console.log('✅ Tìm kiếm thành công:', data.length, 'dãy trọ');
         },
         error: (err) => {
           console.error('❌ Lỗi khi tìm kiếm:', err);
           this.buildings = [];
+          this.totalPages = 0;
+          this.totalElements = 0;
         }
       });
     } else {

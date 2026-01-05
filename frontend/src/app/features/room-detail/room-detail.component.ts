@@ -154,9 +154,10 @@ export class RoomDetailComponent implements OnInit {
       return url;
     }
 
-    // Backend trả về: "1/detail1.png"
-    // Cần build thành: "http://localhost:8081/images/1/detail1.png"
-    return `http://localhost:8081/images/${url}`;
+    // Backend trả về: "/images/1/1/detail1.png" hoặc "1/1/detail1.png"
+    // Cần build thành: "http://localhost:8081/images/1/1/detail1.png"
+    const imagePath = url.startsWith('/') ? url : '/images/' + url;
+    return `http://localhost:8081${imagePath}`;
   }
 
   prevImage(event: Event) {

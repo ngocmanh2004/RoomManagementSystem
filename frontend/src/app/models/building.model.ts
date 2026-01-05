@@ -2,6 +2,8 @@ export interface Building {
   id: number;
   name: string;
   address: string;
+  provinceCode?: number;
+  districtCode?: number;
   description?: string;
   imageUrl?: string;
   landlord?: {

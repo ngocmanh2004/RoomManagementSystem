@@ -16,6 +16,7 @@ import { Building, BuildingService } from '../../../services/building.service';
 import { Amenity, AmenityService } from '../../../services/amenity.service';
 import { Observable, of } from 'rxjs';
 import { concatMap, tap, catchError } from 'rxjs/operators';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-room-management',
@@ -34,6 +35,10 @@ export class RoomManagementComponent implements OnInit {
   buildings: Building[] = [];
   allRooms: Room[] = [];
   filteredRooms: Room[] = [];
+  
+  // Lọc theo building từ URL
+  filterByBuildingId: number | null = null;
+  currentBuilding: Building | null = null;
   
   // Stats
   totalRooms = 0;
@@ -83,7 +88,9 @@ export class RoomManagementComponent implements OnInit {
     private buildingService: BuildingService,
     private amenityService: AmenityService,
     private authService: AuthService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    public router: Router
   ) {
     registerLocaleData(localeVi, 'vi-VN');
     this.roomForm = this.fb.group({
@@ -97,9 +104,28 @@ export class RoomManagementComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Lấy buildingId từ URL nếu có
+    this.route.params.subscribe(params => {
+      if (params['buildingId']) {
+        this.filterByBuildingId = +params['buildingId'];
+        this.loadBuildingInfo();
+      }
+    });
+    
     this.loadRooms();
     this.loadBuildings();
     this.loadAmenities();
+  }
+  
+  loadBuildingInfo(): void {
+    if (this.filterByBuildingId) {
+      this.buildingService.getBuildingById(this.filterByBuildingId).subscribe({
+        next: (building) => {
+          this.currentBuilding = building;
+        },
+        error: (err) => console.error('❌ Lỗi khi tải thông tin dãy trọ:', err)
+      });
+    }
   }
 
   loadBuildings(): void {
@@ -164,6 +190,11 @@ export class RoomManagementComponent implements OnInit {
 
   applyFilters(): void {
     let rooms = [...this.allRooms];
+
+    // Lọc theo buildingId từ URL nếu có
+    if (this.filterByBuildingId) {
+      rooms = rooms.filter(r => r.building?.id === this.filterByBuildingId);
+    }
 
     if (this.currentStatusFilter !== 'all') {
       rooms = rooms.filter(r => r.status === this.currentStatusFilter);
@@ -237,7 +268,7 @@ export class RoomManagementComponent implements OnInit {
     this.selectedAmenities = [];
     this.roomForm.reset({
       name: '',
-      buildingId: '', // Empty string cho select dropdown
+      buildingId: this.filterByBuildingId || '', // Pre-fill building nếu đang lọc theo building
       area: 0,
       price: 0,
       status: 'AVAILABLE',

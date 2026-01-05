@@ -86,6 +86,7 @@ export const routes: Routes = [
     { path: 'dashboard', component: DashboardLandlordComponent },
     { path: 'tenants', component: TenantManagementComponent },
     { path: 'buildings', component: BuildingManagementComponent },
+    { path: 'buildings/:buildingId/rooms', component: RoomManagementComponent },
     { path: 'rooms', component: RoomManagementComponent },
     { path: 'bookings', component: LandlordBookingComponent },
     { path: 'bookings/create', component: CreateDirectContractComponent },

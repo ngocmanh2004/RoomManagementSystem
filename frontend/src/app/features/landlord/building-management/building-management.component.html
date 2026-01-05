@@ -5,8 +5,8 @@
       <p class="page-subtitle">Thứ Hai, ngày {{currentDate | date:'dd tháng MM, yyyy'}}</p>
     </div>
     <div class="header-right">
-      <button class="btn-add" (click)="openModal()">
-        <span>+</span> Thêm dãy trọ mới
+      <button class="btn btn-primary" (click)="openModal()">
+        <i class="fas fa-plus"></i> Thêm dãy trọ mới
       </button>
     </div>
   </div>
@@ -39,7 +39,7 @@
           <td>{{ i + 1 }}</td>
           <td>
             <img 
-              [src]="'http://localhost:8080' + building.imageUrl" 
+              [src]="'http://localhost:8081' + building.imageUrl" 
               alt="Building"
               class="building-image"
               onerror="this.src='https://via.placeholder.com/80x60?text=No+Image'"
@@ -51,13 +51,13 @@
           <td class="text-center">{{ getAvailableRoomCount(building) }}</td>
           <td>
             <div class="action-buttons">
-              <button class="btn-view" (click)="viewRooms(building.id!)" title="Xem phòng">
+              <button class="btn-icon btn-view" (click)="viewRooms(building.id!)" title="Xem phòng">
                 <i class="fas fa-door-open"></i>
               </button>
-              <button class="btn-edit" (click)="openModal(building)" title="Sửa">
+              <button class="btn-icon btn-edit" (click)="openModal(building)" title="Sửa">
                 <i class="fas fa-edit"></i>
               </button>
-              <button class="btn-delete" (click)="openDeleteModal(building)" title="Xóa">
+              <button class="btn-icon btn-delete" (click)="openDeleteModal(building)" title="Xóa">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
@@ -91,11 +91,33 @@
       <div class="form-row">
         <div class="form-group">
           <label>Tỉnh/TP <span class="required">*</span></label>
-          <input type="number" formControlName="provinceCode" placeholder="Mã tỉnh" />
+          <ng-select
+            formControlName="provinceCode"
+            [items]="provinces"
+            bindLabel="name"
+            bindValue="code"
+            placeholder="-- Chọn Tỉnh/Thành phố --"
+            [searchable]="true"
+            [clearable]="true"
+            (change)="onProvinceChange()"
+            notFoundText="Không tìm thấy tỉnh/thành phố"
+          >
+          </ng-select>
         </div>
         <div class="form-group">
           <label>Quận/Huyện <span class="required">*</span></label>
-          <input type="number" formControlName="districtCode" placeholder="Mã quận" />
+          <ng-select
+            formControlName="districtCode"
+            [items]="districts"
+            bindLabel="name"
+            bindValue="code"
+            placeholder="-- Chọn Quận/Huyện --"
+            [searchable]="true"
+            [clearable]="true"
+            [disabled]="!districts.length"
+            notFoundText="Vui lòng chọn tỉnh/thành phố trước"
+          >
+          </ng-select>
         </div>
       </div>
 
@@ -118,8 +140,8 @@
       <div class="error-message" *ngIf="formError">{{ formError }}</div>
 
       <div class="modal-footer">
-        <button type="button" class="btn-cancel" (click)="closeModal()">Hủy</button>
-        <button type="submit" class="btn-submit">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Hủy</button>
+        <button type="submit" class="btn btn-primary">
           {{ isEditMode ? 'Cập nhật' : 'Thêm mới' }}
         </button>
       </div>
@@ -140,8 +162,8 @@
       <div class="error-message" *ngIf="deleteError">{{ deleteError }}</div>
     </div>
     <div class="modal-footer">
-      <button class="btn-cancel" (click)="closeDeleteModal()">Hủy</button>
-      <button class="btn-delete-confirm" (click)="confirmDelete()">Xóa</button>
+      <button class="btn btn-secondary" (click)="closeDeleteModal()">Hủy</button>
+      <button class="btn btn-danger" (click)="confirmDelete()">Xóa</button>
     </div>
   </div>
 </div>

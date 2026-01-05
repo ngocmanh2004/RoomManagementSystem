@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -96,7 +98,11 @@ public class BuildingController {
     // CRUD Building cho Landlord
     @PostMapping
     public BuildingDTO createBuilding(@RequestBody BuildingDTO buildingDTO) {
-        return new BuildingDTO(buildingService.createBuilding(buildingDTO));
+        // Lấy username từ JWT token
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        
+        return new BuildingDTO(buildingService.createBuilding(buildingDTO, username));
     }
 
     @PutMapping("/{id}")

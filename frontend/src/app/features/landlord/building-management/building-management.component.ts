@@ -2,13 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { Building, BuildingService } from '../../../services/building.service';
 import { AuthService } from '../../../services/auth.service';
+import { ProvinceService } from '../../../services/province.service';
+import { Province, District } from '../../../models/province.model';
 
 @Component({
   selector: 'app-building-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgSelectModule],
   templateUrl: './building-management.component.html',
   styleUrls: ['./building-management.component.css'],
 })
@@ -17,6 +20,10 @@ export class BuildingManagementComponent implements OnInit {
   filteredBuildings: Building[] = [];
   searchTerm = '';
   currentDate: Date = new Date();
+
+  // Tỉnh thành & quận huyện
+  provinces: Province[] = [];
+  districts: District[] = [];
 
   // Modal
   isModalOpen = false;
@@ -38,7 +45,8 @@ export class BuildingManagementComponent implements OnInit {
     private buildingService: BuildingService,
     private authService: AuthService,
     private router: Router,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private provinceService: ProvinceService
   ) {
     this.buildingForm = this.fb.group({
       name: ['', Validators.required],
@@ -51,6 +59,31 @@ export class BuildingManagementComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadBuildings();
+    this.loadProvinces();
+  }
+
+  loadProvinces(): void {
+    this.provinceService.getAllProvinces().subscribe({
+      next: (data) => {
+        this.provinces = data;
+      },
+      error: (err) => console.error('Lỗi tải tỉnh thành:', err)
+    });
+  }
+
+  onProvinceChange(): void {
+    this.districts = [];
+    this.buildingForm.patchValue({ districtCode: '' });
+    
+    const provinceCode = this.buildingForm.get('provinceCode')?.value;
+    if (provinceCode) {
+      this.provinceService.getDistrictsByProvince(parseInt(provinceCode)).subscribe({
+        next: (data) => {
+          this.districts = data;
+        },
+        error: (err) => console.error('Lỗi tải quận huyện:', err)
+      });
+    }
   }
 
   loadBuildings(): void {
@@ -81,9 +114,19 @@ export class BuildingManagementComponent implements OnInit {
     if (building) {
       this.buildingForm.patchValue(building);
       this.imagePreview = building.imageUrl || null;
+      
+      // Load quận huyện khi edit
+      if (building.provinceCode) {
+        this.provinceService.getDistrictsByProvince(building.provinceCode).subscribe({
+          next: (data) => {
+            this.districts = data;
+          }
+        });
+      }
     } else {
       this.buildingForm.reset();
       this.imagePreview = null;
+      this.districts = [];
     }
     
     this.selectedImageFile = null;

@@ -13,7 +13,7 @@ export class RoomCardComponent {
   @Input() room: any;
 
   get mainImage(): string {
-    const baseUrl = 'http://localhost:8081/images/';
+    const baseUrl = 'http://localhost:8081';
     const raw =
       this.room?.mainImage ||
       this.room?.imageUrl ||
@@ -22,6 +22,8 @@ export class RoomCardComponent {
     if (!raw) return 'https://via.placeholder.com/400x300?text=Phòng+Trọ';
     if (/^https?:\/\//i.test(raw)) return raw;
     
-    return baseUrl + raw.replace(/^\/+/, '');
+    // Nếu raw đã có /images thì giữ nguyên, nếu không thì thêm
+    const imagePath = raw.startsWith('/') ? raw : '/images/' + raw;
+    return baseUrl + imagePath;
   }
 }

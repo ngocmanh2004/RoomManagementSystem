@@ -11,9 +11,9 @@
   --white: #ffffff;
   --green: #04ce77;
   --green-light: #e6fbf3;
-  --orange: #ffab00; /* Đã thuê (Giống ảnh) */
+  --orange: #ffab00;
   --orange-light: #fff7e6;
-  --blue-gray: #334155; /* Đang sửa (Giống ảnh) */
+  --blue-gray: #334155;
   --blue-gray-light: #f1f5f9;
   --red: #ef4444;
   --red-light: #fef2f2;
@@ -22,7 +22,7 @@
 .page-container {
   padding: 24px;
   background-color: var(--bg-color);
-  height: 100%;
+  min-height: 100vh;
 }
 
 /* =========================================== */
@@ -35,14 +35,14 @@
   margin-bottom: 24px;
 }
 
-.header-left h2 {
+.header-left .page-title {
   font-size: 24px;
   font-weight: 600;
   color: var(--text-primary);
   margin: 0 0 4px 0;
 }
 
-.header-left p {
+.header-left .page-subtitle {
   font-size: 14px;
   color: var(--text-secondary);
   margin: 0;
@@ -52,29 +52,6 @@
   display: flex;
   align-items: center;
   gap: 16px;
-}
-
-.search-bar {
-  display: flex;
-  align-items: center;
-  background: var(--white);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 8px 12px;
-  min-width: 250px;
-}
-
-.search-bar i {
-  color: var(--text-secondary);
-  margin-right: 8px;
-}
-
-.search-bar input {
-  border: none;
-  outline: none;
-  width: 100%;
-  font-size: 14px;
-  background: transparent;
 }
 
 .btn {
@@ -96,10 +73,6 @@
 }
 .btn-primary:hover {
   background-color: #3b56c4;
-}
-.btn-primary:disabled {
-  background-color: #b0c0f8;
-  cursor: not-allowed;
 }
 
 .btn-secondary {
@@ -123,10 +96,11 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 4px;
+  padding: 8px;
   font-size: 16px;
   border-radius: 4px;
   color: var(--text-secondary);
+  transition: all 0.2s ease;
 }
 .btn-icon:hover {
   background: var(--bg-color);
@@ -137,67 +111,9 @@
 .btn-icon.btn-delete:hover {
   color: var(--red);
 }
-.btn-icon.btn-close:hover {
-  color: var(--text-primary);
-}
-
-
-/* =========================================== */
-/* STAT CARDS
-/* =========================================== */
-.stat-cards {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin-bottom: 24px;
-}
-
-.card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: var(--white);
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-}
-
-.card i {
-  font-size: 20px;
-  padding: 12px;
-  border-radius: 50%;
-}
-
-.card-content span {
-  font-size: 14px;
-  color: var(--text-secondary);
-  display: block;
-}
-
-.card-content strong {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-/* Card colors */
-.card-total i {
-  color: var(--primary-color);
-  background: var(--primary-light);
-}
-.card-available i {
+.btn-icon.btn-view:hover {
   color: var(--green);
-  background: var(--green-light);
 }
-.card-occupied i {
-  color: var(--orange);
-  background: var(--orange-light);
-}
-.card-repairing i {
-  color: var(--blue-gray);
-  background: var(--blue-gray-light);
-}
-
 
 /* =========================================== */
 /* TABLE
@@ -214,13 +130,17 @@
   border-bottom: 1px solid var(--border-color);
 }
 
-.filter-select {
-  padding: 8px 12px;
-  border-radius: 6px;
+.search-input {
+  width: 100%;
+  padding: 10px 12px;
   border: 1px solid var(--border-color);
-  background: var(--white);
-  color: var(--text-secondary);
+  border-radius: 6px;
   font-size: 14px;
+}
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px var(--primary-light);
 }
 
 table {
@@ -252,42 +172,32 @@ tbody tr:hover {
   background-color: #fcfcfd;
 }
 
-td:first-child { /* Mã phòng */
+.building-name {
   font-weight: 500;
-  color: var(--primary-color);
+  color: var(--text-primary);
 }
 
-td.actions {
+.building-image {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.action-buttons {
   display: flex;
   gap: 8px;
+  justify-content: center;
 }
 
 .no-data {
   text-align: center;
   padding: 32px;
   color: var(--text-secondary);
-}
-
-/* Status Badge (US 1.4) */
-.status-badge {
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  /* (Giống trong ảnh, trạng thái không viết hoa) */
-  /* text-transform: capitalize; */
-}
-.status-badge.status-available {
-  color: var(--green);
-  background: var(--green-light);
-}
-.status-badge.status-occupied {
-  color: var(--orange);
-  background: var(--orange-light);
-}
-.status-badge.status-repairing {
-  color: var(--blue-gray);
-  background: var(--blue-gray-light);
 }
 
 /* =========================================== */
@@ -306,20 +216,17 @@ td.actions {
   z-index: 1000;
 }
 
-/* SỬA ĐỔI CLASS NÀY */
 .modal-content {
   background: var(--white);
   border-radius: 8px;
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   overflow: hidden;
   animation: modal-fade-in 0.2s ease-out;
-
-  /* THÊM 3 DÒNG SAU ĐỂ SỬA LỖI TRÀN */
   display: flex;
   flex-direction: column;
-  max-height: 90vh; /* Giới hạn chiều cao modal là 90% màn hình */
+  max-height: 90vh;
 }
 
 .modal-header {
@@ -328,10 +235,9 @@ td.actions {
   align-items: center;
   padding: 16px 24px;
   border-bottom: 1px solid var(--border-color);
-  
-  /* Thêm để header không bị co lại */
   flex-shrink: 0;
 }
+
 .modal-header h3 {
   font-size: 18px;
   font-weight: 600;
@@ -339,16 +245,31 @@ td.actions {
   color: var(--text-primary);
 }
 
-/* SỬA ĐỔI CLASS NÀY */
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+.close-btn:hover {
+  background: var(--bg-color);
+  color: var(--text-primary);
+}
+
 .modal-body {
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-
-  /* THÊM 2 DÒNG SAU ĐỂ SỬA LỖI TRÀN */
-  flex-grow: 1; /* Cho phép thân modal co giãn */
-  overflow-y: auto; /* Thêm thanh cuộn Y khi nội dung bị tràn */
+  flex-grow: 1;
+  overflow-y: auto;
 }
 
 .modal-footer {
@@ -358,8 +279,6 @@ td.actions {
   padding: 16px 24px;
   background: var(--bg-color);
   border-top: 1px solid var(--border-color);
-
-  /* Thêm để footer không bị co lại */
   flex-shrink: 0;
 }
 
@@ -374,7 +293,10 @@ td.actions {
 .modal-content.modal-delete .modal-body p strong {
   color: var(--text-primary);
 }
-
+.warning-text {
+  color: var(--orange);
+  font-size: 13px;
+}
 
 /* Form Styles */
 .form-group {
@@ -382,21 +304,28 @@ td.actions {
   flex-direction: column;
   gap: 6px;
 }
+
 .form-group label {
   font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
 }
+
+.required {
+  color: var(--red);
+}
+
 .form-group input,
 .form-group select,
 .form-group textarea {
   width: 100%;
-  box-sizing: border-box; /* Thêm để padding không làm vỡ layout */
+  box-sizing: border-box;
   padding: 10px 12px;
   border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 14px;
 }
+
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
@@ -405,20 +334,19 @@ td.actions {
   box-shadow: 0 0 0 2px var(--primary-light);
 }
 
-.form-row {
-  display: flex;
-  gap: 16px;
-}
-.form-row .form-group {
-  flex: 1;
+.form-group select:disabled {
+  background-color: var(--bg-color);
+  cursor: not-allowed;
 }
 
-.form-error {
-  font-size: 12px;
-  color: var(--red);
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
-.form-error-general {
-  font-size: 14px;
+
+.error-message {
+  font-size: 13px;
   color: var(--red);
   background: var(--red-light);
   padding: 10px;
@@ -426,175 +354,111 @@ td.actions {
   text-align: center;
 }
 
-/* =========================================== */
-/* CSS: IMAGE UPLOAD
-/* =========================================== */
-.image-preview-grid {
-  display: grid;
-  /* Hiển thị các ảnh trên lưới, mỗi ảnh rộng tối thiểu 100px */
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 12px;
-  margin-top: 8px;
-  padding: 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background: #fcfcfd;
-}
-
-.image-preview-item {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  border-radius: 6px;
-  overflow: hidden;
-  background: var(--bg-color);
-  border: 1px solid var(--border-color);
-}
-
-.image-preview-item img {
+.image-preview {
   width: 100%;
-  height: 100%;
-  object-fit: cover; /* Đảm bảo ảnh lấp đầy khung 100x100 */
-}
-
-.btn-delete-image {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  border: none;
-  border-radius: 50%; /* Nút tròn */
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  line-height: 1;
-  transition: all 0.2s ease;
-}
-.btn-delete-image:hover {
-  background: var(--red); /* Đổi màu đỏ khi hover */
-}
-
-.image-upload-zone {
-  width: 100px;
-  height: 100px;
+  max-height: 200px;
+  object-fit: cover;
   border-radius: 6px;
-  border: 2px dashed var(--border-color);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--text-secondary);
-  transition: all 0.2s ease;
-}
-.image-upload-zone:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-  background: var(--primary-light);
-}
-.image-upload-zone i {
-  font-size: 20px;
-  margin-bottom: 8px;
-}
-.image-upload-zone span {
-  font-size: 12px;
-  text-align: center;
-}
-
-/* =========================================== */
-/* CSS MỚI: AMENITY (TIỆN ÍCH)
-/* =========================================== */
-
-/* Container cho các tag/pill đã chọn */
-.amenity-pills-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 8px;
+  margin-top: 8px;
   border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background: #fcfcfd;
-  margin-top: 4px;
 }
 
-.amenity-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--primary-light);
-  color: var(--primary-color);
-  padding: 4px 10px;
-  border-radius: 16px;
+/* =========================================== */
+/* NG-SELECT CUSTOM STYLING
+/* =========================================== */
+::ng-deep .ng-select {
   font-size: 14px;
-  font-weight: 500;
 }
 
-.btn-remove-pill {
-  background: none;
-  border: none;
-  color: var(--primary-color);
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
+::ng-deep .ng-select .ng-select-container {
+  min-height: 42px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background-color: var(--white);
+  transition: all 0.2s ease;
 }
-.btn-remove-pill:hover {
+
+::ng-deep .ng-select.ng-select-focused .ng-select-container {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+}
+
+::ng-deep .ng-select .ng-select-container .ng-value-container {
+  padding-left: 12px;
+}
+
+::ng-deep .ng-select .ng-select-container .ng-value-container .ng-placeholder {
+  color: #9ca3af;
+}
+
+::ng-deep .ng-select .ng-select-container .ng-value-container .ng-input > input {
+  font-size: 14px;
   color: var(--text-primary);
 }
 
-/* Container cho dropdown và nút "+" */
-.amenity-add-controls {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-  align-items: center;
-}
-.amenity-add-controls .filter-select {
-  flex-grow: 1; /* Dropdown chiếm hết không gian */
-  margin: 0;
+::ng-deep .ng-select .ng-arrow-wrapper {
+  padding-right: 12px;
 }
 
-.btn-add-amenity {
-  flex-shrink: 0; /* Nút "+" không bị co lại */
-  background: var(--bg-color);
-  border: 1px solid var(--border-color);
+::ng-deep .ng-select .ng-clear-wrapper {
+  color: var(--text-secondary);
+}
+
+::ng-deep .ng-select.ng-select-disabled .ng-select-container {
+  background-color: #f9fafb;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Dropdown menu styling */
+::ng-deep .ng-dropdown-panel {
   border-radius: 6px;
-  padding: 8px 10px;
-}
-.btn-add-amenity:hover {
-  background: var(--primary-light);
-  color: var(--primary-color);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  margin-top: 4px;
 }
 
-/* UI khi bấm nút "+" */
-.quick-add-amenity {
-  display: flex;
-  width: 100%;
-  gap: 8px;
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items {
+  max-height: 240px;
 }
-.quick-add-amenity input {
-  flex-grow: 1;
-}
-.btn-sm {
-  padding: 6px 12px;
+
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
+  padding: 10px 12px;
   font-size: 14px;
-  flex-shrink: 0;
+  color: var(--text-primary);
+  transition: background-color 0.15s ease;
 }
 
-
-@keyframes modal-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-option:hover {
+  background-color: var(--primary-light);
 }
+
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
+  background-color: #f3f4f6;
+}
+
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-optgroup {
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  user-select: none;
+}
+
+/* Not found text */
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-disabled {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+

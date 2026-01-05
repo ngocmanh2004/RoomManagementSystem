@@ -33,7 +33,7 @@ public class UploadController {
         String relativePath = fileStorageService.save(file, buildingId, roomId);
 
         // ✅ TRẢ URL ĐÚNG
-        String url = "http://localhost:8081" + relativePath;
+        String url = "http://localhost:8080" + relativePath;
 
         return Map.of("url", url);
     }

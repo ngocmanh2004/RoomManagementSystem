@@ -5,6 +5,7 @@ import com.techroom.roommanagement.model.Room;
 import com.techroom.roommanagement.model.RoomImage;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class BuildingDTO {
     private int id;
     private String name;
@@ -30,6 +32,7 @@ public class BuildingDTO {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class LandlordInfo {
         private String fullName;
         private String phoneNumber;
@@ -42,6 +45,7 @@ public class BuildingDTO {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class RoomBasicInfo {
         private Integer id;
         private List<ImageInfo> images;
@@ -54,6 +58,7 @@ public class BuildingDTO {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class ImageInfo {
         private String imageUrl;
 
