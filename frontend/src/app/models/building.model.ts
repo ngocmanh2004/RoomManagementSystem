@@ -3,6 +3,7 @@ export interface Building {
   name: string;
   address: string;
   description?: string;
+  imageUrl?: string;
   landlord?: {
     id: number;
     fullName: string;
@@ -11,6 +12,8 @@ export interface Building {
   };
   totalRooms?: number;
   availableRooms?: number;
+  minPrice?: number;
+  maxPrice?: number;
   rooms?: Array<{
     id: number;
     images?: Array<{

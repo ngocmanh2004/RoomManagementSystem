@@ -1,13 +1,15 @@
-
 package com.techroom.roommanagement.service;
 
 import com.techroom.roommanagement.model.Building;
 import com.techroom.roommanagement.model.Room;
 import com.techroom.roommanagement.repository.BuildingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,6 +38,27 @@ public class BuildingService {
         });
         
         return buildings;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Building> getAllBuildings(Pageable pageable) {
+        Page<Building> buildingPage = buildingRepository.findAll(pageable);
+        
+        // Force load landlord, rooms và images
+        buildingPage.forEach(building -> {
+            if (building.getLandlord() != null && building.getLandlord().getUser() != null) {
+                building.getLandlord().getUser().getFullName();
+            }
+            if (building.getRooms() != null) {
+                building.getRooms().forEach(room -> {
+                    if (room.getImages() != null) {
+                        room.getImages().size();
+                    }
+                });
+            }
+        });
+        
+        return buildingPage;
     }
 
     @Transactional(readOnly = true)
@@ -74,9 +97,107 @@ public class BuildingService {
 
         return rooms;
     }
+
+    @Transactional(readOnly = true)
+    public Page<Room> getRoomsByBuildingId(int buildingId, Pageable pageable) {
+        Building building = buildingRepository.findById(buildingId)
+                .orElseThrow(() -> new RuntimeException("Building not found"));
+
+        List<Room> allRooms = building.getRooms();
+
+        // Force load images và amenities
+        allRooms.forEach(room -> {
+            room.getImages().size();
+            room.getAmenities().size();
+        });
+
+        // Manual pagination
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), allRooms.size());
+        
+        List<Room> pageContent = allRooms.subList(start, end);
+        
+        return new org.springframework.data.domain.PageImpl<>(
+            pageContent,
+            pageable,
+            allRooms.size()
+        );
+    }
+    
     // Lấy danh sách building theo landlordId
     @Transactional(readOnly = true)
     public List<Building> getBuildingsByLandlord(Integer landlordId) {
         return buildingRepository.findByLandlordId(landlordId);
+    }
+
+    // Tìm kiếm và lọc building
+    @Transactional(readOnly = true)
+    public List<Building> searchBuildings(
+            Integer provinceCode, 
+            Integer districtCode,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            BigDecimal minAcreage,
+            BigDecimal maxAcreage
+    ) {
+        List<Building> buildings = buildingRepository.findAll();
+        
+        // Force load landlord, rooms và images
+        buildings.forEach(building -> {
+            if (building.getLandlord() != null && building.getLandlord().getUser() != null) {
+                building.getLandlord().getUser().getFullName();
+            }
+            if (building.getRooms() != null) {
+                building.getRooms().forEach(room -> {
+                    if (room.getImages() != null) {
+                        room.getImages().size();
+                    }
+                });
+            }
+        });
+        
+        // Lọc theo các tiêu chí
+        return buildings.stream()
+            .filter(building -> {
+                // Lọc theo tỉnh
+                if (provinceCode != null && !provinceCode.equals(building.getProvinceCode())) {
+                    return false;
+                }
+                
+                // Lọc theo quận/huyện
+                if (districtCode != null && !districtCode.equals(building.getDistrictCode())) {
+                    return false;
+                }
+                
+                // Lọc theo giá và diện tích (kiểm tra ít nhất 1 phòng thỏa mãn)
+                if (building.getRooms() != null && !building.getRooms().isEmpty()) {
+                    boolean hasMatchingRoom = building.getRooms().stream()
+                        .anyMatch(room -> {
+                            // Kiểm tra giá
+                            if (minPrice != null && (room.getPrice() == null || room.getPrice().compareTo(minPrice) < 0)) {
+                                return false;
+                            }
+                            if (maxPrice != null && (room.getPrice() == null || room.getPrice().compareTo(maxPrice) > 0)) {
+                                return false;
+                            }
+                            
+                            // Kiểm tra diện tích
+                            if (minAcreage != null && (room.getArea() == null || room.getArea().compareTo(minAcreage) < 0)) {
+                                return false;
+                            }
+                            if (maxAcreage != null && (room.getArea() == null || room.getArea().compareTo(maxAcreage) > 0)) {
+                                return false;
+                            }
+                            
+                            return true;
+                        });
+                    
+                    return hasMatchingRoom;
+                }
+                
+                // Nếu không có phòng và có filter giá/diện tích thì loại bỏ
+                return minPrice == null && maxPrice == null && minAcreage == null && maxAcreage == null;
+            })
+            .toList();
     }
 }

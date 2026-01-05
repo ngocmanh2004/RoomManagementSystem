@@ -5,12 +5,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from '../../services/room.service';
 import { BuildingService } from '../../services/building.service';
 import { Building } from '../../models/building.model';
+import { PageResponse } from '../../models/page-response.model';
 import { RoomCardComponent } from '../../shared/components/room-card/room-card.component';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-building-rooms',
   standalone: true,
-  imports: [CommonModule, FormsModule, RoomCardComponent],
+  imports: [CommonModule, FormsModule, RoomCardComponent, PaginationComponent],
   templateUrl: './building-rooms.component.html',
   styleUrls: ['./building-rooms.component.css']
 })
@@ -19,6 +21,10 @@ export class BuildingRoomsComponent implements OnInit {
   building: Building | null = null;
   rooms: any[] = [];
   filteredRooms: any[] = [];
+  currentPage: number = 0;
+  pageSize: number = 8;
+  totalPages: number = 0;
+  totalElements: number = 0;
 
   selectedPrice: string = '';
   selectedAcreage: string = '';
@@ -50,14 +56,23 @@ export class BuildingRoomsComponent implements OnInit {
   }
 
   loadRooms(): void {
-    this.roomService.getRoomsByBuilding(this.buildingId).subscribe({
-      next: (data) => {
-        this.rooms = this.normalizeRoomData(data);
+    this.buildingService.getRoomsByBuildingPaged(this.buildingId, this.currentPage, this.pageSize).subscribe({
+      next: (response: PageResponse<any>) => {
+        this.rooms = this.normalizeRoomData(response.content);
         this.filteredRooms = [...this.rooms];
+        this.currentPage = response.number;
+        this.totalPages = response.totalPages;
+        this.totalElements = response.totalElements;
         this.sortRooms();
       },
       error: (err) => console.error('Lỗi tải phòng:', err)
     });
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadRooms();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   normalizeRoomData(rooms: any[]): any[] {

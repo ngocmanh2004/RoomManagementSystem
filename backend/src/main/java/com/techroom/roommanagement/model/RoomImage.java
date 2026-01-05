@@ -26,35 +26,4 @@ public class RoomImage {
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    /**
-     * ✅ Override getter để build đúng URL khi serialize
-     * Không dùng @JsonProperty vì sẽ conflict
-     */
-    public String getImageUrl() {
-        if (room == null || imageUrl == null) {
-            return imageUrl;
-        }
-
-        // Lấy tên file (phần sau dấu / cuối cùng)
-        String filename = imageUrl;
-        if (imageUrl.contains("/")) {
-            filename = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-        }
-
-        // ✅ Build URL: /images/{roomId}/{filename}
-        return "/images/" + room.getId() + "/" + filename;
-    }
-
-    /**
-     * ✅ Setter: lưu chỉ tên file vào DB
-     */
-    public void setImageUrl(String imageUrl) {
-        if (imageUrl != null && imageUrl.contains("/")) {
-            // Chỉ lấy tên file
-            this.imageUrl = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-        } else {
-            this.imageUrl = imageUrl;
-        }
-    }
 }

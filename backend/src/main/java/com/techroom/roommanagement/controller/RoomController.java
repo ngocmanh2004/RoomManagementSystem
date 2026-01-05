@@ -1,9 +1,13 @@
 package com.techroom.roommanagement.controller;
 
+import com.techroom.roommanagement.dto.PageResponseDTO;
 import com.techroom.roommanagement.dto.RoomDTO;
 import com.techroom.roommanagement.model.Room;
 import com.techroom.roommanagement.service.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
@@ -54,11 +58,25 @@ public class RoomController {
         return ResponseEntity.ok(rooms);
     }
 
-    // API public: trả về toàn bộ phòng (trang chủ, tìm kiếm...)
+    // API public: trả về toàn bộ phòng với phân trang (trang chủ, tìm kiếm...)
     @GetMapping
-    public ResponseEntity<List<Room>> getAllRooms() {
-        List<Room> rooms = roomService.getAllRooms();
-        return ResponseEntity.ok(rooms);
+    public ResponseEntity<PageResponseDTO<RoomDTO>> getAllRooms(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<RoomDTO> roomPage = roomService.getAllRooms(pageable)
+                .map(RoomDTO::new);
+        
+        PageResponseDTO<RoomDTO> response = new PageResponseDTO<>(
+                roomPage.getContent(),
+                roomPage.getNumber(),
+                roomPage.getSize(),
+                roomPage.getTotalElements(),
+                roomPage.getTotalPages(),
+                roomPage.isLast()
+        );
+        return ResponseEntity.ok(response);
     }
 
     // API riêng cho landlord: chỉ trả về phòng của landlord đang đăng nhập

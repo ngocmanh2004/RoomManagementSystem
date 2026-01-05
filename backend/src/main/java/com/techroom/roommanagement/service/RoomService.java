@@ -9,6 +9,8 @@ import com.techroom.roommanagement.repository.ContractRepository;
 import com.techroom.roommanagement.repository.RoomRepository;
 import com.techroom.roommanagement.repository.BuildingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,6 +74,24 @@ public class RoomService {
         });
 
         return rooms;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Room> getAllRooms(Pageable pageable) {
+        Page<Room> roomPage = roomRepository.findAll(pageable);
+
+        roomPage.forEach(room -> {
+            if (room.getImages() != null)
+                room.getImages().size();
+            if (room.getAmenities() != null)
+                room.getAmenities().size();
+            if (room.getStatus() == Room.RoomStatus.OCCUPIED) {
+                contractRepository.findActiveTenantFullNameByRoomId(room.getId())
+                        .ifPresent(fullName -> room.setTenantName(fullName));
+            }
+        });
+
+        return roomPage;
     }
 
     @Transactional(readOnly = true)

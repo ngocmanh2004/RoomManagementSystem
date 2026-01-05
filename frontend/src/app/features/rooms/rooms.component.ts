@@ -2,19 +2,25 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RoomService } from '../../services/room.service';
+import { PageResponse } from '../../models/page-response.model';
 import { RoomCardComponent } from '../../shared/components/room-card/room-card.component';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 import { ProvinceService } from '../../services/province.service'; 
 import { Province, District } from '../../models/province.model'; 
 
 @Component({
   selector: 'app-rooms',
   standalone: true,
-  imports: [CommonModule, FormsModule, RoomCardComponent],
+  imports: [CommonModule, FormsModule, RoomCardComponent, PaginationComponent],
   templateUrl: './rooms.component.html',
   styleUrls: ['./rooms.component.css'],
 })
 export class RoomsComponent implements OnInit {
   rooms: any[] = [];
+  currentPage: number = 0;
+  pageSize: number = 10;
+  totalPages: number = 0;
+  totalElements: number = 0;
   
   provinces: Province[] = [];
   districts: District[] = [];
@@ -37,13 +43,22 @@ export class RoomsComponent implements OnInit {
   }
 
   loadAllRooms(): void {
-    this.roomService.getAllRooms().subscribe({
-      next: (data) => {
-        this.rooms = this.normalizeRoomData(data);
+    this.roomService.getAllRoomsPaged(this.currentPage, this.pageSize).subscribe({
+      next: (response: PageResponse<any>) => {
+        this.rooms = this.normalizeRoomData(response.content);
+        this.currentPage = response.number;
+        this.totalPages = response.totalPages;
+        this.totalElements = response.totalElements;
         this.sortRooms(); 
       },
       error: (err) => console.error('Lỗi tải phòng:', err),
     });
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadAllRooms();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   loadProvinces(): void {

@@ -73,8 +73,23 @@
           </div>
         </div>
       </form>
-    </div> <div class="room-grid">
+    </div> 
+    
+    <div class="room-grid" *ngIf="rooms.length > 0">
       <app-room-card *ngFor="let room of rooms" [room]="room"></app-room-card>
+    </div>
+
+    <!-- Pagination -->
+    <app-pagination 
+      *ngIf="totalPages > 1"
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
+      (pageChange)="onPageChange($event)">
+    </app-pagination>
+
+    <div class="no-rooms" *ngIf="rooms.length === 0">
+      <i class="fa-solid fa-house-circle-xmark"></i>
+      <p>Không tìm thấy phòng nào</p>
     </div>
 
     <div class="load-more">

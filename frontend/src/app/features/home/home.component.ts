@@ -4,19 +4,25 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BuildingService } from '../../services/building.service';
 import { Building } from '../../models/building.model';
+import { PageResponse } from '../../models/page-response.model';
 import { BuildingCardComponent } from '../../shared/components/building-card/building-card.component';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 import { ProvinceService } from '../../services/province.service'; 
 import { Province, District } from '../../models/province.model'; 
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, BuildingCardComponent],
+  imports: [CommonModule, FormsModule, BuildingCardComponent, PaginationComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
   buildings: Building[] = [];
+  currentPage: number = 0;
+  pageSize: number = 5;
+  totalPages: number = 0;
+  totalElements: number = 0;
 
   provinces: Province[] = []; 
   districts: District[] = []; 
@@ -46,14 +52,24 @@ export class HomeComponent implements OnInit {
   }
 
   loadAllBuildings(): void {
-    this.buildingService.getAllBuildings().subscribe({
-      next: (data) => {
-        this.buildings = data;
+    this.buildingService.getAllBuildingsPaged(this.currentPage, this.pageSize).subscribe({
+      next: (response: PageResponse<Building>) => {
+        this.buildings = response.content;
+        this.currentPage = response.number;
+        this.totalPages = response.totalPages;
+        this.totalElements = response.totalElements;
+        console.log(`✅ Tải danh sách dãy trọ (trang ${this.currentPage + 1}):`, response);
       },
       error: (err) => {
         console.error('❌ Lỗi khi tải danh sách dãy trọ:', err);
       }
     });
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadAllBuildings();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   loadProvinces(): void {
@@ -84,9 +100,47 @@ export class HomeComponent implements OnInit {
 
   onSearch(evt?: Event): void {
     evt?.preventDefault();
-    // For now, just reload all buildings
-    // In future, can add search/filter for buildings
-    this.loadAllBuildings();
+    
+    // Build filter params
+    const filterParams: any = {};
+    
+    if (this.selectedProvinceCode) {
+      filterParams.provinceCode = this.selectedProvinceCode;
+    }
+    
+    if (this.selectedDistrictCode) {
+      filterParams.districtCode = this.selectedDistrictCode;
+    }
+    
+    // Parse price range
+    if (this.selectedPrice) {
+      const [min, max] = this.selectedPrice.split('-').map(p => parseInt(p));
+      filterParams.minPrice = min;
+      filterParams.maxPrice = max;
+    }
+    
+    // Parse acreage range
+    if (this.selectedAcreage) {
+      const [min, max] = this.selectedAcreage.split('-').map(a => parseInt(a));
+      filterParams.minAcreage = min;
+      filterParams.maxAcreage = max;
+    }
+    
+    // Call search API
+    if (Object.keys(filterParams).length > 0) {
+      this.buildingService.searchBuildings(filterParams).subscribe({
+        next: (data) => {
+          this.buildings = data;
+          console.log('✅ Tìm kiếm thành công:', data.length, 'dãy trọ');
+        },
+        error: (err) => {
+          console.error('❌ Lỗi khi tìm kiếm:', err);
+          this.buildings = [];
+        }
+      });
+    } else {
+      this.loadAllBuildings();
+    }
   }
 
   clearFilters(): void {

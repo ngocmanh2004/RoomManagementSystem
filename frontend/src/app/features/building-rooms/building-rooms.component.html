@@ -70,12 +70,20 @@
 
     <!-- Room Grid -->
     <div class="rooms-info">
-      <h3>Có {{ filteredRooms.length }} phòng</h3>
+      <h3>Có {{ totalElements }} phòng</h3>
     </div>
 
     <div class="room-grid" *ngIf="filteredRooms.length > 0">
       <app-room-card *ngFor="let room of filteredRooms" [room]="room"></app-room-card>
     </div>
+
+    <!-- Pagination -->
+    <app-pagination 
+      *ngIf="totalPages > 1"
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
+      (pageChange)="onPageChange($event)">
+    </app-pagination>
 
     <div class="no-rooms" *ngIf="filteredRooms.length === 0">
       <i class="fa-solid fa-inbox"></i>

@@ -5,6 +5,7 @@ import com.techroom.roommanagement.model.Room;
 import com.techroom.roommanagement.model.RoomImage;
 import lombok.Getter;
 import lombok.Setter;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,12 +17,15 @@ public class BuildingDTO {
     private String name;
     private String address;
     private String description;
+    private String imageUrl;
     private Integer provinceCode;
     private Integer districtCode;
     private LocalDateTime createdAt;
     private LandlordInfo landlord;
     private Integer totalRooms;
     private Integer availableRooms;
+    private BigDecimal minPrice;
+    private BigDecimal maxPrice;
     private List<RoomBasicInfo> rooms;
 
     @Getter
@@ -63,6 +67,7 @@ public class BuildingDTO {
         this.name = building.getName();
         this.address = building.getAddress();
         this.description = building.getDescription();
+        this.imageUrl = building.getImageUrl();
         this.provinceCode = building.getProvinceCode();
         this.districtCode = building.getDistrictCode();
         this.createdAt = building.getCreatedAt();
@@ -82,6 +87,19 @@ public class BuildingDTO {
                 .filter(room -> room.getStatus() == Room.RoomStatus.AVAILABLE)
                 .count();
 
+            // Calculate min and max price
+            this.minPrice = building.getRooms().stream()
+                .filter(room -> room.getPrice() != null)
+                .map(Room::getPrice)
+                .min(BigDecimal::compareTo)
+                .orElse(null);
+            
+            this.maxPrice = building.getRooms().stream()
+                .filter(room -> room.getPrice() != null)
+                .map(Room::getPrice)
+                .max(BigDecimal::compareTo)
+                .orElse(null);
+
             // Map rooms with images
             this.rooms = building.getRooms().stream()
                 .map(room -> new RoomBasicInfo(
@@ -95,6 +113,8 @@ public class BuildingDTO {
         } else {
             this.totalRooms = 0;
             this.availableRooms = 0;
+            this.minPrice = null;
+            this.maxPrice = null;
             this.rooms = List.of();
         }
     }

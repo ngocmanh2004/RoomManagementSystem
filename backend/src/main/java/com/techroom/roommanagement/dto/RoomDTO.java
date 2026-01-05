@@ -20,6 +20,7 @@ public class RoomDTO {
     private String description;
     private Integer buildingId;
     private String buildingName;
+    private String buildingAddress;
     private List<RoomImageDTO> images;
     private Set<AmenityDTO> amenities;
     private LocalDateTime createdAt;
@@ -37,20 +38,13 @@ public class RoomDTO {
         if (room.getBuilding() != null) {
             this.buildingId = room.getBuilding().getId();
             this.buildingName = room.getBuilding().getName();
+            this.buildingAddress = room.getBuilding().getAddress();
         }
 
-        // Convert images và build full URL ngay tại đây
+        // Convert images - không thêm prefix, để frontend xử lý
         this.images = room.getImages() != null
                 ? room.getImages().stream()
-                .map(img -> {
-                    RoomImageDTO dto = new RoomImageDTO(img);
-                    // Build full URL
-                    String filename = dto.getImageUrl();
-                    if (filename != null && !filename.startsWith("/")) {
-                        dto.setImageUrl("/images/" + room.getId() + "/" + filename);
-                    }
-                    return dto;
-                })
+                .map(img -> new RoomImageDTO(img))
                 .toList()
                 : List.of();
 

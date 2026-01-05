@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Amenity } from './amenity.service';
+import { PageResponse } from '../models/page-response.model';
 
 export type RoomStatus = 'AVAILABLE' | 'OCCUPIED' | 'REPAIRING';
 
@@ -32,6 +33,13 @@ export class RoomService {
 
   getAllRooms(): Observable<Room[]> {
     return this.http.get<Room[]>(`${this.apiBase}/rooms`);
+  }
+
+  getAllRoomsPaged(page: number = 0, size: number = 10): Observable<PageResponse<Room>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<PageResponse<Room>>(`${this.apiBase}/rooms`, { params });
   }
 
   getAmenities(): Observable<any[]> {

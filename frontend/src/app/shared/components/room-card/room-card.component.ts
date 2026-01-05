@@ -13,15 +13,15 @@ export class RoomCardComponent {
   @Input() room: any;
 
   get mainImage(): string {
+    const baseUrl = 'http://localhost:8081/images/';
     const raw =
       this.room?.mainImage ||
       this.room?.imageUrl ||
       this.room?.images?.[0]?.imageUrl || '';
 
-    if (!raw) return 'assets/images/default-room.jpg';
+    if (!raw) return 'https://via.placeholder.com/400x300?text=Phòng+Trọ';
     if (/^https?:\/\//i.test(raw)) return raw;
     
-    if (raw.startsWith('/images/')) return raw;
-    return `/images/${raw.replace(/^\/+/, '')}`;
+    return baseUrl + raw.replace(/^\/+/, '');
   }
 }
