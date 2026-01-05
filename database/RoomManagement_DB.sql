@@ -472,16 +472,16 @@ INSERT INTO landlords (user_id, cccd, address, expected_room_count, province_cod
 
 -- BUILDINGS (10 dãy trọ)
 INSERT INTO buildings (landlord_id, name, province_code, district_code, address, description, image_url) VALUES
-(1, 'Dãy trọ Quy Nhơn', 1, 1, '69 Cần Vương, Quy Nhơn, Bình Định', 'Gần trung tâm, có sân phơi, bảo vệ 24/7', '1/main.jpg'),
-(1, 'Nhà trọ Nguyễn Huệ', 1, 1, '128 Nguyễn Huệ, Quy Nhơn, Bình Định', 'View biển, thoáng mát, gần chợ', '2/main.jpg'),
-(1, 'Dãy trọ 47 Nguyễn Nhạc', 1, 2, '47 Nguyễn Nhạc, An Nhơn, Bình Định', 'Phòng trọ sinh viên giá rẻ, gần trường', '3/main.jpg'),
-(1, 'Nhà trọ An Phú', 1, 2, '89 Lê Duẩn, An Nhơn, Bình Định', 'Khu yên tĩnh, an ninh tốt', '4/main.jpg'),
-(1, 'Dãy trọ Phù Cát Center', 1, 3, '234 Hùng Vương, Phù Cát, Bình Định', 'Gần khu công nghiệp, phù hợp công nhân', '5/main.jpg'),
-(2, 'Nhà trọ Quận 7', 2, 5, '789 Nguyễn Thị Thập, Quận 7, TP.HCM', 'Căn hộ mini cao cấp, đầy đủ nội thất', '6/main.jpg'),
-(2, 'Dãy trọ Phú Mỹ Hưng', 2, 5, '456 Nguyễn Văn Linh, Quận 7, TP.HCM', 'Khu compound an ninh, có hồ bơi', '7/main.jpg'),
-(2, 'Nhà trọ Bến Thành', 2, 6, '78 Lê Thánh Tôn, Quận 1, TP.HCM', 'Vị trí đắc địa, view đẹp', '8/main.jpg'),
-(3, 'Dãy trọ Tuy Hòa', 3, 8, '110 Hùng Vương, Tuy Hòa, Phú Yên', 'Gần biển, thoáng mát, view đẹp', '9/main.jpg'),
-(3, 'Nhà trọ Phú Yên Center', 3, 8, '45 Trần Phú, Tuy Hòa, Phú Yên', 'Trung tâm thành phố, đầy đủ tiện ích', '10/main.jpg');
+(1, 'Dãy trọ Quy Nhơn', 1, 1, '69 Cần Vương, Quy Nhơn, Bình Định', 'Gần trung tâm, có sân phơi, bảo vệ 24/7', '/images/1/main.jpg'),
+(1, 'Nhà trọ Nguyễn Huệ', 1, 1, '128 Nguyễn Huệ, Quy Nhơn, Bình Định', 'View biển, thoáng mát, gần chợ', '/images/2/main.jpg'),
+(1, 'Dãy trọ 47 Nguyễn Nhạc', 1, 2, '47 Nguyễn Nhạc, An Nhơn, Bình Định', 'Phòng trọ sinh viên giá rẻ, gần trường', '/images/3/main.jpg'),
+(1, 'Nhà trọ An Phú', 1, 2, '89 Lê Duẩn, An Nhơn, Bình Định', 'Khu yên tĩnh, an ninh tốt', '/images/4/main.jpg'),
+(1, 'Dãy trọ Phù Cát Center', 1, 3, '234 Hùng Vương, Phù Cát, Bình Định', 'Gần khu công nghiệp, phù hợp công nhân', '/images/5/main.jpg'),
+(2, 'Nhà trọ Quận 7', 2, 5, '789 Nguyễn Thị Thập, Quận 7, TP.HCM', 'Căn hộ mini cao cấp, đầy đủ nội thất', '/images/6/main.jpg'),
+(2, 'Dãy trọ Phú Mỹ Hưng', 2, 5, '456 Nguyễn Văn Linh, Quận 7, TP.HCM', 'Khu compound an ninh, có hồ bơi', '/images/7/main.jpg'),
+(2, 'Nhà trọ Bến Thành', 2, 6, '78 Lê Thánh Tôn, Quận 1, TP.HCM', 'Vị trí đắc địa, view đẹp', '/images/8/main.jpg'),
+(3, 'Dãy trọ Tuy Hòa', 3, 8, '110 Hùng Vương, Tuy Hòa, Phú Yên', 'Gần biển, thoáng mát, view đẹp', '/images/9/main.jpg'),
+(3, 'Nhà trọ Phú Yên Center', 3, 8, '45 Trần Phú, Tuy Hòa, Phú Yên', 'Trung tâm thành phố, đầy đủ tiện ích', '/images/10/main.jpg');
 
 -- ROOMS (62 phòng: Building 1-2 có 10 phòng, còn lại 3-8 phòng)
 INSERT INTO rooms (building_id, name, price, area, status, description) VALUES
@@ -547,79 +547,79 @@ INSERT INTO rooms (building_id, name, price, area, status, description) VALUES
 (10, 'PY-102', 3300000, 33, 'AVAILABLE', 'Phòng tiêu chuẩn, giá tốt'),
 (10, 'PY-201', 3800000, 38, 'OCCUPIED', 'Phòng VIP, view đẹp nhất');
 
--- ROOM_IMAGES (Mỗi phòng có 4 ảnh: 1 chính + 3 phụ, lặp detail1-7)
+-- ROOM_IMAGES (Mỗi phòng có 4 ảnh detail, theo cấu trúc /images/buildingId/roomId/detailX.png)
 INSERT INTO room_images (room_id, image_url) VALUES
 -- Building 1 rooms (ID 1-10) - 10 phòng
-(1, '1/detail1.png'),(1, '1/detail2.png'),(1, '1/detail3.png'),(1, '1/detail4.png'),
-(2, '1/detail2.png'),(2, '1/detail3.png'),(2, '1/detail4.png'),(2, '1/detail5.png'),
-(3, '1/detail3.png'),(3, '1/detail4.png'),(3, '1/detail5.png'),(3, '1/detail6.png'),
-(4, '1/detail4.png'),(4, '1/detail5.png'),(4, '1/detail6.png'),(4, '1/detail7.png'),
-(5, '1/detail5.png'),(5, '1/detail6.png'),(5, '1/detail7.png'),(5, '1/detail1.png'),
-(6, '1/detail6.png'),(6, '1/detail7.png'),(6, '1/detail1.png'),(6, '1/detail2.png'),
-(7, '1/detail7.png'),(7, '1/detail1.png'),(7, '1/detail2.png'),(7, '1/detail3.png'),
-(8, '1/detail1.png'),(8, '1/detail2.png'),(8, '1/detail3.png'),(8, '1/detail4.png'),
-(9, '1/detail2.png'),(9, '1/detail3.png'),(9, '1/detail4.png'),(9, '1/detail5.png'),
-(10, '1/detail3.png'),(10, '1/detail4.png'),(10, '1/detail5.png'),(10, '1/detail6.png'),
+(1, '/images/1/1/detail1.png'),(1, '/images/1/1/detail2.png'),(1, '/images/1/1/detail3.png'),(1, '/images/1/1/detail4.png'),
+(2, '/images/1/2/detail1.png'),(2, '/images/1/2/detail2.png'),(2, '/images/1/2/detail3.png'),(2, '/images/1/2/detail4.png'),
+(3, '/images/1/3/detail1.png'),(3, '/images/1/3/detail2.png'),(3, '/images/1/3/detail3.png'),(3, '/images/1/3/detail4.png'),
+(4, '/images/1/4/detail1.png'),(4, '/images/1/4/detail2.png'),(4, '/images/1/4/detail3.png'),(4, '/images/1/4/detail4.png'),
+(5, '/images/1/5/detail1.png'),(5, '/images/1/5/detail2.png'),(5, '/images/1/5/detail3.png'),(5, '/images/1/5/detail4.png'),
+(6, '/images/1/6/detail1.png'),(6, '/images/1/6/detail2.png'),(6, '/images/1/6/detail3.png'),(6, '/images/1/6/detail4.png'),
+(7, '/images/1/7/detail1.png'),(7, '/images/1/7/detail2.png'),(7, '/images/1/7/detail3.png'),(7, '/images/1/7/detail4.png'),
+(8, '/images/1/8/detail1.png'),(8, '/images/1/8/detail2.png'),(8, '/images/1/8/detail3.png'),(8, '/images/1/8/detail4.png'),
+(9, '/images/1/9/detail1.png'),(9, '/images/1/9/detail2.png'),(9, '/images/1/9/detail3.png'),(9, '/images/1/9/detail4.png'),
+(10, '/images/1/10/detail1.png'),(10, '/images/1/10/detail2.png'),(10, '/images/1/10/detail3.png'),(10, '/images/1/10/detail4.png'),
 -- Building 2 rooms (ID 11-20) - 10 phòng
-(11, '2/detail1.png'),(11, '2/detail2.png'),(11, '2/detail3.png'),(11, '2/detail4.png'),
-(12, '2/detail2.png'),(12, '2/detail3.png'),(12, '2/detail4.png'),(12, '2/detail5.png'),
-(13, '2/detail3.png'),(13, '2/detail4.png'),(13, '2/detail5.png'),(13, '2/detail6.png'),
-(14, '2/detail4.png'),(14, '2/detail5.png'),(14, '2/detail6.png'),(14, '2/detail7.png'),
-(15, '2/detail5.png'),(15, '2/detail6.png'),(15, '2/detail7.png'),(15, '2/detail1.png'),
-(16, '2/detail6.png'),(16, '2/detail7.png'),(16, '2/detail1.png'),(16, '2/detail2.png'),
-(17, '2/detail7.png'),(17, '2/detail1.png'),(17, '2/detail2.png'),(17, '2/detail3.png'),
-(18, '2/detail1.png'),(18, '2/detail2.png'),(18, '2/detail3.png'),(18, '2/detail4.png'),
-(19, '2/detail2.png'),(19, '2/detail3.png'),(19, '2/detail4.png'),(19, '2/detail5.png'),
-(20, '2/detail3.png'),(20, '2/detail4.png'),(20, '2/detail5.png'),(20, '2/detail6.png'),
--- Building 3 rooms (ID 21-28) - 8 phòng
-(21, '3/detail1.png'),(21, '3/detail2.png'),(21, '3/detail3.png'),(21, '3/detail4.png'),
-(22, '3/detail2.png'),(22, '3/detail3.png'),(22, '3/detail4.png'),(22, '3/detail5.png'),
-(23, '3/detail3.png'),(23, '3/detail4.png'),(23, '3/detail5.png'),(23, '3/detail6.png'),
-(24, '3/detail4.png'),(24, '3/detail5.png'),(24, '3/detail6.png'),(24, '3/detail7.png'),
-(25, '3/detail5.png'),(25, '3/detail6.png'),(25, '3/detail7.png'),(25, '3/detail1.png'),
-(26, '3/detail6.png'),(26, '3/detail7.png'),(26, '3/detail1.png'),(26, '3/detail2.png'),
-(27, '3/detail7.png'),(27, '3/detail1.png'),(27, '3/detail2.png'),(27, '3/detail3.png'),
-(28, '3/detail1.png'),(28, '3/detail2.png'),(28, '3/detail3.png'),(28, '3/detail4.png'),
+(11, '/images/2/11/detail1.png'),(11, '/images/2/11/detail2.png'),(11, '/images/2/11/detail3.png'),(11, '/images/2/11/detail4.png'),
+(12, '/images/2/12/detail1.png'),(12, '/images/2/12/detail2.png'),(12, '/images/2/12/detail3.png'),(12, '/images/2/12/detail4.png'),
+(13, '/images/2/13/detail1.png'),(13, '/images/2/13/detail2.png'),(13, '/images/2/13/detail3.png'),(13, '/images/2/13/detail4.png'),
+(14, '/images/2/14/detail1.png'),(14, '/images/2/14/detail2.png'),(14, '/images/2/14/detail3.png'),(14, '/images/2/14/detail4.png'),
+(15, '/images/2/15/detail1.png'),(15, '/images/2/15/detail2.png'),(15, '/images/2/15/detail3.png'),(15, '/images/2/15/detail4.png'),
+(16, '/images/2/16/detail1.png'),(16, '/images/2/16/detail2.png'),(16, '/images/2/16/detail3.png'),(16, '/images/2/16/detail4.png'),
+(17, '/images/2/17/detail1.png'),(17, '/images/2/17/detail2.png'),(17, '/images/2/17/detail3.png'),(17, '/images/2/17/detail4.png'),
+(18, '/images/2/18/detail1.png'),(18, '/images/2/18/detail2.png'),(18, '/images/2/18/detail3.png'),(18, '/images/2/18/detail4.png'),
+(19, '/images/2/19/detail1.png'),(19, '/images/2/19/detail2.png'),(19, '/images/2/19/detail3.png'),(19, '/images/2/19/detail4.png'),
+(20, '/images/2/20/detail1.png'),(20, '/images/2/20/detail2.png'),(20, '/images/2/20/detail3.png'),(20, '/images/2/20/detail4.png'),
+-- Building 3 rooms (ID 21-28) - 8 phòng  
+(21, '/images/3/21/detail1.png'),(21, '/images/3/21/detail2.png'),(21, '/images/3/21/detail3.png'),(21, '/images/3/21/detail4.png'),
+(22, '/images/3/22/detail1.png'),(22, '/images/3/22/detail2.png'),(22, '/images/3/22/detail3.png'),(22, '/images/3/22/detail4.png'),
+(23, '/images/3/23/detail1.png'),(23, '/images/3/23/detail2.png'),(23, '/images/3/23/detail3.png'),(23, '/images/3/23/detail4.png'),
+(24, '/images/3/24/detail1.png'),(24, '/images/3/24/detail2.png'),(24, '/images/3/24/detail3.png'),(24, '/images/3/24/detail4.png'),
+(25, '/images/3/25/detail1.png'),(25, '/images/3/25/detail2.png'),(25, '/images/3/25/detail3.png'),(25, '/images/3/25/detail4.png'),
+(26, '/images/4/26/detail1.png'),(26, '/images/4/26/detail2.png'),(26, '/images/4/26/detail3.png'),(26, '/images/4/26/detail4.png'),
+(27, '/images/4/27/detail1.png'),(27, '/images/4/27/detail2.png'),(27, '/images/4/27/detail3.png'),(27, '/images/4/27/detail4.png'),
+(28, '/images/4/28/detail1.png'),(28, '/images/4/28/detail2.png'),(28, '/images/4/28/detail3.png'),(28, '/images/4/28/detail4.png'),
 -- Building 4 rooms (ID 29-35) - 7 phòng
-(29, '4/detail1.png'),(29, '4/detail2.png'),(29, '4/detail3.png'),(29, '4/detail4.png'),
-(30, '4/detail2.png'),(30, '4/detail3.png'),(30, '4/detail4.png'),(30, '4/detail5.png'),
-(31, '4/detail3.png'),(31, '4/detail4.png'),(31, '4/detail5.png'),(31, '4/detail6.png'),
-(32, '4/detail4.png'),(32, '4/detail5.png'),(32, '4/detail6.png'),(32, '4/detail7.png'),
-(33, '4/detail5.png'),(33, '4/detail6.png'),(33, '4/detail7.png'),(33, '4/detail1.png'),
-(34, '4/detail6.png'),(34, '4/detail7.png'),(34, '4/detail1.png'),(34, '4/detail2.png'),
-(35, '4/detail7.png'),(35, '4/detail1.png'),(35, '4/detail2.png'),(35, '4/detail3.png'),
+(29, '/images/4/29/detail1.png'),(29, '/images/4/29/detail2.png'),(29, '/images/4/29/detail3.png'),(29, '/images/4/29/detail4.png'),
+(30, '/images/5/30/detail1.png'),(30, '/images/5/30/detail2.png'),(30, '/images/5/30/detail3.png'),(30, '/images/5/30/detail4.png'),
+(31, '/images/5/31/detail1.png'),(31, '/images/5/31/detail2.png'),(31, '/images/5/31/detail3.png'),(31, '/images/5/31/detail4.png'),
+(32, '/images/5/32/detail1.png'),(32, '/images/5/32/detail2.png'),(32, '/images/5/32/detail3.png'),(32, '/images/5/32/detail4.png'),
+(33, '/images/5/33/detail1.png'),(33, '/images/5/33/detail2.png'),(33, '/images/5/33/detail3.png'),(33, '/images/5/33/detail4.png'),
+(34, '/images/5/34/detail1.png'),(34, '/images/5/34/detail2.png'),(34, '/images/5/34/detail3.png'),(34, '/images/5/34/detail4.png'),
+(35, '/images/5/35/detail1.png'),(35, '/images/5/35/detail2.png'),(35, '/images/5/35/detail3.png'),(35, '/images/5/35/detail4.png'),
 -- Building 5 rooms (ID 36-41) - 6 phòng
-(36, '5/detail1.png'),(36, '5/detail2.png'),(36, '5/detail3.png'),(36, '5/detail4.png'),
-(37, '5/detail2.png'),(37, '5/detail3.png'),(37, '5/detail4.png'),(37, '5/detail5.png'),
-(38, '5/detail3.png'),(38, '5/detail4.png'),(38, '5/detail5.png'),(38, '5/detail6.png'),
-(39, '5/detail4.png'),(39, '5/detail5.png'),(39, '5/detail6.png'),(39, '5/detail7.png'),
-(40, '5/detail5.png'),(40, '5/detail6.png'),(40, '5/detail7.png'),(40, '5/detail1.png'),
-(41, '5/detail6.png'),(41, '5/detail7.png'),(41, '5/detail1.png'),(41, '5/detail2.png'),
--- Building 6 rooms (ID 42-46) - 5 phòng
-(42, '6/detail1.png'),(42, '6/detail2.png'),(42, '6/detail3.png'),(42, '6/detail4.png'),
-(43, '6/detail2.png'),(43, '6/detail3.png'),(43, '6/detail4.png'),(43, '6/detail5.png'),
-(44, '6/detail3.png'),(44, '6/detail4.png'),(44, '6/detail5.png'),(44, '6/detail6.png'),
-(45, '6/detail4.png'),(45, '6/detail5.png'),(45, '6/detail6.png'),(45, '6/detail7.png'),
-(46, '6/detail5.png'),(46, '6/detail6.png'),(46, '6/detail7.png'),(46, '6/detail1.png'),
--- Building 7 rooms (ID 47-51) - 5 phòng
-(47, '7/detail1.png'),(47, '7/detail2.png'),(47, '7/detail3.png'),(47, '7/detail4.png'),
-(48, '7/detail2.png'),(48, '7/detail3.png'),(48, '7/detail4.png'),(48, '7/detail5.png'),
-(49, '7/detail3.png'),(49, '7/detail4.png'),(49, '7/detail5.png'),(49, '7/detail6.png'),
-(50, '7/detail4.png'),(50, '7/detail5.png'),(50, '7/detail6.png'),(50, '7/detail7.png'),
-(51, '7/detail5.png'),(51, '7/detail6.png'),(51, '7/detail7.png'),(51, '7/detail1.png'),
--- Building 8 rooms (ID 52-55) - 4 phòng
-(52, '8/detail1.png'),(52, '8/detail2.png'),(52, '8/detail3.png'),(52, '8/detail4.png'),
-(53, '8/detail2.png'),(53, '8/detail3.png'),(53, '8/detail4.png'),(53, '8/detail5.png'),
-(54, '8/detail3.png'),(54, '8/detail4.png'),(54, '8/detail5.png'),(54, '8/detail6.png'),
-(55, '8/detail4.png'),(55, '8/detail5.png'),(55, '8/detail6.png'),(55, '8/detail7.png'),
--- Building 9 rooms (ID 56-58) - 3 phòng
-(56, '9/detail1.png'),(56, '9/detail2.png'),(56, '9/detail3.png'),(56, '9/detail4.png'),
-(57, '9/detail2.png'),(57, '9/detail3.png'),(57, '9/detail4.png'),(57, '9/detail5.png'),
-(58, '9/detail3.png'),(58, '9/detail4.png'),(58, '9/detail5.png'),(58, '9/detail6.png'),
--- Building 10 rooms (ID 59-61) - 3 phòng
-(59, '10/detail1.png'),(59, '10/detail2.png'),(59, '10/detail3.png'),(59, '10/detail4.png'),
-(60, '10/detail2.png'),(60, '10/detail3.png'),(60, '10/detail4.png'),(60, '10/detail5.png'),
-(61, '10/detail3.png'),(61, '10/detail4.png'),(61, '10/detail5.png'),(61, '10/detail6.png');
+(36, '/images/6/36/detail1.png'),(36, '/images/6/36/detail2.png'),(36, '/images/6/36/detail3.png'),(36, '/images/6/36/detail4.png'),
+(37, '/images/6/37/detail1.png'),(37, '/images/6/37/detail2.png'),(37, '/images/6/37/detail3.png'),(37, '/images/6/37/detail4.png'),
+(38, '/images/6/38/detail1.png'),(38, '/images/6/38/detail2.png'),(38, '/images/6/38/detail3.png'),(38, '/images/6/38/detail4.png'),
+(39, '/images/6/39/detail1.png'),(39, '/images/6/39/detail2.png'),(39, '/images/6/39/detail3.png'),(39, '/images/6/39/detail4.png'),
+(40, '/images/6/40/detail1.png'),(40, '/images/6/40/detail2.png'),(40, '/images/6/40/detail3.png'),(40, '/images/6/40/detail4.png'),
+(41, '/images/6/41/detail1.png'),(41, '/images/6/41/detail2.png'),(41, '/images/6/41/detail3.png'),(41, '/images/6/41/detail4.png'),
+(42, '/images/6/42/detail1.png'),(42, '/images/6/42/detail2.png'),(42, '/images/6/42/detail3.png'),(42, '/images/6/42/detail4.png'),
+-- Building 6 rooms (ID 43-47) - 5 phòng
+(43, '/images/7/43/detail1.png'),(43, '/images/7/43/detail2.png'),(43, '/images/7/43/detail3.png'),(43, '/images/7/43/detail4.png'),
+(44, '/images/7/44/detail1.png'),(44, '/images/7/44/detail2.png'),(44, '/images/7/44/detail3.png'),(44, '/images/7/44/detail4.png'),
+(45, '/images/7/45/detail1.png'),(45, '/images/7/45/detail2.png'),(45, '/images/7/45/detail3.png'),(45, '/images/7/45/detail4.png'),
+(46, '/images/7/46/detail1.png'),(46, '/images/7/46/detail2.png'),(46, '/images/7/46/detail3.png'),(46, '/images/7/46/detail4.png'),
+(47, '/images/7/47/detail1.png'),(47, '/images/7/47/detail2.png'),(47, '/images/7/47/detail3.png'),(47, '/images/7/47/detail4.png'),
+(48, '/images/7/48/detail1.png'),(48, '/images/7/48/detail2.png'),(48, '/images/7/48/detail3.png'),(48, '/images/7/48/detail4.png'),
+(49, '/images/7/49/detail1.png'),(49, '/images/7/49/detail2.png'),(49, '/images/7/49/detail3.png'),(49, '/images/7/49/detail4.png'),
+(50, '/images/7/50/detail1.png'),(50, '/images/7/50/detail2.png'),(50, '/images/7/50/detail3.png'),(50, '/images/7/50/detail4.png'),
+-- Building 7 rooms (ID 51-55) - 5 phòng
+(51, '/images/8/51/detail1.png'),(51, '/images/8/51/detail2.png'),(51, '/images/8/51/detail3.png'),(51, '/images/8/51/detail4.png'),
+(52, '/images/8/52/detail1.png'),(52, '/images/8/52/detail2.png'),(52, '/images/8/52/detail3.png'),(52, '/images/8/52/detail4.png'),
+(53, '/images/8/53/detail1.png'),(53, '/images/8/53/detail2.png'),(53, '/images/8/53/detail3.png'),(53, '/images/8/53/detail4.png'),
+(54, '/images/8/54/detail1.png'),(54, '/images/8/54/detail2.png'),(54, '/images/8/54/detail3.png'),(54, '/images/8/54/detail4.png'),
+(55, '/images/8/55/detail1.png'),(55, '/images/8/55/detail2.png'),(55, '/images/8/55/detail3.png'),(55, '/images/8/55/detail4.png'),
+-- Building 8 rooms (ID 56-58) - 3 phòng
+(56, '/images/9/56/detail1.png'),(56, '/images/9/56/detail2.png'),(56, '/images/9/56/detail3.png'),(56, '/images/9/56/detail4.png'),
+(57, '/images/9/57/detail1.png'),(57, '/images/9/57/detail2.png'),(57, '/images/9/57/detail3.png'),(57, '/images/9/57/detail4.png'),
+(58, '/images/9/58/detail1.png'),(58, '/images/9/58/detail2.png'),(58, '/images/9/58/detail3.png'),(58, '/images/9/58/detail4.png'),
+(59, '/images/9/59/detail1.png'),(59, '/images/9/59/detail2.png'),(59, '/images/9/59/detail3.png'),(59, '/images/9/59/detail4.png'),
+(60, '/images/9/60/detail1.png'),(60, '/images/9/60/detail2.png'),(60, '/images/9/60/detail3.png'),(60, '/images/9/60/detail4.png'),
+-- Building 9 rooms (ID 61-62) - 2 phòng
+(61, '/images/10/61/detail1.png'),(61, '/images/10/61/detail2.png'),(61, '/images/10/61/detail3.png'),(61, '/images/10/61/detail4.png'),
+(62, '/images/10/62/detail1.png'),(62, '/images/10/62/detail2.png'),(62, '/images/10/62/detail3.png'),(62, '/images/10/62/detail4.png');
 
 -- AMENITIES
 INSERT INTO amenities (name, icon, description) VALUES
