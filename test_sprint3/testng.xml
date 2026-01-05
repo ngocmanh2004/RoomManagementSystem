@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Suite">
+  <test thread-count="5" name="Test">
+    <classes>
+      <class name="Epic9.US91"/>
+      <class name="Epic9.US92"/>
+      <class name="Epic11.US115"/>
+      <class name="Epic4.US41"/>
+      <class name="Epic14.US142"/>
+      <class name="Epic14.US141"/>
+    </classes>
+  </test> <!-- Test -->
+</suite> <!-- Suite -->

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Failed suite [Default suite]" guice-stage="DEVELOPMENT">
+  <test thread-count="5" name="Default test(failed)">
+    <classes>
+      <class name="Epic14.US142">
+        <methods>
+          <include name="afterClass"/>
+          <include name="TC_14_2_5_and_14_2_6_HandleNotes"/>
+          <include name="beforeClass"/>
+          <include name="TC_14_2_4_and_14_2_7_UpdateToResolved"/>
+        </methods>
+      </class> <!-- Epic14.US142 -->
+    </classes>
+  </test> <!-- Default test(failed) -->
+</suite> <!-- Failed suite [Default suite] -->

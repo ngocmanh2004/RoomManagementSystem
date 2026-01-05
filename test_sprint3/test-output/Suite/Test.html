@@ -1,0 +1,361 @@
+<html>
+<head>
+<title>TestNG:  Test</title>
+<link href="../testng.css" rel="stylesheet" type="text/css" />
+<link href="../my-testng.css" rel="stylesheet" type="text/css" />
+
+<style type="text/css">
+.log { display: none;} 
+.stack-trace { display: none;} 
+</style>
+<script type="text/javascript">
+<!--
+function flip(e) {
+  current = e.style.display;
+  if (current == 'block') {
+    e.style.display = 'none';
+    return 0;
+  }
+  else {
+    e.style.display = 'block';
+    return 1;
+  }
+}
+
+function toggleBox(szDivId, elem, msg1, msg2)
+{
+  var res = -1;  if (document.getElementById) {
+    res = flip(document.getElementById(szDivId));
+  }
+  else if (document.all) {
+    // this is the way old msie versions work
+    res = flip(document.all[szDivId]);
+  }
+  if(elem) {
+    if(res == 0) elem.innerHTML = msg1; else elem.innerHTML = msg2;
+  }
+
+}
+
+function toggleAllBoxes() {
+  if (document.getElementsByTagName) {
+    d = document.getElementsByTagName('div');
+    for (i = 0; i < d.length; i++) {
+      if (d[i].className == 'log') {
+        flip(d[i]);
+      }
+    }
+  }
+}
+
+// -->
+</script>
+
+</head>
+<body>
+<h2 align='center'>Test</h2><table border='1' align="center">
+<tr>
+<td>Tests passed/Failed/Skipped:</td><td>30/2/1</td>
+</tr><tr>
+<td>Started on:</td><td>Sun Jan 04 11:48:35 ICT 2026</td>
+</tr>
+<tr><td>Total time:</td><td>46 seconds (46199 ms)</td>
+</tr><tr>
+<td>Included groups:</td><td></td>
+</tr><tr>
+<td>Excluded groups:</td><td></td>
+</tr>
+</table><p/>
+<small><i>(Hover the method name to see the test class name)</i></small><p/>
+<table width='100%' border='1' class='invocation-failed'>
+<tr><td colspan='4' align='center'><b>FAILED TESTS</b></td></tr>
+<tr><td><b>Test method</b></td>
+<td><b>Attribute(s)</b></td>
+<td width="30%"><b>Exception</b></td>
+<td width="10%"><b>Time (seconds)</b></td>
+<td><b>Instance</b></td>
+</tr>
+<tr>
+<td title='Epic4.US41.TC_FUNC_4_1_11_UpdateStatusToPaid()'><b>TC_FUNC_4_1_11_UpdateStatusToPaid</b><br>Test class: Epic4.US41</td>
+<td><div><pre>java.lang.AssertionError: expected [Chưa thanh toán] but found [Đã thanh toán]
+	at Epic4.US41.TC_FUNC_4_1_11_UpdateStatusToPaid(US41.java:51)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+... Removed 31 stack frames</pre></div><a href='#' onClick='toggleBox("stack-trace366752671", this, "Click to show all stack frames", "Click to hide stack frames")'>Click to show all stack frames</a>
+<div class='stack-trace' id='stack-trace366752671'><pre>java.lang.AssertionError: expected [Chưa thanh toán] but found [Đã thanh toán]
+	at org.testng.Assert.fail(Assert.java:111)
+	at org.testng.Assert.failNotEquals(Assert.java:1590)
+	at org.testng.Assert.assertEqualsImpl(Assert.java:150)
+	at org.testng.Assert.assertEquals(Assert.java:132)
+	at org.testng.Assert.assertEquals(Assert.java:656)
+	at org.testng.Assert.assertEquals(Assert.java:666)
+	at Epic4.US41.TC_FUNC_4_1_11_UpdateStatusToPaid(US41.java:51)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.testng.internal.invokers.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:141)
+	at org.testng.internal.invokers.TestInvoker.invokeMethod(TestInvoker.java:687)
+	at org.testng.internal.invokers.TestInvoker.invokeTestMethod(TestInvoker.java:230)
+	at org.testng.internal.invokers.MethodRunner.runInSequence(MethodRunner.java:63)
+	at org.testng.internal.invokers.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:995)
+	at org.testng.internal.invokers.TestInvoker.invokeTestMethods(TestInvoker.java:203)
+	at org.testng.internal.invokers.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:154)
+	at org.testng.internal.invokers.TestMethodWorker.run(TestMethodWorker.java:134)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at org.testng.TestRunner.privateRun(TestRunner.java:741)
+	at org.testng.TestRunner.run(TestRunner.java:616)
+	at org.testng.SuiteRunner.runTest(SuiteRunner.java:421)
+	at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:413)
+	at org.testng.SuiteRunner.privateRun(SuiteRunner.java:373)
+	at org.testng.SuiteRunner.run(SuiteRunner.java:312)
+	at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+	at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:95)
+	at org.testng.TestNG.runSuitesSequentially(TestNG.java:1274)
+	at org.testng.TestNG.runSuitesLocally(TestNG.java:1208)
+	at org.testng.TestNG.runSuites(TestNG.java:1112)
+	at org.testng.TestNG.run(TestNG.java:1079)
+	at org.testng.remote.AbstractRemoteTestNG.run(AbstractRemoteTestNG.java:115)
+	at org.testng.remote.RemoteTestNG.initAndRun(RemoteTestNG.java:293)
+	at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:91)
+</pre></div></td>
+<td>0</td>
+<td>Epic4.US41@fa4c865</td></tr>
+<tr>
+<td title='Epic14.US142.TC_UI_14_2_2_VerifyNewStatusInList()'><b>TC_UI_14_2_2_VerifyNewStatusInList</b><br>Test class: Epic14.US142</td>
+<td><div><pre>java.lang.AssertionError: Không tìm thấy báo cáo &apos;Mới&apos;! expected [true] but found [false]
+	at Epic14.US142.TC_UI_14_2_2_VerifyNewStatusInList(US142.java:55)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+... Removed 28 stack frames</pre></div><a href='#' onClick='toggleBox("stack-trace345060426", this, "Click to show all stack frames", "Click to hide stack frames")'>Click to show all stack frames</a>
+<div class='stack-trace' id='stack-trace345060426'><pre>java.lang.AssertionError: Không tìm thấy báo cáo &apos;Mới&apos;! expected [true] but found [false]
+	at org.testng.Assert.fail(Assert.java:111)
+	at org.testng.Assert.failNotEquals(Assert.java:1590)
+	at org.testng.Assert.assertTrue(Assert.java:57)
+	at Epic14.US142.TC_UI_14_2_2_VerifyNewStatusInList(US142.java:55)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.testng.internal.invokers.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:141)
+	at org.testng.internal.invokers.TestInvoker.invokeMethod(TestInvoker.java:687)
+	at org.testng.internal.invokers.TestInvoker.invokeTestMethod(TestInvoker.java:230)
+	at org.testng.internal.invokers.MethodRunner.runInSequence(MethodRunner.java:63)
+	at org.testng.internal.invokers.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:995)
+	at org.testng.internal.invokers.TestInvoker.invokeTestMethods(TestInvoker.java:203)
+	at org.testng.internal.invokers.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:154)
+	at org.testng.internal.invokers.TestMethodWorker.run(TestMethodWorker.java:134)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at org.testng.TestRunner.privateRun(TestRunner.java:741)
+	at org.testng.TestRunner.run(TestRunner.java:616)
+	at org.testng.SuiteRunner.runTest(SuiteRunner.java:421)
+	at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:413)
+	at org.testng.SuiteRunner.privateRun(SuiteRunner.java:373)
+	at org.testng.SuiteRunner.run(SuiteRunner.java:312)
+	at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+	at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:95)
+	at org.testng.TestNG.runSuitesSequentially(TestNG.java:1274)
+	at org.testng.TestNG.runSuitesLocally(TestNG.java:1208)
+	at org.testng.TestNG.runSuites(TestNG.java:1112)
+	at org.testng.TestNG.run(TestNG.java:1079)
+	at org.testng.remote.AbstractRemoteTestNG.run(AbstractRemoteTestNG.java:115)
+	at org.testng.remote.RemoteTestNG.initAndRun(RemoteTestNG.java:293)
+	at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:91)
+</pre></div></td>
+<td>0</td>
+<td>Epic14.US142@3bd82cf5</td></tr>
+</table><p>
+<table width='100%' border='1' class='invocation-passed'>
+<tr><td colspan='4' align='center'><b>PASSED TESTS</b></td></tr>
+<tr><td><b>Test method</b></td>
+<td><b>Attribute(s)</b></td>
+<td width="30%"><b>Exception</b></td>
+<td width="10%"><b>Time (seconds)</b></td>
+<td><b>Instance</b></td>
+</tr>
+<tr>
+<td title='Epic14.US142.TC_14_2_4_and_14_2_7_UpdateToResolved()'><b>TC_14_2_4_and_14_2_7_UpdateToResolved</b><br>Test class: Epic14.US142</td>
+<td></td>
+<td>0</td>
+<td>Epic14.US142@3bd82cf5</td></tr>
+<tr>
+<td title='Epic9.US92.TC_9_2_10_PaymentWithCorrectOTP()'><b>TC_9_2_10_PaymentWithCorrectOTP</b><br>Test class: Epic9.US92</td>
+<td></td>
+<td>1</td>
+<td>Epic9.US92@b2c9a9c</td></tr>
+<tr>
+<td title='Epic9.US92.TC_9_2_7_VerifyOTPPageDisplayed()'><b>TC_9_2_7_VerifyOTPPageDisplayed</b><br>Test class: Epic9.US92</td>
+<td></td>
+<td>1</td>
+<td>Epic9.US92@b2c9a9c</td></tr>
+<tr>
+<td title='Epic9.US92.TC_UI_9_2_13_VerifyStatusAutoUpdated()'><b>TC_UI_9_2_13_VerifyStatusAutoUpdated</b><br>Test class: Epic9.US92</td>
+<td></td>
+<td>0</td>
+<td>Epic9.US92@b2c9a9c</td></tr>
+<tr>
+<td title='Epic11.US115.TC_11_5_5_SubmitReportSuccessfully()'><b>TC_11_5_5_SubmitReportSuccessfully</b><br>Test class: Epic11.US115</td>
+<td></td>
+<td>0</td>
+<td>Epic11.US115@4c178a76</td></tr>
+<tr>
+<td title='Epic4.US41.TC_FUNC_4_1_15_DefaultStatusCheck()'><b>TC_FUNC_4_1_15_DefaultStatusCheck</b><br>Test class: Epic4.US41</td>
+<td></td>
+<td>1</td>
+<td>Epic4.US41@fa4c865</td></tr>
+<tr>
+<td title='Epic14.US141.TC_UI_14_1_2_VerifyTableColumns()'><b>TC_UI_14_1_2_VerifyTableColumns</b><br>Test class: Epic14.US141</td>
+<td></td>
+<td>0</td>
+<td>Epic14.US141@544fa968</td></tr>
+<tr>
+<td title='Epic11.US115.TC_11_5_8_LogoutAndVerifyGuestMessage()'><b>TC_11_5_8_LogoutAndVerifyGuestMessage</b><br>Test class: Epic11.US115</td>
+<td></td>
+<td>0</td>
+<td>Epic11.US115@4c178a76</td></tr>
+<tr>
+<td title='Epic14.US141.TC_14_1_4_FilterByStatus()'><b>TC_14_1_4_FilterByStatus</b><br>Test class: Epic14.US141</td>
+<td></td>
+<td>2</td>
+<td>Epic14.US141@544fa968</td></tr>
+<tr>
+<td title='Epic9.US91.TC_9_1_11_VerifyNoInvoicesFound()'><b>TC_9_1_11_VerifyNoInvoicesFound</b><br>Test class: Epic9.US91</td>
+<td></td>
+<td>1</td>
+<td>Epic9.US91@61322f9d</td></tr>
+<tr>
+<td title='Epic9.US92.TC_9_2_3_OpenBankSelection()'><b>TC_9_2_3_OpenBankSelection</b><br>Test class: Epic9.US92</td>
+<td></td>
+<td>1</td>
+<td>Epic9.US92@b2c9a9c</td></tr>
+<tr>
+<td title='Epic9.US91.TC_9_1_5_VerifyTotalAmountCalculation()'><b>TC_9_1_5_VerifyTotalAmountCalculation</b><br>Test class: Epic9.US91</td>
+<td></td>
+<td>0</td>
+<td>Epic9.US91@61322f9d</td></tr>
+<tr>
+<td title='Epic9.US91.TC_UI_9_1_8_VerifyPaidStatus()'><b>TC_UI_9_1_8_VerifyPaidStatus</b><br>Test class: Epic9.US91</td>
+<td></td>
+<td>1</td>
+<td>Epic9.US91@61322f9d</td></tr>
+<tr>
+<td title='Epic11.US115.TC_UI_11_5_1_VerifyReportButtonVisible()'><b>TC_UI_11_5_1_VerifyReportButtonVisible</b><br>Test class: Epic11.US115</td>
+<td></td>
+<td>0</td>
+<td>Epic11.US115@4c178a76</td></tr>
+<tr>
+<td title='Epic14.US141.TC_UI_14_1_7_and_14_1_8_ViewDetailAndVerifyContent()'><b>TC_UI_14_1_7_and_14_1_8_ViewDetailAndVerifyContent</b><br>Test class: Epic14.US141</td>
+<td></td>
+<td>0</td>
+<td>Epic14.US141@544fa968</td></tr>
+<tr>
+<td title='Epic14.US141.TC_14_1_5_FilterByType()'><b>TC_14_1_5_FilterByType</b><br>Test class: Epic14.US141</td>
+<td></td>
+<td>2</td>
+<td>Epic14.US141@544fa968</td></tr>
+<tr>
+<td title='Epic11.US115.TC_UI_11_5_3_and_11_5_4_OpenFormAndVerifyReasons()'><b>TC_UI_11_5_3_and_11_5_4_OpenFormAndVerifyReasons</b><br>Test class: Epic11.US115</td>
+<td></td>
+<td>0</td>
+<td>Epic11.US115@4c178a76</td></tr>
+<tr>
+<td title='Epic4.US41.TC_FUNC_4_1_14_DuplicateInvoiceError()'><b>TC_FUNC_4_1_14_DuplicateInvoiceError</b><br>Test class: Epic4.US41</td>
+<td></td>
+<td>0</td>
+<td>Epic4.US41@fa4c865</td></tr>
+<tr>
+<td title='Epic9.US91.TC_UI_9_1_7_VerifyUnpaidStatus()'><b>TC_UI_9_1_7_VerifyUnpaidStatus</b><br>Test class: Epic9.US91</td>
+<td></td>
+<td>1</td>
+<td>Epic9.US91@61322f9d</td></tr>
+<tr>
+<td title='Epic9.US91.TC_FUNC_9_1_3_VerifyInvoiceMonthDisplay()'><b>TC_FUNC_9_1_3_VerifyInvoiceMonthDisplay</b><br>Test class: Epic9.US91</td>
+<td></td>
+<td>1</td>
+<td>Epic9.US91@61322f9d</td></tr>
+<tr>
+<td title='Epic9.US91.TC_UI_9_1_4_VerifyFullInvoiceInfo()'><b>TC_UI_9_1_4_VerifyFullInvoiceInfo</b><br>Test class: Epic9.US91</td>
+<td></td>
+<td>0</td>
+<td>Epic9.US91@61322f9d</td></tr>
+<tr>
+<td title='Epic14.US142.TC_UI_14_2_8_VerifySync()'><b>TC_UI_14_2_8_VerifySync</b><br>Test class: Epic14.US142</td>
+<td></td>
+<td>0</td>
+<td>Epic14.US142@3bd82cf5</td></tr>
+<tr>
+<td title='Epic14.US142.TC_14_2_9_LockAccount()'><b>TC_14_2_9_LockAccount</b><br>Test class: Epic14.US142</td>
+<td></td>
+<td>0</td>
+<td>Epic14.US142@3bd82cf5</td></tr>
+<tr>
+<td title='Epic14.US141.TC_UI_14_1_3_VerifyDataIntegrity()'><b>TC_UI_14_1_3_VerifyDataIntegrity</b><br>Test class: Epic14.US141</td>
+<td></td>
+<td>0</td>
+<td>Epic14.US141@544fa968</td></tr>
+<tr>
+<td title='Epic14.US142.TC_14_2_5_and_14_2_6_HandleNotes()'><b>TC_14_2_5_and_14_2_6_HandleNotes</b><br>Test class: Epic14.US142</td>
+<td></td>
+<td>0</td>
+<td>Epic14.US142@3bd82cf5</td></tr>
+<tr>
+<td title='Epic9.US92.TC_9_2_4_VerifyBankListDisplayed()'><b>TC_9_2_4_VerifyBankListDisplayed</b><br>Test class: Epic9.US92</td>
+<td></td>
+<td>1</td>
+<td>Epic9.US92@b2c9a9c</td></tr>
+<tr>
+<td title='Epic4.US41.TC_FUNC_4_1_13_CreateInvoiceSuccess()'><b>TC_FUNC_4_1_13_CreateInvoiceSuccess</b><br>Test class: Epic4.US41</td>
+<td></td>
+<td>0</td>
+<td>Epic4.US41@fa4c865</td></tr>
+<tr>
+<td title='Epic9.US92.TC_UI_9_2_5_and_9_2_6_SelectBankAndVerifyAmount()'><b>TC_UI_9_2_5_and_9_2_6_SelectBankAndVerifyAmount</b><br>Test class: Epic9.US92</td>
+<td></td>
+<td>0</td>
+<td>Epic9.US92@b2c9a9c</td></tr>
+<tr>
+<td title='Epic14.US141.TC_14_1_6_CombinedFilter()'><b>TC_14_1_6_CombinedFilter</b><br>Test class: Epic14.US141</td>
+<td></td>
+<td>2</td>
+<td>Epic14.US141@544fa968</td></tr>
+<tr>
+<td title='Epic9.US92.TC_9_2_8_VerifyEmptyCardNumberError()'><b>TC_9_2_8_VerifyEmptyCardNumberError</b><br>Test class: Epic9.US92</td>
+<td></td>
+<td>0</td>
+<td>Epic9.US92@b2c9a9c</td></tr>
+</table><p>
+<table width='100%' border='1' class='invocation-skipped'>
+<tr><td colspan='4' align='center'><b>SKIPPED TESTS</b></td></tr>
+<tr><td><b>Test method</b></td>
+<td><b>Attribute(s)</b></td>
+<td width="30%"><b>Exception</b></td>
+<td width="10%"><b>Time (seconds)</b></td>
+<td><b>Instance</b></td>
+</tr>
+<tr>
+<td title='Epic4.US41.TC_FUNC_4_1_12_RevertToUnpaid()'><b>TC_FUNC_4_1_12_RevertToUnpaid</b><br>Test class: Epic4.US41</td>
+<td><div><pre>java.lang.Throwable: Method Epic4.US41.TC_FUNC_4_1_12_RevertToUnpaid() on instance Epic4.US41@fa4c865 depends on not successfully finished methods 
+[Epic4.US41.TC_FUNC_4_1_11_UpdateStatusToPaid() on instance Epic4.US41@fa4c865]
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+... Removed 18 stack frames</pre></div><a href='#' onClick='toggleBox("stack-trace906370291", this, "Click to show all stack frames", "Click to hide stack frames")'>Click to show all stack frames</a>
+<div class='stack-trace' id='stack-trace906370291'><pre>java.lang.Throwable: Method Epic4.US41.TC_FUNC_4_1_12_RevertToUnpaid() on instance Epic4.US41@fa4c865 depends on not successfully finished methods 
+[Epic4.US41.TC_FUNC_4_1_11_UpdateStatusToPaid() on instance Epic4.US41@fa4c865]
+	at org.testng.internal.invokers.TestInvoker.invokeTestMethods(TestInvoker.java:159)
+	at org.testng.internal.invokers.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:154)
+	at org.testng.internal.invokers.TestMethodWorker.run(TestMethodWorker.java:134)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at org.testng.TestRunner.privateRun(TestRunner.java:741)
+	at org.testng.TestRunner.run(TestRunner.java:616)
+	at org.testng.SuiteRunner.runTest(SuiteRunner.java:421)
+	at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:413)
+	at org.testng.SuiteRunner.privateRun(SuiteRunner.java:373)
+	at org.testng.SuiteRunner.run(SuiteRunner.java:312)
+	at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+	at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:95)
+	at org.testng.TestNG.runSuitesSequentially(TestNG.java:1274)
+	at org.testng.TestNG.runSuitesLocally(TestNG.java:1208)
+	at org.testng.TestNG.runSuites(TestNG.java:1112)
+	at org.testng.TestNG.run(TestNG.java:1079)
+	at org.testng.remote.AbstractRemoteTestNG.run(AbstractRemoteTestNG.java:115)
+	at org.testng.remote.RemoteTestNG.initAndRun(RemoteTestNG.java:293)
+	at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:91)
+</pre></div></td>
+<td>0</td>
+<td>Epic4.US41@fa4c865</td></tr>
+</table><p>
+</body>
+</html>

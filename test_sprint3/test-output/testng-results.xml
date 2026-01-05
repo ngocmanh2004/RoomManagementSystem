@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results ignored="0" total="33" passed="30" failed="2" skipped="1">
+  <reporter-output>
+  </reporter-output>
+  <suite started-at="2026-01-04T11:48:35 ICT" name="Suite" finished-at="2026-01-04T11:49:22 ICT" duration-ms="46199">
+    <groups>
+    </groups>
+    <test started-at="2026-01-04T11:48:35 ICT" name="Test" finished-at="2026-01-04T11:49:22 ICT" duration-ms="46199">
+      <class name="Epic9.US91">
+        <test-method is-config="true" signature="beforeClass()[pri:0, instance:Epic9.US91@61322f9d]" started-at="2026-01-04T11:48:35 ICT" name="beforeClass" finished-at="2026-01-04T11:48:38 ICT" duration-ms="2684" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeClass -->
+        <test-method signature="TC_FUNC_9_1_3_VerifyInvoiceMonthDisplay()[pri:1, instance:Epic9.US91@61322f9d]" started-at="2026-01-04T11:48:38 ICT" name="TC_FUNC_9_1_3_VerifyInvoiceMonthDisplay" finished-at="2026-01-04T11:48:39 ICT" duration-ms="1402" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_FUNC_9_1_3_VerifyInvoiceMonthDisplay -->
+        <test-method signature="TC_UI_9_1_4_VerifyFullInvoiceInfo()[pri:2, instance:Epic9.US91@61322f9d]" started-at="2026-01-04T11:48:39 ICT" name="TC_UI_9_1_4_VerifyFullInvoiceInfo" finished-at="2026-01-04T11:48:39 ICT" depends-on-methods="Epic9.US91.TC_FUNC_9_1_3_VerifyInvoiceMonthDisplay" duration-ms="44" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_UI_9_1_4_VerifyFullInvoiceInfo -->
+        <test-method signature="TC_9_1_5_VerifyTotalAmountCalculation()[pri:3, instance:Epic9.US91@61322f9d]" started-at="2026-01-04T11:48:39 ICT" name="TC_9_1_5_VerifyTotalAmountCalculation" finished-at="2026-01-04T11:48:40 ICT" depends-on-methods="Epic9.US91.TC_UI_9_1_4_VerifyFullInvoiceInfo" duration-ms="106" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_9_1_5_VerifyTotalAmountCalculation -->
+        <test-method signature="TC_UI_9_1_7_VerifyUnpaidStatus()[pri:4, instance:Epic9.US91@61322f9d]" started-at="2026-01-04T11:48:40 ICT" name="TC_UI_9_1_7_VerifyUnpaidStatus" finished-at="2026-01-04T11:48:41 ICT" duration-ms="1184" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_UI_9_1_7_VerifyUnpaidStatus -->
+        <test-method signature="TC_UI_9_1_8_VerifyPaidStatus()[pri:5, instance:Epic9.US91@61322f9d]" started-at="2026-01-04T11:48:41 ICT" name="TC_UI_9_1_8_VerifyPaidStatus" finished-at="2026-01-04T11:48:42 ICT" duration-ms="1176" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_UI_9_1_8_VerifyPaidStatus -->
+        <test-method signature="TC_9_1_11_VerifyNoInvoicesFound()[pri:6, instance:Epic9.US91@61322f9d]" started-at="2026-01-04T11:48:42 ICT" name="TC_9_1_11_VerifyNoInvoicesFound" finished-at="2026-01-04T11:48:44 ICT" duration-ms="1683" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_9_1_11_VerifyNoInvoicesFound -->
+        <test-method is-config="true" signature="afterClass()[pri:0, instance:Epic9.US91@61322f9d]" started-at="2026-01-04T11:48:44 ICT" name="afterClass" finished-at="2026-01-04T11:48:44 ICT" duration-ms="178" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterClass -->
+      </class> <!-- Epic9.US91 -->
+      <class name="Epic9.US92">
+        <test-method is-config="true" signature="beforeClass()[pri:0, instance:Epic9.US92@b2c9a9c]" started-at="2026-01-04T11:48:44 ICT" name="beforeClass" finished-at="2026-01-04T11:48:46 ICT" duration-ms="2390" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeClass -->
+        <test-method signature="TC_9_2_3_OpenBankSelection()[pri:1, instance:Epic9.US92@b2c9a9c]" started-at="2026-01-04T11:48:46 ICT" name="TC_9_2_3_OpenBankSelection" finished-at="2026-01-04T11:48:48 ICT" duration-ms="1523" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_9_2_3_OpenBankSelection -->
+        <test-method signature="TC_9_2_4_VerifyBankListDisplayed()[pri:2, instance:Epic9.US92@b2c9a9c]" started-at="2026-01-04T11:48:48 ICT" name="TC_9_2_4_VerifyBankListDisplayed" finished-at="2026-01-04T11:48:49 ICT" depends-on-methods="Epic9.US92.TC_9_2_3_OpenBankSelection" duration-ms="1431" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_9_2_4_VerifyBankListDisplayed -->
+        <test-method signature="TC_UI_9_2_5_and_9_2_6_SelectBankAndVerifyAmount()[pri:3, instance:Epic9.US92@b2c9a9c]" started-at="2026-01-04T11:48:49 ICT" name="TC_UI_9_2_5_and_9_2_6_SelectBankAndVerifyAmount" finished-at="2026-01-04T11:48:50 ICT" depends-on-methods="Epic9.US92.TC_9_2_4_VerifyBankListDisplayed" duration-ms="675" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_UI_9_2_5_and_9_2_6_SelectBankAndVerifyAmount -->
+        <test-method signature="TC_9_2_8_VerifyEmptyCardNumberError()[pri:4, instance:Epic9.US92@b2c9a9c]" started-at="2026-01-04T11:48:50 ICT" name="TC_9_2_8_VerifyEmptyCardNumberError" finished-at="2026-01-04T11:48:51 ICT" depends-on-methods="Epic9.US92.TC_UI_9_2_5_and_9_2_6_SelectBankAndVerifyAmount" duration-ms="910" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_9_2_8_VerifyEmptyCardNumberError -->
+        <test-method signature="TC_9_2_7_VerifyOTPPageDisplayed()[pri:5, instance:Epic9.US92@b2c9a9c]" started-at="2026-01-04T11:48:51 ICT" name="TC_9_2_7_VerifyOTPPageDisplayed" finished-at="2026-01-04T11:48:52 ICT" depends-on-methods="Epic9.US92.TC_9_2_8_VerifyEmptyCardNumberError" duration-ms="1361" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_9_2_7_VerifyOTPPageDisplayed -->
+        <test-method signature="TC_9_2_10_PaymentWithCorrectOTP()[pri:6, instance:Epic9.US92@b2c9a9c]" started-at="2026-01-04T11:48:52 ICT" name="TC_9_2_10_PaymentWithCorrectOTP" finished-at="2026-01-04T11:48:54 ICT" depends-on-methods="Epic9.US92.TC_9_2_7_VerifyOTPPageDisplayed" duration-ms="1886" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_9_2_10_PaymentWithCorrectOTP -->
+        <test-method signature="TC_UI_9_2_13_VerifyStatusAutoUpdated()[pri:7, instance:Epic9.US92@b2c9a9c]" started-at="2026-01-04T11:48:54 ICT" name="TC_UI_9_2_13_VerifyStatusAutoUpdated" finished-at="2026-01-04T11:48:55 ICT" depends-on-methods="Epic9.US92.TC_9_2_10_PaymentWithCorrectOTP" duration-ms="731" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_UI_9_2_13_VerifyStatusAutoUpdated -->
+        <test-method is-config="true" signature="afterClass()[pri:0, instance:Epic9.US92@b2c9a9c]" started-at="2026-01-04T11:48:55 ICT" name="afterClass" finished-at="2026-01-04T11:48:55 ICT" duration-ms="155" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterClass -->
+      </class> <!-- Epic9.US92 -->
+      <class name="Epic4.US41">
+        <test-method is-config="true" signature="beforeClass()[pri:0, instance:Epic4.US41@fa4c865]" started-at="2026-01-04T11:49:00 ICT" name="beforeClass" finished-at="2026-01-04T11:49:03 ICT" duration-ms="2947" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeClass -->
+        <test-method signature="TC_FUNC_4_1_11_UpdateStatusToPaid()[pri:1, instance:Epic4.US41@fa4c865]" started-at="2026-01-04T11:49:03 ICT" name="TC_FUNC_4_1_11_UpdateStatusToPaid" finished-at="2026-01-04T11:49:03 ICT" duration-ms="67" status="FAIL">
+          <exception class="java.lang.AssertionError">
+            <message>
+              <![CDATA[expected [Chưa thanh toán] but found [Đã thanh toán]]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[java.lang.AssertionError: expected [Chưa thanh toán] but found [Đã thanh toán]
+at org.testng.Assert.fail(Assert.java:111)
+at org.testng.Assert.failNotEquals(Assert.java:1590)
+at org.testng.Assert.assertEqualsImpl(Assert.java:150)
+at org.testng.Assert.assertEquals(Assert.java:132)
+at org.testng.Assert.assertEquals(Assert.java:656)
+at org.testng.Assert.assertEquals(Assert.java:666)
+at Epic4.US41.TC_FUNC_4_1_11_UpdateStatusToPaid(US41.java:51)
+at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+at org.testng.internal.invokers.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:141)
+at org.testng.internal.invokers.TestInvoker.invokeMethod(TestInvoker.java:687)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethod(TestInvoker.java:230)
+at org.testng.internal.invokers.MethodRunner.runInSequence(MethodRunner.java:63)
+at org.testng.internal.invokers.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:995)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethods(TestInvoker.java:203)
+at org.testng.internal.invokers.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:154)
+at org.testng.internal.invokers.TestMethodWorker.run(TestMethodWorker.java:134)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+at org.testng.TestRunner.privateRun(TestRunner.java:741)
+at org.testng.TestRunner.run(TestRunner.java:616)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:421)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:413)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:373)
+at org.testng.SuiteRunner.run(SuiteRunner.java:312)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:95)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1274)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1208)
+at org.testng.TestNG.runSuites(TestNG.java:1112)
+at org.testng.TestNG.run(TestNG.java:1079)
+at org.testng.remote.AbstractRemoteTestNG.run(AbstractRemoteTestNG.java:115)
+at org.testng.remote.RemoteTestNG.initAndRun(RemoteTestNG.java:293)
+at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:91)
+]]>
+            </full-stacktrace>
+          </exception> <!-- java.lang.AssertionError -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_FUNC_4_1_11_UpdateStatusToPaid -->
+        <test-method signature="TC_FUNC_4_1_12_RevertToUnpaid()[pri:2, instance:Epic4.US41@fa4c865]" started-at="2026-01-04T11:49:03 ICT" name="TC_FUNC_4_1_12_RevertToUnpaid" finished-at="2026-01-04T11:49:03 ICT" depends-on-methods="Epic4.US41.TC_FUNC_4_1_11_UpdateStatusToPaid" duration-ms="0" status="SKIP">
+          <exception class="java.lang.Throwable">
+            <message>
+              <![CDATA[Method Epic4.US41.TC_FUNC_4_1_12_RevertToUnpaid() on instance Epic4.US41@fa4c865 depends on not successfully finished methods 
+[Epic4.US41.TC_FUNC_4_1_11_UpdateStatusToPaid() on instance Epic4.US41@fa4c865]]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[java.lang.Throwable: Method Epic4.US41.TC_FUNC_4_1_12_RevertToUnpaid() on instance Epic4.US41@fa4c865 depends on not successfully finished methods 
+[Epic4.US41.TC_FUNC_4_1_11_UpdateStatusToPaid() on instance Epic4.US41@fa4c865]
+at org.testng.internal.invokers.TestInvoker.invokeTestMethods(TestInvoker.java:159)
+at org.testng.internal.invokers.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:154)
+at org.testng.internal.invokers.TestMethodWorker.run(TestMethodWorker.java:134)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+at org.testng.TestRunner.privateRun(TestRunner.java:741)
+at org.testng.TestRunner.run(TestRunner.java:616)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:421)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:413)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:373)
+at org.testng.SuiteRunner.run(SuiteRunner.java:312)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:95)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1274)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1208)
+at org.testng.TestNG.runSuites(TestNG.java:1112)
+at org.testng.TestNG.run(TestNG.java:1079)
+at org.testng.remote.AbstractRemoteTestNG.run(AbstractRemoteTestNG.java:115)
+at org.testng.remote.RemoteTestNG.initAndRun(RemoteTestNG.java:293)
+at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:91)
+]]>
+            </full-stacktrace>
+          </exception> <!-- java.lang.Throwable -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_FUNC_4_1_12_RevertToUnpaid -->
+        <test-method signature="TC_FUNC_4_1_13_CreateInvoiceSuccess()[pri:3, instance:Epic4.US41@fa4c865]" started-at="2026-01-04T11:49:03 ICT" name="TC_FUNC_4_1_13_CreateInvoiceSuccess" finished-at="2026-01-04T11:49:04 ICT" duration-ms="924" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_FUNC_4_1_13_CreateInvoiceSuccess -->
+        <test-method signature="TC_FUNC_4_1_14_DuplicateInvoiceError()[pri:4, instance:Epic4.US41@fa4c865]" started-at="2026-01-04T11:49:04 ICT" name="TC_FUNC_4_1_14_DuplicateInvoiceError" finished-at="2026-01-04T11:49:05 ICT" depends-on-methods="Epic4.US41.TC_FUNC_4_1_13_CreateInvoiceSuccess" duration-ms="845" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_FUNC_4_1_14_DuplicateInvoiceError -->
+        <test-method signature="TC_FUNC_4_1_15_DefaultStatusCheck()[pri:5, instance:Epic4.US41@fa4c865]" started-at="2026-01-04T11:49:05 ICT" name="TC_FUNC_4_1_15_DefaultStatusCheck" finished-at="2026-01-04T11:49:06 ICT" duration-ms="1371" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_FUNC_4_1_15_DefaultStatusCheck -->
+        <test-method is-config="true" signature="afterClass()[pri:0, instance:Epic4.US41@fa4c865]" started-at="2026-01-04T11:49:06 ICT" name="afterClass" finished-at="2026-01-04T11:49:06 ICT" duration-ms="123" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterClass -->
+      </class> <!-- Epic4.US41 -->
+      <class name="Epic11.US115">
+        <test-method is-config="true" signature="beforeClass()[pri:0, instance:Epic11.US115@4c178a76]" started-at="2026-01-04T11:48:55 ICT" name="beforeClass" finished-at="2026-01-04T11:48:58 ICT" duration-ms="2774" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeClass -->
+        <test-method signature="TC_UI_11_5_1_VerifyReportButtonVisible()[pri:1, instance:Epic11.US115@4c178a76]" started-at="2026-01-04T11:48:58 ICT" name="TC_UI_11_5_1_VerifyReportButtonVisible" finished-at="2026-01-04T11:48:58 ICT" duration-ms="558" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_UI_11_5_1_VerifyReportButtonVisible -->
+        <test-method signature="TC_UI_11_5_3_and_11_5_4_OpenFormAndVerifyReasons()[pri:2, instance:Epic11.US115@4c178a76]" started-at="2026-01-04T11:48:58 ICT" name="TC_UI_11_5_3_and_11_5_4_OpenFormAndVerifyReasons" finished-at="2026-01-04T11:48:58 ICT" depends-on-methods="Epic11.US115.TC_UI_11_5_1_VerifyReportButtonVisible" duration-ms="85" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_UI_11_5_3_and_11_5_4_OpenFormAndVerifyReasons -->
+        <test-method signature="TC_11_5_5_SubmitReportSuccessfully()[pri:3, instance:Epic11.US115@4c178a76]" started-at="2026-01-04T11:48:58 ICT" name="TC_11_5_5_SubmitReportSuccessfully" finished-at="2026-01-04T11:48:59 ICT" depends-on-methods="Epic11.US115.TC_UI_11_5_3_and_11_5_4_OpenFormAndVerifyReasons" duration-ms="701" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_11_5_5_SubmitReportSuccessfully -->
+        <test-method signature="TC_11_5_8_LogoutAndVerifyGuestMessage()[pri:4, instance:Epic11.US115@4c178a76]" started-at="2026-01-04T11:48:59 ICT" name="TC_11_5_8_LogoutAndVerifyGuestMessage" finished-at="2026-01-04T11:49:00 ICT" depends-on-methods="Epic11.US115.TC_11_5_5_SubmitReportSuccessfully" duration-ms="972" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_11_5_8_LogoutAndVerifyGuestMessage -->
+        <test-method is-config="true" signature="afterClass()[pri:0, instance:Epic11.US115@4c178a76]" started-at="2026-01-04T11:49:00 ICT" name="afterClass" finished-at="2026-01-04T11:49:00 ICT" duration-ms="205" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterClass -->
+      </class> <!-- Epic11.US115 -->
+      <class name="Epic14.US141">
+        <test-method is-config="true" signature="beforeClass()[pri:0, instance:Epic14.US141@544fa968]" started-at="2026-01-04T11:49:11 ICT" name="beforeClass" finished-at="2026-01-04T11:49:14 ICT" duration-ms="2960" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeClass -->
+        <test-method signature="TC_UI_14_1_2_VerifyTableColumns()[pri:1, instance:Epic14.US141@544fa968]" started-at="2026-01-04T11:49:14 ICT" name="TC_UI_14_1_2_VerifyTableColumns" finished-at="2026-01-04T11:49:14 ICT" duration-ms="108" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_UI_14_1_2_VerifyTableColumns -->
+        <test-method signature="TC_UI_14_1_3_VerifyDataIntegrity()[pri:2, instance:Epic14.US141@544fa968]" started-at="2026-01-04T11:49:14 ICT" name="TC_UI_14_1_3_VerifyDataIntegrity" finished-at="2026-01-04T11:49:14 ICT" duration-ms="68" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_UI_14_1_3_VerifyDataIntegrity -->
+        <test-method signature="TC_14_1_4_FilterByStatus()[pri:3, instance:Epic14.US141@544fa968]" started-at="2026-01-04T11:49:14 ICT" name="TC_14_1_4_FilterByStatus" finished-at="2026-01-04T11:49:16 ICT" duration-ms="2148" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_14_1_4_FilterByStatus -->
+        <test-method signature="TC_14_1_5_FilterByType()[pri:4, instance:Epic14.US141@544fa968]" started-at="2026-01-04T11:49:16 ICT" name="TC_14_1_5_FilterByType" finished-at="2026-01-04T11:49:18 ICT" duration-ms="2179" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_14_1_5_FilterByType -->
+        <test-method signature="TC_14_1_6_CombinedFilter()[pri:5, instance:Epic14.US141@544fa968]" started-at="2026-01-04T11:49:18 ICT" name="TC_14_1_6_CombinedFilter" finished-at="2026-01-04T11:49:21 ICT" duration-ms="2120" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_14_1_6_CombinedFilter -->
+        <test-method signature="TC_UI_14_1_7_and_14_1_8_ViewDetailAndVerifyContent()[pri:6, instance:Epic14.US141@544fa968]" started-at="2026-01-04T11:49:21 ICT" name="TC_UI_14_1_7_and_14_1_8_ViewDetailAndVerifyContent" finished-at="2026-01-04T11:49:21 ICT" duration-ms="809" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_UI_14_1_7_and_14_1_8_ViewDetailAndVerifyContent -->
+        <test-method is-config="true" signature="afterClass()[pri:0, instance:Epic14.US141@544fa968]" started-at="2026-01-04T11:49:21 ICT" name="afterClass" finished-at="2026-01-04T11:49:22 ICT" duration-ms="159" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterClass -->
+      </class> <!-- Epic14.US141 -->
+      <class name="Epic14.US142">
+        <test-method is-config="true" signature="beforeClass()[pri:0, instance:Epic14.US142@3bd82cf5]" started-at="2026-01-04T11:49:06 ICT" name="beforeClass" finished-at="2026-01-04T11:49:09 ICT" duration-ms="2756" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeClass -->
+        <test-method signature="TC_UI_14_2_2_VerifyNewStatusInList()[pri:1, instance:Epic14.US142@3bd82cf5]" started-at="2026-01-04T11:49:09 ICT" name="TC_UI_14_2_2_VerifyNewStatusInList" finished-at="2026-01-04T11:49:09 ICT" duration-ms="26" status="FAIL">
+          <exception class="java.lang.AssertionError">
+            <message>
+              <![CDATA[Không tìm thấy báo cáo 'Mới'! expected [true] but found [false]]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[java.lang.AssertionError: Không tìm thấy báo cáo 'Mới'! expected [true] but found [false]
+at org.testng.Assert.fail(Assert.java:111)
+at org.testng.Assert.failNotEquals(Assert.java:1590)
+at org.testng.Assert.assertTrue(Assert.java:57)
+at Epic14.US142.TC_UI_14_2_2_VerifyNewStatusInList(US142.java:55)
+at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+at org.testng.internal.invokers.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:141)
+at org.testng.internal.invokers.TestInvoker.invokeMethod(TestInvoker.java:687)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethod(TestInvoker.java:230)
+at org.testng.internal.invokers.MethodRunner.runInSequence(MethodRunner.java:63)
+at org.testng.internal.invokers.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:995)
+at org.testng.internal.invokers.TestInvoker.invokeTestMethods(TestInvoker.java:203)
+at org.testng.internal.invokers.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:154)
+at org.testng.internal.invokers.TestMethodWorker.run(TestMethodWorker.java:134)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+at org.testng.TestRunner.privateRun(TestRunner.java:741)
+at org.testng.TestRunner.run(TestRunner.java:616)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:421)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:413)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:373)
+at org.testng.SuiteRunner.run(SuiteRunner.java:312)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:95)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1274)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1208)
+at org.testng.TestNG.runSuites(TestNG.java:1112)
+at org.testng.TestNG.run(TestNG.java:1079)
+at org.testng.remote.AbstractRemoteTestNG.run(AbstractRemoteTestNG.java:115)
+at org.testng.remote.RemoteTestNG.initAndRun(RemoteTestNG.java:293)
+at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:91)
+]]>
+            </full-stacktrace>
+          </exception> <!-- java.lang.AssertionError -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_UI_14_2_2_VerifyNewStatusInList -->
+        <test-method signature="TC_14_2_5_and_14_2_6_HandleNotes()[pri:2, instance:Epic14.US142@3bd82cf5]" started-at="2026-01-04T11:49:09 ICT" name="TC_14_2_5_and_14_2_6_HandleNotes" finished-at="2026-01-04T11:49:09 ICT" duration-ms="116" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_14_2_5_and_14_2_6_HandleNotes -->
+        <test-method signature="TC_14_2_4_and_14_2_7_UpdateToResolved()[pri:3, instance:Epic14.US142@3bd82cf5]" started-at="2026-01-04T11:49:09 ICT" name="TC_14_2_4_and_14_2_7_UpdateToResolved" finished-at="2026-01-04T11:49:10 ICT" duration-ms="648" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_14_2_4_and_14_2_7_UpdateToResolved -->
+        <test-method signature="TC_UI_14_2_8_VerifySync()[pri:4, instance:Epic14.US142@3bd82cf5]" started-at="2026-01-04T11:49:10 ICT" name="TC_UI_14_2_8_VerifySync" finished-at="2026-01-04T11:49:10 ICT" duration-ms="176" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_UI_14_2_8_VerifySync -->
+        <test-method signature="TC_14_2_9_LockAccount()[pri:5, instance:Epic14.US142@3bd82cf5]" started-at="2026-01-04T11:49:10 ICT" name="TC_14_2_9_LockAccount" finished-at="2026-01-04T11:49:11 ICT" duration-ms="606" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TC_14_2_9_LockAccount -->
+        <test-method is-config="true" signature="afterClass()[pri:0, instance:Epic14.US142@3bd82cf5]" started-at="2026-01-04T11:49:11 ICT" name="afterClass" finished-at="2026-01-04T11:49:11 ICT" duration-ms="135" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterClass -->
+      </class> <!-- Epic14.US142 -->
+    </test> <!-- Test -->
+  </suite> <!-- Suite -->
+</testng-results>
