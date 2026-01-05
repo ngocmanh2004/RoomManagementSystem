@@ -21,6 +21,7 @@ export class ChatbotComponent implements OnInit {
   userName = '';
   userPhone = '';
   isBrowser: boolean;
+  isLoading = false;
 
   messages: { from: 'user' | 'bot'; text: string }[] = [];
   showSuggestions = false;
@@ -77,11 +78,13 @@ export class ChatbotComponent implements OnInit {
 
   sendMessage() {
     const msg = this.inputText.trim();
-    if (!msg) return;
+    if (!msg || this.isLoading) return;
 
     this.messages.push({ from: 'user', text: msg });
     this.inputText = '';
     this.showSuggestions = false;
+    this.isLoading = true;
+    this.scrollToBottom();
 
     console.log('🚀 Sending message:', msg);
     this.chatbotService
@@ -89,6 +92,7 @@ export class ChatbotComponent implements OnInit {
       .subscribe({
         next: (res: any) => {
           console.log('✅ Received response:', res);
+          this.isLoading = false;
           const reply =
             res.candidates?.[0]?.content?.parts?.[0]?.text ||
             'Xin lỗi, em chưa hiểu ý của anh/chị.';
@@ -105,6 +109,7 @@ export class ChatbotComponent implements OnInit {
         },
         error: (err) => {
           console.error('❌ Component error:', err);
+          this.isLoading = false;
           this.messages.push({
             from: 'bot',
             text: '❌ Rất tiếc, đã có lỗi xảy ra. Vui lòng thử lại sau.',
@@ -113,8 +118,6 @@ export class ChatbotComponent implements OnInit {
           this.scrollToBottom();
         },
       });
-
-    this.scrollToBottom();
   }
 
   selectSuggestion(chip: string) {

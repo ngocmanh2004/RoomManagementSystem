@@ -29,6 +29,11 @@
     <div *ngFor="let msg of messages">
       <div [ngClass]="msg.from" [innerHTML]="msg.text"></div>
     </div>
+    <div class="bot typing-indicator" *ngIf="isLoading">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
   </div>
 
   <div class="suggestion-area" *ngIf="showSuggestions">

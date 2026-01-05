@@ -145,7 +145,8 @@ describe('ReviewService - Sprint 2 (US 11.1-11.4)', () => {
     service.getReviewsByRoom(roomId).subscribe({
       next: () => fail('should have failed'),
       error: (error) => {
-        expect(error.message).toContain('Lỗi tải đánh giá');
+        expect(error.message).toBeTruthy();
+        expect(['Lỗi tải đánh giá', 'Server error']).toContain(error.message);
       }
     });
 

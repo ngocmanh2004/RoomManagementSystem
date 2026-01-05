@@ -89,6 +89,7 @@ describe('ReviewListComponent - Sprint 2', () => {
 
     // TEST 2: Hiển thị tất cả đánh giá theo thứ tự thời gian
     it('should display all reviews in chronological order', () => {
+      component.roomId = 1;
       mockAuthService.isLoggedIn.and.returnValue(true);
       mockAuthService.getCurrentUserId.and.returnValue(10);
       mockReviewService.getReviewsByRoom.and.returnValue(of(mockReviewResponse));
@@ -101,6 +102,7 @@ describe('ReviewListComponent - Sprint 2', () => {
 
     // TEST 3: Hiển thị rating và comment của từng review
     it('should display rating and comment for each review', () => {
+      component.roomId = 1;
       mockAuthService.isLoggedIn.and.returnValue(true);
       mockAuthService.getCurrentUserId.and.returnValue(30);
       mockReviewService.getReviewsByRoom.and.returnValue(of(mockReviewResponse));
@@ -116,6 +118,7 @@ describe('ReviewListComponent - Sprint 2', () => {
 
     // TEST 4: Phân trang danh sách đánh giá
     it('should paginate review list', () => {
+      component.roomId = 1;
       mockAuthService.isLoggedIn.and.returnValue(true);
       mockAuthService.getCurrentUserId.and.returnValue(10);
       const page2Response = { ...mockReviewResponse, number: 1 };
@@ -145,6 +148,7 @@ describe('ReviewListComponent - Sprint 2', () => {
     
     // TEST 6: Hiển thị form gửi đánh giá
     it('should show review form when user has not reviewed yet', () => {
+      component.roomId = 1;
       mockAuthService.isLoggedIn.and.returnValue(true);
       mockAuthService.getCurrentUserId.and.returnValue(30);
       mockReviewService.getReviewsByRoom.and.returnValue(of(mockReviewResponse));
@@ -356,6 +360,7 @@ describe('ReviewListComponent - Sprint 2', () => {
     
     // TEST 20: Sort reviews by rating descending
     it('should sort reviews by highest rating first', () => {
+      component.roomId = 1;
       mockAuthService.isLoggedIn.and.returnValue(true);
       mockAuthService.getCurrentUserId.and.returnValue(10);
       const unsortedReviews = [
@@ -385,6 +390,7 @@ describe('ReviewListComponent - Sprint 2', () => {
 
     // TEST 22: Handle pagination edge case - last page
     it('should handle last page pagination correctly', () => {
+      component.roomId = 1;
       mockAuthService.isLoggedIn.and.returnValue(true);
       mockAuthService.getCurrentUserId.and.returnValue(10);
       const lastPageResponse = { ...mockReviewResponse, currentPage: 2, totalPages: 3 };
@@ -398,6 +404,7 @@ describe('ReviewListComponent - Sprint 2', () => {
 
     // TEST 23: Display error message when loading reviews fails
     it('should display error message when loading reviews fails', () => {
+      component.roomId = 1;
       spyOn(console, 'error');
       mockAuthService.isLoggedIn.and.returnValue(true);
       mockAuthService.getCurrentUserId.and.returnValue(10);
@@ -413,6 +420,7 @@ describe('ReviewListComponent - Sprint 2', () => {
 
     // TEST 24: Reload reviews after successful delete
     it('should reload reviews list after successful delete', () => {
+      component.roomId = 1;
       spyOn(window, 'confirm').and.returnValue(true);
       spyOn(component, 'loadReviews');
       mockReviewService.deleteReview.and.returnValue(of({} as any));
