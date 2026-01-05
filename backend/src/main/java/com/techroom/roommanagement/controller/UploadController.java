@@ -22,14 +22,15 @@ public class UploadController {
     @PostMapping
     public Map<String, String> upload(
             @RequestParam("file") MultipartFile file,
+            @RequestParam("buildingId") Integer buildingId,
             @RequestParam("roomId") Integer roomId
     ) {
         if (file.isEmpty()) {
             throw new RuntimeException("File rỗng");
         }
 
-        // ✅ LƯU FILE THẬT VÀO images/
-        String relativePath = fileStorageService.save(file, roomId);
+        // ✅ LƯU FILE THẬT VÀO images/buildingId/roomId/
+        String relativePath = fileStorageService.save(file, buildingId, roomId);
 
         // ✅ TRẢ URL ĐÚNG
         String url = "http://localhost:8081" + relativePath;
