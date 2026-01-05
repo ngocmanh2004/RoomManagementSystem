@@ -104,9 +104,17 @@ body { margin: 0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto
 }
 .act:hover{ background: #eef2ff; transform: translateY(-1px); }
 .act.primary{
-  background: var(--primary); color: white; border-radius: 6px; padding: 6px 14px;
+  background: #059669; /* Green color for payment button */
+  color: white; 
+  border-radius: 6px; 
+  padding: 6px 14px;
+  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
 }
-.act.primary:hover{ background: var(--primary-600); transform: translateY(-1px); }
+.act.primary:hover{ 
+  background: #047857; 
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(5, 150, 105, 0.3);
+}
 
 /* ==========================
    Badges (trạng thái)

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of, throwError } from 'rxjs';
 import { RoomDetailComponent } from './room-detail.component';
 import { RoomService } from '../../services/room.service';
@@ -48,7 +49,7 @@ describe('RoomDetailComponent - Sprint 2', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [RoomDetailComponent],
+      imports: [RoomDetailComponent, HttpClientTestingModule],
       providers: [
         { provide: RoomService, useValue: mockRoomService },
         { provide: AmenityService, useValue: mockAmenityService },
@@ -85,6 +86,7 @@ describe('RoomDetailComponent - Sprint 2', () => {
 
     // TEST 2: Tạo URL Google Maps từ địa chỉ phòng
     it('should create Google Maps URL from room address', () => {
+      component.roomId = 1;
       mockRoomService.getRoomById.and.returnValue(of(mockRoom));
       mockAmenityService.getAmenitiesByRoom.and.returnValue(of([]));
       mockSanitizer.bypassSecurityTrustResourceUrl.and.returnValue('safe-url' as any);
@@ -98,6 +100,7 @@ describe('RoomDetailComponent - Sprint 2', () => {
 
     // TEST 3: Sanitize Google Maps URL để embed an toàn
     it('should sanitize Google Maps URL for safe embedding', () => {
+      component.roomId = 1;
       mockRoomService.getRoomById.and.returnValue(of(mockRoom));
       mockAmenityService.getAmenitiesByRoom.and.returnValue(of([]));
       mockSanitizer.bypassSecurityTrustResourceUrl.and.returnValue('safe-url' as any);
@@ -152,6 +155,7 @@ describe('RoomDetailComponent - Sprint 2', () => {
 
     // TEST 7: Hiển thị ảnh đầu tiên làm ảnh chính
     it('should display first image as main image', () => {
+      component.roomId = 1;
       mockRoomService.getRoomById.and.returnValue(of(mockRoom));
       mockAmenityService.getAmenitiesByRoom.and.returnValue(of([]));
       mockSanitizer.bypassSecurityTrustResourceUrl.and.returnValue('safe-url' as any);
@@ -163,6 +167,9 @@ describe('RoomDetailComponent - Sprint 2', () => {
 
     // TEST 8: Mở modal đặt phòng
     it('should open booking modal', () => {
+      spyOn(window, 'alert');
+      mockAuthService.isLoggedIn.and.returnValue(true);
+      mockAuthService.getUserRole.and.returnValue(1);
       component.openBookingModal();
       
       expect(component.isBookingModalOpen).toBe(true);
@@ -187,6 +194,7 @@ describe('RoomDetailComponent - Sprint 2', () => {
         { id: 1, name: 'Wifi', icon: 'wifi', roomId: 1 },
         { id: 2, name: 'Điều hòa', icon: 'ac', roomId: 1 }
       ];
+      component.roomId = 1;
       mockRoomService.getRoomById.and.returnValue(of(mockRoom));
       mockAmenityService.getAmenitiesByRoom.and.returnValue(of(mockAmenities as any));
       mockSanitizer.bypassSecurityTrustResourceUrl.and.returnValue('safe-url' as any);
@@ -199,6 +207,7 @@ describe('RoomDetailComponent - Sprint 2', () => {
 
     // TEST 11: Navigate through image gallery
     it('should navigate to next image in gallery', () => {
+      component.roomId = 1;
       mockRoomService.getRoomById.and.returnValue(of(mockRoom));
       mockAmenityService.getAmenitiesByRoom.and.returnValue(of([]));
       mockSanitizer.bypassSecurityTrustResourceUrl.and.returnValue('safe-url' as any);
@@ -214,6 +223,7 @@ describe('RoomDetailComponent - Sprint 2', () => {
 
     // TEST 12: Navigate to previous image in gallery
     it('should navigate to previous image in gallery', () => {
+      component.roomId = 1;
       mockRoomService.getRoomById.and.returnValue(of(mockRoom));
       mockAmenityService.getAmenitiesByRoom.and.returnValue(of([]));
       mockSanitizer.bypassSecurityTrustResourceUrl.and.returnValue('safe-url' as any);

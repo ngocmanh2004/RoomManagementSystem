@@ -6,13 +6,13 @@ import { CHATBOT_DATA } from '../shared/components/chatbot/chatbot-data';
 import { RoomService } from './room.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ChatbotService {
-  private API_KEY = 'AIzaSyDH2OK8yL4sGSBSm0DCmcJ6jxkB2IMiDD4'; 
-  
-private URL = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${this.API_KEY}`;
-private cachedRooms: any[] | null = null;
+  private API_KEY = 'AIzaSyBFiRhVrTVQVD8PHbHpHSj7k9_G4Z6eSB8';
+  private URL = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${this.API_KEY}`;
+
+  private cachedRooms: any[] | null = null;
   private cacheTime: number = 0;
   private CACHE_DURATION = 5 * 60 * 1000;
 
@@ -35,15 +35,24 @@ private cachedRooms: any[] | null = null;
         this.cacheTime = Date.now();
         console.log('Preloaded', rooms?.length, 'phòng vào cache');
       },
-      error: (err) => console.error('⚠️ Preload failed:', err)
+      error: (err) => console.error('⚠️ Preload failed:', err),
     });
   }
 
-  sendMessage(userPrompt: string, userName: string, userPhone: string): Observable<any> {
+  sendMessage(
+    userPrompt: string,
+    userName: string,
+    userPhone: string
+  ): Observable<any> {
     const now = Date.now();
-    if (this.cachedRooms && (now - this.cacheTime) < this.CACHE_DURATION) {
+    if (this.cachedRooms && now - this.cacheTime < this.CACHE_DURATION) {
       console.log('Sử dụng cache');
-      return this.buildPromptAndSend(this.cachedRooms, userPrompt, userName, userPhone);
+      return this.buildPromptAndSend(
+        this.cachedRooms,
+        userPrompt,
+        userName,
+        userPhone
+      );
     }
 
     console.log('Đang tải dữ liệu phòng...');
@@ -53,39 +62,48 @@ private cachedRooms: any[] | null = null;
         this.cachedRooms = rooms;
         this.cacheTime = now;
         console.log('Đã cache', rooms?.length, 'phòng');
-        
+
         return this.buildPromptAndSend(rooms, userPrompt, userName, userPhone);
       }),
       catchError((error) => {
         console.error('Error:', error);
         return of({
-          candidates: [{
-            content: {
-              parts: [{
-                text: 'Xin lỗi Anh/Chị, em đang gặp chút trục trặc kỹ thuật. Vui lòng liên hệ hotline 0779 421 219 nhé! 🙏'
-              }]
-            }
-          }]
+          candidates: [
+            {
+              content: {
+                parts: [
+                  {
+                    text: 'Xin lỗi Anh/Chị, em đang gặp chút trục trặc kỹ thuật. Vui lòng liên hệ hotline 0779 421 219 nhé! 🙏',
+                  },
+                ],
+              },
+            },
+          ],
         });
       })
     );
   }
 
-  private buildPromptAndSend(rooms: any[], userPrompt: string, userName: string, userPhone: string): Observable<any> {
+  private buildPromptAndSend(
+    rooms: any[],
+    userPrompt: string,
+    userName: string,
+    userPhone: string
+  ): Observable<any> {
     console.log('📊 Số phòng trong cache:', rooms?.length);
-    
+
     const filteredRooms = this.filterRelevantRooms(rooms, userPrompt);
     console.log('✅ Sau khi lọc:', filteredRooms.length, 'phòng');
-    
+
     let roomsData = '\n\n=== DANH SÁCH PHÒNG PHÙ HỢP ===\n';
-    
+
     if (filteredRooms.length > 0) {
       filteredRooms.forEach((room: any, index: number) => {
         const buildingName = room.buildingName || 'Chưa xác định';
         const address = room.buildingAddress || 'Chưa cập nhật';
         const price = room.price || 0;
         const area = room.area || room.acreage || 0;
-        
+
         roomsData += `\n[${index + 1}] ${room.name} (ID: ${room.id})`;
         roomsData += `\n    Giá: ${price.toLocaleString('vi-VN')} VNĐ/tháng`;
         roomsData += `\n    Diện tích: ${area} m2`;
@@ -119,7 +137,7 @@ Lưu ý quan trọng:
   Dạ anh/chị, em tìm thấy phòng phù hợp:<br><br>
   🏠 <a href="/rooms/1" target="_blank" style="color:#667eea;text-decoration:none;font-weight:bold;">Phòng 101 - Dãy trọ Nguyễn Thái Học</a><br>
   - Địa chỉ: 69 Cần Vương, Quy Nhơn, Bình Định<br>
-  - Giá thuê: 2.5 triệu/tháng - Diện tích: 20m² - Còn trống<br><br>
+  - Giá thuê: 2.5 triệu/tháng<br> - Diện tích: 20m²<br> - Còn trống<br><br>
   
   Anh/chị vui lòng click vào tên phòng để xem chi tiết phòng ạ!
 
@@ -132,13 +150,24 @@ Lưu ý quan trọng:
 `;
 
     const body = {
-      contents: [{
-        parts: [{ text: fullPrompt }]
-      }]
+      contents: [
+        {
+          parts: [{ text: fullPrompt }],
+        },
+      ],
+      generationConfig: {
+        maxOutputTokens: 4000,
+        temperature: 0.3,
+        topP: 0.9,
+      },
     };
 
-    console.log('Sending to Gemini, prompt length:', fullPrompt.length, 'chars');
-    
+    console.log(
+      'Sending to Gemini, prompt length:',
+      fullPrompt.length,
+      'chars'
+    );
+
     return this.geminiClient.post(this.URL, body).pipe(
       catchError((error) => {
         console.error('Gemini API Error:', error);
@@ -146,27 +175,38 @@ Lưu ý quan trọng:
         console.error('URL:', this.URL);
         console.error('API Key:', this.API_KEY);
         if (error.error) {
-          console.error('❌ Error detail:', JSON.stringify(error.error, null, 2));
+          console.error(
+            '❌ Error detail:',
+            JSON.stringify(error.error, null, 2)
+          );
         }
-        
-        let errorMessage = 'Xin lỗi Anh/Chị, em đang gặp trục trặc. Vui lòng liên hệ 0779 421 219!';
-        
+
+        let errorMessage =
+          'Xin lỗi Anh/Chị, em đang gặp trục trặc. Vui lòng liên hệ 0779 421 219!';
+
         if (error.status === 400) {
-          errorMessage = 'Lỗi cấu hình API (Bad Request). Vui lòng kiểm tra API key và model!';
+          errorMessage =
+            'Lỗi cấu hình API (Bad Request). Vui lòng kiểm tra API key và model!';
         } else if (error.status === 429) {
-          errorMessage = 'Hệ thống đang quá tải, vui lòng thử lại sau 30 giây! 🙏';
+          errorMessage =
+            'Dạ hiện hệ thống đang quá tải, anh/chị vui lòng đợi 1–2 phút rồi hỏi lại giúp em ạ 🙏';
         } else if (error.status === 404) {
-          errorMessage = 'Lỗi kết nối AI (Model not found). Vui lòng kiểm tra lại cấu hình!';
+          errorMessage =
+            'Lỗi kết nối AI (Model not found). Vui lòng kiểm tra lại cấu hình!';
         }
-        
+
         return of({
-          candidates: [{
-            content: {
-              parts: [{
-                text: errorMessage
-              }]
-            }
-          }]
+          candidates: [
+            {
+              content: {
+                parts: [
+                  {
+                    text: errorMessage,
+                  },
+                ],
+              },
+            },
+          ],
         });
       })
     );
@@ -177,7 +217,7 @@ Lưu ý quan trọng:
 
     const prompt = userPrompt.toLowerCase();
     let filtered = rooms.filter((r: any) => r.status === 'AVAILABLE');
-    
+
     console.log('Filter Debug - Prompt:', prompt);
     console.log('AVAILABLE rooms:', filtered.length);
 
@@ -185,15 +225,30 @@ Lưu ý quan trọng:
     if (priceMatch) {
       const priceValue = parseInt(priceMatch[1]) * 1000000;
       console.log('Price filter:', priceValue, 'VNĐ');
-      console.log('Sample room prices:', filtered.slice(0, 3).map(r => r.price));
-      
-      if (prompt.includes('dưới') || prompt.includes('duoi') || prompt.includes('<')) {
+      console.log(
+        'Sample room prices:',
+        filtered.slice(0, 3).map((r) => r.price)
+      );
+
+      if (
+        prompt.includes('dưới') ||
+        prompt.includes('duoi') ||
+        prompt.includes('<')
+      ) {
         console.log('Filtering: price <', priceValue);
         filtered = filtered.filter((r: any) => (r.price || 0) < priceValue);
         console.log('After filter:', filtered.length, 'rooms');
-      } else if (prompt.includes('trên') || prompt.includes('tren') || prompt.includes('>')) {
+      } else if (
+        prompt.includes('trên') ||
+        prompt.includes('tren') ||
+        prompt.includes('>')
+      ) {
         filtered = filtered.filter((r: any) => (r.price || 0) > priceValue);
-      } else if (prompt.includes('khoảng') || prompt.includes('tầm') || prompt.includes('khoang')) {
+      } else if (
+        prompt.includes('khoảng') ||
+        prompt.includes('tầm') ||
+        prompt.includes('khoang')
+      ) {
         const min = priceValue * 0.8;
         const max = priceValue * 1.2;
         filtered = filtered.filter((r: any) => {
@@ -213,43 +268,76 @@ Lưu ý quan trọng:
     const areaMatch = prompt.match(/(\d+)\s*(m2|m²|met)/);
     if (areaMatch) {
       const areaValue = parseInt(areaMatch[1]);
-      
+
       if (prompt.includes('dưới') || prompt.includes('duoi')) {
-        filtered = filtered.filter((r: any) => (r.area || r.acreage || 0) < areaValue);
-      } else if (prompt.includes('trên') || prompt.includes('tren') || prompt.includes('rộng')) {
-        filtered = filtered.filter((r: any) => (r.area || r.acreage || 0) >= areaValue);
+        filtered = filtered.filter(
+          (r: any) => (r.area || r.acreage || 0) < areaValue
+        );
+      } else if (
+        prompt.includes('trên') ||
+        prompt.includes('tren') ||
+        prompt.includes('rộng')
+      ) {
+        filtered = filtered.filter(
+          (r: any) => (r.area || r.acreage || 0) >= areaValue
+        );
       }
     }
 
-    const locationKeywords = ['gần', 'gan', 'ở', 'o', 'tại', 'tai', 'đường', 'duong', 'phòng nào ở', 'phong nao o'];
-    const hasLocation = locationKeywords.some(k => prompt.includes(k));
-    
+    const locationKeywords = [
+      'gần',
+      'gan',
+      'ở',
+      'o',
+      'tại',
+      'tai',
+      'đường',
+      'duong',
+      'phòng nào ở',
+      'phong nao o',
+    ];
+    const hasLocation = locationKeywords.some((k) => prompt.includes(k));
+
     if (hasLocation) {
       console.log('📍 Location filter detected');
-      
+
       const cityMap: { [key: string]: string[] } = {
-        'hồ chí minh': ['hồ chí minh', 'ho chi minh', 'tp hcm', 'tphcm', 'hcm', 'sài gòn', 'saigon'],
+        'hồ chí minh': [
+          'hồ chí minh',
+          'ho chi minh',
+          'tp hcm',
+          'tphcm',
+          'hcm',
+          'sài gòn',
+          'saigon',
+        ],
         'hà nội': ['hà nội', 'ha noi', 'hanoi'],
         'đà nẵng': ['đà nẵng', 'da nang', 'danang'],
-        'quy nhơn': ['quy nhơn', 'quy nhon', 'quynhon', 'bình định', 'binh dinh'],
+        'quy nhơn': [
+          'quy nhơn',
+          'quy nhon',
+          'quynhon',
+          'bình định',
+          'binh dinh',
+        ],
         'cần thơ': ['cần thơ', 'can tho', 'cantho'],
-        'nha trang': ['nha trang', 'khánh hòa', 'khanh hoa']
+        'nha trang': ['nha trang', 'khánh hòa', 'khanh hoa'],
       };
-      
+
       let locationMatched = false;
-      
+
       for (const [city, variants] of Object.entries(cityMap)) {
-        if (variants.some(v => prompt.includes(v))) {
+        if (variants.some((v) => prompt.includes(v))) {
           console.log(`📍 City detected: ${city}`);
           filtered = filtered.filter((r: any) => {
             const address = (r.buildingAddress || '').toLowerCase();
-            return variants.some(v => address.includes(v));
+            return variants.some((v) => address.includes(v));
           });
           locationMatched = true;
           break;
         }
       }
-      
+
       if (!locationMatched) {
         const words = prompt.split(' ').filter((w: string) => w.length > 2);
         console.log('📍 Generic location search with words:', words);
@@ -258,12 +346,12 @@ Lưu ý quan trọng:
           return words.some((word: string) => address.includes(word));
         });
       }
-      
+
       console.log('📍 After location filter:', filtered.length, 'rooms');
     }
 
     filtered.sort((a: any, b: any) => (a.price || 0) - (b.price || 0));
 
-    return filtered.slice(0, 5);
+    return filtered.slice(0, 3);
   }
 }

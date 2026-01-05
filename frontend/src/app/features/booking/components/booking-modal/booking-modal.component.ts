@@ -41,7 +41,7 @@ export class BookingModalComponent implements OnInit {
     this.currentUserId = this.authService.getCurrentUserId();
     this.userRole = this.authService.getUserRole();
     
-    console.log('📌 Modal init - userId:', this.currentUserId, 'role:', this.userRole);
+    console.log('Modal init - userId:', this.currentUserId, 'role:', this.userRole);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -51,7 +51,7 @@ export class BookingModalComponent implements OnInit {
       this.currentUserId = this.authService.getCurrentUserId();
       this.userRole = this.authService.getUserRole();
       
-      console.log('📌 Modal opened - userId:', this.currentUserId, 'role:', this.userRole);
+      console.log('Modal opened - userId:', this.currentUserId, 'role:', this.userRole);
       
       if (this.currentUserId) {
         this.loadUserData();
@@ -84,37 +84,36 @@ export class BookingModalComponent implements OnInit {
   this.errorMessage = '';
 
   const currentUser = this.authService.getCurrentUser();
-  console.log('📌 Current user from AuthService:', currentUser);
-  console.log('📌 Current user fullName:', currentUser?.fullName);
-  console.log('📌 Current user phone:', currentUser?.phone);
+  console.log('Current user from AuthService:', currentUser);
+  console.log('Current user fullName:', currentUser?.fullName);
+  console.log('Current user phone:', currentUser?.phone);
 
   this.tenantService.getTenantByUserId(this.currentUserId).subscribe({
     next: (response: any) => {
-      console.log('✅ Tenant API raw response:', response);
-      console.log('✅ Response type:', typeof response);
-      console.log('✅ Response keys:', Object.keys(response || {}));
+      console.log('Tenant API raw response:', response);
+      console.log('Response type:', typeof response);
+      console.log('Response keys:', Object.keys(response || {}));
       
-      console.log('✅ Full response object:', JSON.stringify(response, null, 2));
+      console.log('Full response object:', JSON.stringify(response, null, 2));
       
       let tenant = response;
       
       if (response?.data) {
         tenant = response.data;
-        console.log('✅ Unwrapped tenant from response.data:', tenant);
+        console.log('Unwrapped tenant from response.data:', tenant);
       }
       
-      console.log('📋 Tenant fields:');
+      console.log('Tenant fields:');
       console.log('  - id:', tenant?.id);
       console.log('  - userId:', tenant?.userId);
       console.log('  - cccd:', tenant?.cccd);
       console.log('  - phone:', tenant?.phone);
-      console.log('  - user.phone:', tenant?.user?.phone); // ✅ Thêm dòng này
+      console.log('  - user.phone:', tenant?.user?.phone); 
       console.log('  - address:', tenant?.address);
       console.log('  - fullName:', tenant?.fullName);
-      console.log('  - user.fullName:', tenant?.user?.fullName); // ✅ Thêm dòng này
+      console.log('  - user.fullName:', tenant?.user?.fullName);
       console.log('  - ALL tenant object:', JSON.stringify(tenant, null, 2));
       
-      // ✅ FIX: Lấy từ tenant.user.phone và tenant.user.fullName
       const formValues = {
         fullName: tenant?.user?.fullName || currentUser?.fullName || tenant?.fullName || '',
         cccd: tenant?.cccd || '',
@@ -122,12 +121,12 @@ export class BookingModalComponent implements OnInit {
         address: tenant?.address || ''
       };
       
-      console.log('📝 Values to patch into form:', formValues);
+      console.log('Values to patch into form:', formValues);
       
       this.bookingForm.patchValue(formValues);
       
-      console.log('✅ Form value after patch:', this.bookingForm.value);
-      console.log('✅ Form control values:');
+      console.log('Form value after patch:', this.bookingForm.value);
+      console.log('Form control values:');
       console.log('  - fullName:', this.bookingForm.get('fullName')?.value);
       console.log('  - cccd:', this.bookingForm.get('cccd')?.value);
       console.log('  - phone:', this.bookingForm.get('phone')?.value);
