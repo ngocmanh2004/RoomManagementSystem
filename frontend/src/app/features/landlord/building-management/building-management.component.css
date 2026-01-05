@@ -305,6 +305,10 @@ tbody tr:hover {
   gap: 6px;
 }
 
+.full-width {
+  width: 100%;
+}
+
 .form-group label {
   font-size: 14px;
   font-weight: 500;
@@ -418,47 +422,55 @@ tbody tr:hover {
   margin-top: 4px;
 }
 
-::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items {
-  max-height: 240px;
+/* =========================================== */
+/* MATERIAL SELECT STYLES
+/* =========================================== */
+::ng-deep .mat-mdc-form-field {
+  width: 100%;
 }
 
-::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
-  padding: 10px 12px;
+::ng-deep .mat-mdc-form-field.full-width {
+  width: 100%;
+}
+
+::ng-deep .mat-mdc-text-field-wrapper {
+  background-color: var(--white);
+}
+
+::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+::ng-deep .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__leading,
+::ng-deep .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__notch,
+::ng-deep .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__trailing {
+  border-color: var(--border-color);
+}
+
+::ng-deep .mat-mdc-form-field:hover .mdc-notched-outline .mdc-notched-outline__leading,
+::ng-deep .mat-mdc-form-field:hover .mdc-notched-outline .mdc-notched-outline__notch,
+::ng-deep .mat-mdc-form-field:hover .mdc-notched-outline .mdc-notched-outline__trailing {
+  border-color: var(--primary-color);
+}
+
+::ng-deep .mat-mdc-select-value {
+  color: var(--text-primary);
+}
+
+::ng-deep .mat-mdc-select-placeholder {
+  color: var(--text-secondary);
+}
+
+::ng-deep .mat-mdc-option {
   font-size: 14px;
   color: var(--text-primary);
-  transition: background-color 0.15s ease;
 }
 
-::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-option:hover {
+::ng-deep .mat-mdc-option:hover {
   background-color: var(--primary-light);
 }
 
-::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected {
+::ng-deep .mat-mdc-option.mat-mdc-option-active {
   background-color: var(--primary-light);
   color: var(--primary-color);
-  font-weight: 500;
 }
-
-::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
-  background-color: #f3f4f6;
-}
-
-::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-disabled {
-  color: #9ca3af;
-  cursor: not-allowed;
-}
-
-::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-optgroup {
-  font-weight: 600;
-  color: var(--text-secondary);
-  padding: 8px 12px;
-  user-select: none;
-}
-
-/* Not found text */
-::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-disabled {
-  text-align: center;
-  color: var(--text-secondary);
-  font-style: italic;
-}
-

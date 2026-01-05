@@ -91,33 +91,25 @@
       <div class="form-row">
         <div class="form-group">
           <label>Tỉnh/TP <span class="required">*</span></label>
-          <ng-select
-            formControlName="provinceCode"
-            [items]="provinces"
-            bindLabel="name"
-            bindValue="code"
-            placeholder="-- Chọn Tỉnh/Thành phố --"
-            [searchable]="true"
-            [clearable]="true"
-            (change)="onProvinceChange()"
-            notFoundText="Không tìm thấy tỉnh/thành phố"
-          >
-          </ng-select>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>-- Chọn Tỉnh/Thành phố --</mat-label>
+            <mat-select formControlName="provinceCode" (selectionChange)="onProvinceChange()">
+              <mat-option *ngFor="let province of provinces" [value]="province.code">
+                {{ province.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
         <div class="form-group">
           <label>Quận/Huyện <span class="required">*</span></label>
-          <ng-select
-            formControlName="districtCode"
-            [items]="districts"
-            bindLabel="name"
-            bindValue="code"
-            placeholder="-- Chọn Quận/Huyện --"
-            [searchable]="true"
-            [clearable]="true"
-            [disabled]="!districts.length"
-            notFoundText="Vui lòng chọn tỉnh/thành phố trước"
-          >
-          </ng-select>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>-- Chọn Quận/Huyện --</mat-label>
+            <mat-select formControlName="districtCode" [disabled]="!districts.length">
+              <mat-option *ngFor="let district of districts" [value]="district.code">
+                {{ district.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
       </div>
 

@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
-import { NgSelectModule } from '@ng-select/ng-select';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { Building, BuildingService } from '../../../services/building.service';
 import { AuthService } from '../../../services/auth.service';
 import { ProvinceService } from '../../../services/province.service';
@@ -11,7 +13,14 @@ import { Province, District } from '../../../models/province.model';
 @Component({
   selector: 'app-building-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgSelectModule],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    FormsModule, 
+    MatSelectModule,
+    MatFormFieldModule,
+    MatInputModule
+  ],
   templateUrl: './building-management.component.html',
   styleUrls: ['./building-management.component.css'],
 })
