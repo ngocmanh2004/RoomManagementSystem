@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LandlordBookingDetailComponent } from './landlord-booking-detail.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('LandlordBookingDetailComponent', () => {
   let component: LandlordBookingDetailComponent;
@@ -8,7 +10,7 @@ describe('LandlordBookingDetailComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LandlordBookingDetailComponent]
+      imports: [LandlordBookingDetailComponent, HttpClientTestingModule, RouterTestingModule]
     })
     .compileComponents();
 

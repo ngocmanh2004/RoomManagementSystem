@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CreateDirectContractComponent } from './create-direct-contract.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('CreateDirectContractComponent', () => {
   let component: CreateDirectContractComponent;
@@ -8,7 +9,7 @@ describe('CreateDirectContractComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CreateDirectContractComponent]
+      imports: [CreateDirectContractComponent, HttpClientTestingModule]
     })
     .compileComponents();
 
