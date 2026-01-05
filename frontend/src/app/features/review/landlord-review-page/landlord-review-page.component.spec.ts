@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LandlordReviewPageComponent } from './landlord-review-page.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('LandlordReviewPageComponent', () => {
   let component: LandlordReviewPageComponent;
@@ -8,7 +9,7 @@ describe('LandlordReviewPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LandlordReviewPageComponent]
+      imports: [LandlordReviewPageComponent, HttpClientTestingModule]
     })
     .compileComponents();
 

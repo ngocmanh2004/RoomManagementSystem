@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LandlordFeedbackComponent } from './landlord-feedback.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('LandlordFeedbackComponent', () => {
   let component: LandlordFeedbackComponent;
@@ -8,7 +9,7 @@ describe('LandlordFeedbackComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LandlordFeedbackComponent]
+      imports: [LandlordFeedbackComponent, HttpClientTestingModule]
     })
     .compileComponents();
 

@@ -9,43 +9,41 @@ import { AmenityService } from '../../services/amenity.service';
 import { AuthService } from '../../services/auth.service';
 import { Room } from '../../models/room.model';
 
-describe('RoomDetailComponent - Sprint 2', () => {
+describe('RoomDetailComponent', () => {
   let component: RoomDetailComponent;
   let fixture: ComponentFixture<RoomDetailComponent>;
   let mockRoomService: jasmine.SpyObj<RoomService>;
   let mockAmenityService: jasmine.SpyObj<AmenityService>;
   let mockAuthService: jasmine.SpyObj<AuthService>;
-  let mockActivatedRoute: any;
   let mockSanitizer: jasmine.SpyObj<DomSanitizer>;
+  let mockActivatedRoute: any;
 
   const mockRoom: Room = {
     id: 1,
-    name: 'Phòng 101',
+    name: 'Phòng Test 101',
     price: 3000000,
     area: 25,
-    address: '123 Nguyễn Huệ, Quy Nhơn',
-    description: 'Phòng đẹp, đầy đủ tiện nghi',
-    maxOccupants: 2,
+    description: 'Phòng đẹp',
     status: 'AVAILABLE',
-    images: [
-      { id: 1, imageUrl: 'image1.jpg', roomId: 1 },
-      { id: 2, imageUrl: 'image2.jpg', roomId: 1 }
-    ],
+    images: ['image1.jpg', 'image2.jpg', 'image3.jpg'],
     building: {
       id: 1,
-      name: 'Dãy trọ A',
+      name: 'Dãy A',
       address: '123 Nguyễn Huệ, Quy Nhơn, Bình Định'
     }
-  } as any;
+  };
 
   beforeEach(async () => {
     mockRoomService = jasmine.createSpyObj('RoomService', ['getRoomById']);
     mockAmenityService = jasmine.createSpyObj('AmenityService', ['getAmenitiesByRoom']);
     mockAuthService = jasmine.createSpyObj('AuthService', ['isLoggedIn', 'getUserRole']);
     mockSanitizer = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustResourceUrl']);
-    
     mockActivatedRoute = {
-      params: of({ id: '1' })
+      snapshot: {
+        paramMap: {
+          get: jasmine.createSpy('get').and.returnValue('1')
+        }
+      }
     };
 
     await TestBed.configureTestingModule({
@@ -61,6 +59,7 @@ describe('RoomDetailComponent - Sprint 2', () => {
 
     fixture = TestBed.createComponent(RoomDetailComponent);
     component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
