@@ -25,7 +25,11 @@ describe('RoomDetailComponent', () => {
     area: 25,
     description: 'Phòng đẹp',
     status: 'AVAILABLE',
-    images: ['image1.jpg', 'image2.jpg', 'image3.jpg'],
+    images: [
+      { id: 1, imageUrl: 'image1.jpg' },
+      { id: 2, imageUrl: 'image2.jpg' },
+      { id: 3, imageUrl: 'image3.jpg' }
+    ],
     building: {
       id: 1,
       name: 'Dãy A',
