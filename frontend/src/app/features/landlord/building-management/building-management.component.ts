@@ -80,7 +80,7 @@ export class BuildingManagementComponent implements OnInit {
     
     if (building) {
       this.buildingForm.patchValue(building);
-      this.imagePreview = building.imageUrl;
+      this.imagePreview = building.imageUrl || null;
     } else {
       this.buildingForm.reset();
       this.imagePreview = null;
@@ -193,6 +193,6 @@ export class BuildingManagementComponent implements OnInit {
   }
 
   getAvailableRoomCount(building: Building): number {
-    return building.rooms?.filter(r => r.status === 'AVAILABLE').length || 0;
+    return building.rooms?.filter((r: any) => r.status === 'AVAILABLE').length || 0;
   }
 }

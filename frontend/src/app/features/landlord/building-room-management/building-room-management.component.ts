@@ -131,8 +131,8 @@ export class BuildingRoomManagementComponent implements OnInit {
   loadRoomsByBuilding(): void {
     this.buildingService.getRoomsByBuildingPaged(this.buildingId, 0, 100).subscribe({
       next: (response) => {
-        this.allRooms = response.content;
-        this.filteredRooms = response.content;
+        this.allRooms = response.content as any[];
+        this.filteredRooms = response.content as any[];
         this.updateStats();
       },
       error: (err) => console.error('Lỗi khi tải phòng:', err)
