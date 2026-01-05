@@ -78,9 +78,6 @@ export class RoomManagementComponent implements OnInit {
   imagePreviews: string[] = [];
   currentRoomForEdit: Room | null = null;
 
-  buildingInput = '';
-  filteredBuildings: Building[] = [];
-
   constructor(
     private roomService: RoomService,
     private buildingService: BuildingService,
@@ -91,7 +88,7 @@ export class RoomManagementComponent implements OnInit {
     registerLocaleData(localeVi, 'vi-VN');
     this.roomForm = this.fb.group({
       name: ['', Validators.required],
-      buildingId: [null], // KHÔNG required nữa
+      buildingId: ['', Validators.required], // Required - phải chọn dãy trọ
       area: [0, [Validators.required, Validators.min(1), Validators.max(999.99)]],
       price: [0, [Validators.required, Validators.min(100000)]],
       status: ['AVAILABLE', Validators.required],
@@ -105,52 +102,16 @@ export class RoomManagementComponent implements OnInit {
     this.loadAmenities();
   }
 
-  // Nếu người dùng nhập tên tòa nhà mới, cho phép tạo mới
-  getBuildingIdOrName(): any {
-    const input = this.buildingInput?.trim() || '';
-    const building = this.buildings.find((b: any) => (b.name + ' (' + b.address + ')') === input);
-    if (building) return { id: building.id };
-    if (input) {
-      const match = input.match(/^(.*)\((.*)\)$/);
-      if (match) {
-        return { name: match[1].trim(), address: match[2].trim() };
-      }
-      return { name: input, address: input };
-    }
-    return null;
-  }
-
   loadBuildings(): void {
     const landlordId = this.authService.getCurrentLandlordId();
     console.log('DEBUG loadBuildings landlordId:', landlordId);
     if (!landlordId) {
       this.buildings = [];
-      this.filteredBuildings = [];
       return;
     }
     this.buildingService.getBuildingsByLandlord(landlordId).subscribe(data => {
       this.buildings = data;
-      this.filteredBuildings = data;
     });
-  }
-
-  onBuildingInputChange(value: string): void {
-    this.buildingInput = value;
-    // Chỉ lọc gợi ý khi ở chế độ Thêm phòng mới
-    if (!this.isEditMode) {
-      const lower = value.toLowerCase();
-      this.filteredBuildings = this.buildings.filter(b =>
-        b.name.toLowerCase().includes(lower) || b.address.toLowerCase().includes(lower)
-      );
-    } else {
-      this.filteredBuildings = [];
-    }
-  }
-
-  onSelectBuilding(building: Building): void {
-    this.buildingInput = building.name + ' (' + building.address + ')';
-    this.roomForm.patchValue({ buildingId: building.id });
-    this.filteredBuildings = [];
   }
 
   loadAmenities(): void {
@@ -276,13 +237,12 @@ export class RoomManagementComponent implements OnInit {
     this.selectedAmenities = [];
     this.roomForm.reset({
       name: '',
-      buildingId: null,
+      buildingId: '', // Empty string cho select dropdown
       area: 0,
       price: 0,
       status: 'AVAILABLE',
       description: ''
     });
-    this.buildingInput = '';
     this.isModalOpen = true;
   }
 
@@ -294,12 +254,9 @@ export class RoomManagementComponent implements OnInit {
     this.selectedFiles = [];
     this.imagePreviews = [];
     
-    // Đảm bảo buildingId được set đúng
-    const buildingId = room.building?.id || null;
-    this.buildingInput = room.building ? `${room.building.name} (${room.building.address})` : '';
     this.roomForm.patchValue({
       name: room.name,
-      buildingId: buildingId,
+      buildingId: room.building?.id || '',
       area: room.area,
       price: room.price,
       status: room.status,
@@ -321,33 +278,28 @@ export class RoomManagementComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.roomForm.invalid || !this.buildingInput.trim()) {
+    if (this.roomForm.invalid) {
       this.roomForm.markAllAsTouched();
-      this.formError = 'Vui lòng nhập tòa nhà.';
-      // Hiển thị log ra UI nếu lỗi
-      (window as any).lastRoomFormError = this.formError;
+      this.formError = 'Vui lòng điền đầy đủ thông tin và chọn dãy trọ.';
       return;
     }
+    
     this.formError = null;
-    const { buildingId, ...otherData } = this.roomForm.value;
-    const buildingObj = this.getBuildingIdOrName();
-    if (!buildingObj) {
-      this.formError = 'Vui lòng nhập tòa nhà.';
-      (window as any).lastRoomFormError = this.formError;
+    const buildingId = this.roomForm.value.buildingId;
+    
+    if (!buildingId) {
+      this.formError = 'Vui lòng chọn dãy trọ.';
       return;
     }
+    
     const roomData: any = {
-      ...otherData,
-      building: buildingObj,
+      ...this.roomForm.value,
+      building: { id: buildingId },
       amenities: this.selectedAmenities.map(a => ({ id: a.id }))
     };
-    // Log dữ liệu form trước khi gửi
-    (window as any).lastRoomFormValue = this.roomForm.value;
-    (window as any).lastRoomBuildingInput = this.buildingInput;
-    // Xóa buildingId vì backend không cần
+    
+    // Xóa buildingId vì backend chỉ cần building.id
     delete roomData.buildingId;
-    // Log dữ liệu gửi lên
-    (window as any).lastRoomDataSent = roomData;
     if (this.isEditMode && this.currentRoomId) {
       // SỬA PHÒNG
       this.roomService.updateRoom(this.currentRoomId, roomData).pipe(

@@ -115,24 +115,22 @@
 
     <form class="modal-body" [formGroup]="roomForm" (ngSubmit)="onSubmit()">
 
-      <div class="form-group" style="position:relative;">
-        <label for="building">Tòa nhà *</label>
-        <input 
+      <div class="form-group">
+        <label for="building">Dãy trọ <span class="required">*</span></label>
+        <select 
           id="building" 
-          type="text" 
-          [value]="buildingInput" 
-          #buildingInputRef 
-          (input)="onBuildingInputChange(buildingInputRef.value)" 
-          placeholder="Nhập tên hoặc địa chỉ tòa nhà" 
-          autocomplete="off" 
-          [readonly]="isEditMode"
-        />
-        <ul *ngIf="!isEditMode && buildingInput && filteredBuildings.length" class="autocomplete-list">
-          <li *ngFor="let b of filteredBuildings" (mousedown)="onSelectBuilding(b)">
-            {{ b.name }} ({{ b.address }})
-          </li>
-        </ul>
-        <!-- Không cần validate buildingId ở đây nữa -->
+          formControlName="buildingId"
+          [disabled]="isEditMode"
+        >
+          <option value="" disabled selected>-- Chọn dãy trọ --</option>
+          <option *ngFor="let building of buildings" [value]="building.id">
+            {{ building.name }} - {{ building.address }}
+          </option>
+        </select>
+        <small *ngIf="buildings.length === 0" style="color: #f44336; display: block; margin-top: 5px;">
+          <i class="fa-solid fa-exclamation-circle"></i> 
+          Chưa có dãy trọ. Vui lòng tạo dãy trọ trước!
+        </small>
       </div>
 
       <div class="form-group">
@@ -276,7 +274,7 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="closeModal()">Hủy</button>
-        <button type="submit" class="btn btn-primary" [disabled]="roomForm.get('name')?.invalid || roomForm.get('area')?.invalid || roomForm.get('price')?.invalid || roomForm.get('status')?.invalid || !buildingInput.trim()">
+        <button type="submit" class="btn btn-primary" [disabled]="roomForm.invalid">
           {{ isEditMode ? 'Lưu thay đổi' : 'Thêm phòng' }}
         </button>
       </div>
