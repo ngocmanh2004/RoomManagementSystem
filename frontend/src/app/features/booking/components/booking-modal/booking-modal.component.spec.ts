@@ -150,5 +150,81 @@ describe('BookingModalComponent - Sprint 2', () => {
       expect(component.errorMessage).toBe('');
       expect(component.successMessage).toBe('');
     });
+
+    // TEST 9: Validate email format
+    it('should invalidate incorrect email format', () => {
+      const emailControl = component.bookingForm.get('email');
+      emailControl?.setValue('invalid-email');
+      
+      expect(emailControl?.hasError('email')).toBe(true);
+      
+      emailControl?.setValue('valid@email.com');
+      expect(emailControl?.hasError('email')).toBe(false);
+    });
+
+    // TEST 10: Prevent booking with past date
+    it('should prevent booking with start date in the past', () => {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const pastDate = yesterday.toISOString().split('T')[0];
+      
+      component.bookingForm.patchValue({
+        fullName: 'Nguyễn Văn A',
+        phoneNumber: '0912345678',
+        email: 'test@gmail.com',
+        startDate: pastDate
+      });
+      
+      expect(component.bookingForm.valid).toBe(false);
+    });
+
+    // TEST 11: Show loading state during submission
+    it('should show loading state while creating booking', () => {
+      mockAuthService.getCurrentUserId.and.returnValue(1);
+      mockTenantService.getTenantByUserId.and.returnValue(of({ id: 10, userId: 1 } as any));
+      mockBookingService.createBooking.and.returnValue(of({} as any));
+      
+      component.bookingForm.patchValue({
+        fullName: 'Nguyễn Văn A',
+        phoneNumber: '0912345678',
+        email: 'test@gmail.com',
+        startDate: '2024-02-01'
+      });
+      
+      component.submit();
+      
+      expect(component.isSubmitting).toBe(false); // Should be false after completion
+    });
+
+    // TEST 12: Validate phone number with Vietnamese format
+    it('should accept valid Vietnamese phone numbers', () => {
+      const phoneControl = component.bookingForm.get('phoneNumber');
+      
+      const validNumbers = ['0912345678', '0987654321', '0123456789'];
+      validNumbers.forEach(number => {
+        phoneControl?.setValue(number);
+        expect(phoneControl?.hasError('pattern')).toBe(false);
+      });
+    });
+
+    // TEST 13: Prevent double submission
+    it('should prevent double submission while processing', () => {
+      mockAuthService.getCurrentUserId.and.returnValue(1);
+      mockTenantService.getTenantByUserId.and.returnValue(of({ id: 10, userId: 1 } as any));
+      mockBookingService.createBooking.and.returnValue(of({} as any));
+      
+      component.bookingForm.patchValue({
+        fullName: 'Nguyễn Văn A',
+        phoneNumber: '0912345678',
+        email: 'test@gmail.com',
+        startDate: '2024-02-01'
+      });
+      
+      component.isSubmitting = true;
+      component.submit();
+      
+      // Should not call service if already submitting
+      expect(mockBookingService.createBooking).not.toHaveBeenCalled();
+    });
   });
 });

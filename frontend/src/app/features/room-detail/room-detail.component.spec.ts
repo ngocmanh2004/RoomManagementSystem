@@ -177,4 +177,66 @@ describe('RoomDetailComponent - Sprint 2', () => {
       expect(component.isBookingModalOpen).toBe(false);
     });
   });
+
+  // ========== Additional Feature Tests ==========
+  describe('Additional Features: Amenities & Image Gallery', () => {
+    
+    // TEST 10: Load danh sách tiện ích của phòng
+    it('should load room amenities', () => {
+      const mockAmenities = [
+        { id: 1, name: 'Wifi', icon: 'wifi', roomId: 1 },
+        { id: 2, name: 'Điều hòa', icon: 'ac', roomId: 1 }
+      ];
+      mockRoomService.getRoomById.and.returnValue(of(mockRoom));
+      mockAmenityService.getAmenitiesByRoom.and.returnValue(of(mockAmenities as any));
+      mockSanitizer.bypassSecurityTrustResourceUrl.and.returnValue('safe-url' as any);
+      
+      component.loadRoomDetail();
+      
+      expect(mockAmenityService.getAmenitiesByRoom).toHaveBeenCalledWith(1);
+      expect(component.amenities.length).toBe(2);
+    });
+
+    // TEST 11: Navigate through image gallery
+    it('should navigate to next image in gallery', () => {
+      mockRoomService.getRoomById.and.returnValue(of(mockRoom));
+      mockAmenityService.getAmenitiesByRoom.and.returnValue(of([]));
+      mockSanitizer.bypassSecurityTrustResourceUrl.and.returnValue('safe-url' as any);
+      component.loadRoomDetail();
+      
+      component.currentImageIndex = 0;
+      const mockEvent = new Event('click');
+      component.nextImage(mockEvent);
+      
+      expect(component.currentImageIndex).toBe(1);
+      expect(component.currentMainImage).toContain('image2.jpg');
+    });
+
+    // TEST 12: Navigate to previous image in gallery
+    it('should navigate to previous image in gallery', () => {
+      mockRoomService.getRoomById.and.returnValue(of(mockRoom));
+      mockAmenityService.getAmenitiesByRoom.and.returnValue(of([]));
+      mockSanitizer.bypassSecurityTrustResourceUrl.and.returnValue('safe-url' as any);
+      component.loadRoomDetail();
+      
+      component.currentImageIndex = 1;
+      const mockEvent = new Event('click');
+      component.prevImage(mockEvent);
+      
+      expect(component.currentImageIndex).toBe(0);
+      expect(component.currentMainImage).toContain('image1.jpg');
+    });
+
+    // TEST 13: Handle empty amenities list
+    it('should handle empty amenities list gracefully', () => {
+      mockRoomService.getRoomById.and.returnValue(of(mockRoom));
+      mockAmenityService.getAmenitiesByRoom.and.returnValue(of([]));
+      mockSanitizer.bypassSecurityTrustResourceUrl.and.returnValue('safe-url' as any);
+      
+      component.loadRoomDetail();
+      
+      expect(component.amenities.length).toBe(0);
+      expect(component.room).toBeDefined();
+    });
+  });
 });

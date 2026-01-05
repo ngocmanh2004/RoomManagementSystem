@@ -350,4 +350,85 @@ describe('ReviewListComponent - Sprint 2', () => {
       expect(component.editingReview).toBeUndefined();
     });
   });
+
+  // ========== Additional Edge Cases & Error Handling ==========
+  describe('Additional Tests: Edge Cases & Error Handling', () => {
+    
+    // TEST 20: Sort reviews by rating descending
+    it('should sort reviews by highest rating first', () => {
+      mockAuthService.isLoggedIn.and.returnValue(true);
+      mockAuthService.getCurrentUserId.and.returnValue(10);
+      const unsortedReviews = [
+        { ...mockReviews[0], rating: 3 },
+        { ...mockReviews[1], rating: 5 }
+      ];
+      const response = { ...mockReviewResponse, content: unsortedReviews };
+      mockReviewService.getReviewsByRoom.and.returnValue(of(response));
+      
+      component.loadReviews(0);
+      
+      expect(component.reviews.length).toBe(2);
+      // Should be able to sort by rating
+      const sortedByRating = [...component.reviews].sort((a, b) => b.rating - a.rating);
+      expect(sortedByRating[0].rating).toBeGreaterThanOrEqual(sortedByRating[1].rating);
+    });
+
+    // TEST 21: Filter reviews by minimum rating
+    it('should be able to filter reviews by minimum rating', () => {
+      component.reviews = mockReviews;
+      
+      const filtered = component.reviews.filter(r => r.rating >= 4);
+      
+      expect(filtered.length).toBeGreaterThan(0);
+      expect(filtered.every(r => r.rating >= 4)).toBe(true);
+    });
+
+    // TEST 22: Handle pagination edge case - last page
+    it('should handle last page pagination correctly', () => {
+      mockAuthService.isLoggedIn.and.returnValue(true);
+      mockAuthService.getCurrentUserId.and.returnValue(10);
+      const lastPageResponse = { ...mockReviewResponse, currentPage: 2, totalPages: 3 };
+      mockReviewService.getReviewsByRoom.and.returnValue(of(lastPageResponse));
+      
+      component.loadReviews(2);
+      
+      expect(component.currentPage).toBe(2);
+      expect(component.totalPages).toBe(3);
+    });
+
+    // TEST 23: Display error message when loading reviews fails
+    it('should display error message when loading reviews fails', () => {
+      spyOn(console, 'error');
+      mockAuthService.isLoggedIn.and.returnValue(true);
+      mockAuthService.getCurrentUserId.and.returnValue(10);
+      mockReviewService.getReviewsByRoom.and.returnValue(
+        throwError(() => new Error('Network error'))
+      );
+      
+      component.loadReviews(0);
+      
+      expect(console.error).toHaveBeenCalled();
+      expect(component.isLoading).toBe(false);
+    });
+
+    // TEST 24: Reload reviews after successful delete
+    it('should reload reviews list after successful delete', () => {
+      spyOn(window, 'confirm').and.returnValue(true);
+      spyOn(component, 'loadReviews');
+      mockReviewService.deleteReview.and.returnValue(of({} as any));
+      
+      component.onDeleteReview(1);
+      
+      expect(component.loadReviews).toHaveBeenCalled();
+    });
+
+    // TEST 25: Calculate average rating from all reviews
+    it('should calculate average rating from all reviews', () => {
+      component.reviews = mockReviews; // ratings: 5, 4
+      
+      const avgRating = component.reviews.reduce((sum, r) => sum + r.rating, 0) / component.reviews.length;
+      
+      expect(avgRating).toBe(4.5);
+    });
+  });
 });

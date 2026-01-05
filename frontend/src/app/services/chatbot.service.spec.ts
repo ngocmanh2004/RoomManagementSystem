@@ -267,6 +267,51 @@ describe('ChatbotService - Sprint 3', () => {
         candidates: [{ content: { parts: [{ text: 'Không có phòng phù hợp' }] } }]
       });
     });
+
+    // TEST 13: Xử lý timeout
+    it('should handle request timeout', (done) => {
+      service.sendMessage('Test', 'User', '0912345678').subscribe(response => {
+        expect(response.candidates[0].content.parts[0].text)
+          .toContain('trục trặc');
+        done();
+      });
+
+      const req = httpMock.expectOne((request) => 
+        request.url.includes('generativelanguage.googleapis.com')
+      );
+      req.flush(null, { status: 408, statusText: 'Timeout' });
+    });
+  });
+
+  // ========== Cache Management ==========
+  describe('Cache Management', () => {
+    
+    // TEST 14: Refresh cache when expired (5 minutes)
+    it('should refresh cache when expired', (done) => {
+      service['cacheTime'] = Date.now() - (6 * 60 * 1000); // 6 minutes ago
+      const mockResponse: PageResponse<any> = {
+        content: mockRooms,
+        number: 0,
+        size: 100,
+        totalElements: mockRooms.length,
+        totalPages: 1,
+        last: true
+      };
+      mockRoomService.getAllRoomsPaged.and.returnValue(of(mockResponse));
+
+      service.sendMessage('Tìm phòng', 'Test', '0912345678').subscribe(() => {
+        expect(mockRoomService.getAllRoomsPaged).toHaveBeenCalled();
+        done();
+      });
+
+      const req = httpMock.expectOne((request) => 
+        request.url.includes('generativelanguage.googleapis.com')
+      );
+      req.flush({
+        candidates: [{ content: { parts: [{ text: 'Response' }] } }]
+      });
+    });
   });
 });
+
 

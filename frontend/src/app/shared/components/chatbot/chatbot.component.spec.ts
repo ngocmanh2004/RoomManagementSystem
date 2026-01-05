@@ -214,5 +214,45 @@ describe('ChatbotComponent - Sprint 3', () => {
       expect(component.messages).toEqual(savedMessages);
     });
   });
+
+  // ========== Additional Edge Cases ==========
+  describe('Additional Tests: Error Recovery & UX', () => {
+    
+
+
+    // TEST 14: Retry sending message after error
+    it('should retry sending message after error', () => {
+      let attemptCount = 0;
+      mockChatbotService.sendMessage.and.callFake(() => {
+        attemptCount++;
+        if (attemptCount === 1) {
+          return throwError(() => new Error('Network error'));
+        }
+        return of({
+          candidates: [{ content: { parts: [{ text: 'Success!' }] } }]
+        });
+      });
+      
+      component.userName = 'Test';
+      component.userPhone = '0912345678';
+      component.inputText = 'Test';
+      
+      component.sendMessage(); // First attempt fails
+      component.sendMessage(); // Retry succeeds
+      
+      expect(attemptCount).toBe(2);
+    });
+
+    // TEST 15: Validate phone number format before submitting user info
+    it('should validate phone number format', () => {
+      component.userName = 'Test User';
+      component.userPhone = '123'; // Invalid format
+      
+      component.submitUserInfo();
+      
+      // Should show error or not proceed
+      expect(component.showForm).toBe(true); // Still showing form
+    });
+  });
 });
 
