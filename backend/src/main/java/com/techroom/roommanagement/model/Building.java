@@ -32,6 +32,9 @@ public class Building {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "image_url", length = 255)
+    private String imageUrl;
+
     @OneToMany(mappedBy = "building", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"building"})
     private List<Room> rooms;

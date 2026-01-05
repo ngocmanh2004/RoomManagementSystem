@@ -401,6 +401,10 @@
   width: 75%;
 }
 
+.room-list-container.full-width {
+  width: 100%;
+}
+
 .list-header {
   display: flex;
   justify-content: space-between;

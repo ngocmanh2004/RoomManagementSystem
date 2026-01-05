@@ -1,13 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Building } from '../models/building.model';
+import { PageResponse } from '../models/page-response.model';
+import { Room } from '../models/room.model';
 
-// Tạo interface để code an toàn hơn
-export interface Building {
-  id: number;
-  name: string;
-  address: string;
-}
+export type { Building };
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +19,45 @@ export class BuildingService {
     return this.http.get<Building[]>(this.api);
   }
 
+  getAllBuildingsPaged(page: number = 0, size: number = 5): Observable<PageResponse<Building>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<PageResponse<Building>>(this.api, { params });
+  }
+
+  searchBuildings(params: {
+    provinceCode?: string;
+    districtCode?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    minAcreage?: number;
+    maxAcreage?: number;
+  }): Observable<Building[]> {
+    const queryParams: any = {};
+    
+    if (params.provinceCode) queryParams.provinceCode = params.provinceCode;
+    if (params.districtCode) queryParams.districtCode = params.districtCode;
+    if (params.minPrice !== undefined) queryParams.minPrice = params.minPrice;
+    if (params.maxPrice !== undefined) queryParams.maxPrice = params.maxPrice;
+    if (params.minAcreage !== undefined) queryParams.minAcreage = params.minAcreage;
+    if (params.maxAcreage !== undefined) queryParams.maxAcreage = params.maxAcreage;
+
+    return this.http.get<Building[]>(`${this.api}/search`, { params: queryParams });
+  }
+
+  getBuildingById(id: number): Observable<Building> {
+    return this.http.get<Building>(`${this.api}/${id}`);
+  }
+
   getBuildingsByLandlord(landlordId: number): Observable<Building[]> {
     return this.http.get<Building[]>(`${this.api}/by-landlord/${landlordId}`);
+  }
+
+  getRoomsByBuildingPaged(buildingId: number, page: number = 0, size: number = 8): Observable<PageResponse<Room>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<PageResponse<Room>>(`${this.api}/${buildingId}/rooms`, { params });
   }
 }

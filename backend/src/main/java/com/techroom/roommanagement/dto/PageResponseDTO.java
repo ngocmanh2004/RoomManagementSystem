@@ -1,6 +1,5 @@
 package com.techroom.roommanagement.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -9,27 +8,32 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class PageResponseDTO<T> {
     private List<T> content;
     private int number;           // Current page number
     private int size;             // Page size
-    private int totalPages;       // Total number of pages
     private long totalElements;   // Total number of elements
-    private boolean first;        // Is first page
+    private int totalPages;       // Total number of pages
     private boolean last;         // Is last page
-    private boolean empty;        // Is empty
+
+    // Constructor with 6 params (used in Controller)
+    public PageResponseDTO(List<T> content, int number, int size, long totalElements, int totalPages, boolean last) {
+        this.content = content;
+        this.number = number;
+        this.size = size;
+        this.totalElements = totalElements;
+        this.totalPages = totalPages;
+        this.last = last;
+    }
 
     // Constructor từ Page
     public PageResponseDTO(Page<T> page) {
         this.content = page.getContent();
         this.number = page.getNumber();
         this.size = page.getSize();
-        this.totalPages = page.getTotalPages();
         this.totalElements = page.getTotalElements();
-        this.first = page.isFirst();
+        this.totalPages = page.getTotalPages();
         this.last = page.isLast();
-        this.empty = page.isEmpty();
     }
 
     // Static factory method
