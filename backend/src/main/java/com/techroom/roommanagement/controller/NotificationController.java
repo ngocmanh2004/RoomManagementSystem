@@ -34,9 +34,7 @@ public class NotificationController {
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
     private final ObjectMapper objectMapper;
-    /**
-     * Gửi notification hàng loạt (Landlord gửi cho tenant)
-     */
+
     @PostMapping("/send")
     @PreAuthorize("hasRole('LANDLORD')")
     public ResponseEntity<SendNotificationResponse> send(
@@ -51,10 +49,6 @@ public class NotificationController {
         return ResponseEntity.ok(result);
     }
 
-    /**
-     * Lấy notifications của user hiện tại - PHÂN TRANG
-     * Dùng cho trang chi tiết notifications
-     */
     @GetMapping("/my/paged")
     public ResponseEntity<?> getMyNotificationsPaged(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -78,10 +72,6 @@ public class NotificationController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Lấy TẤT CẢ notifications của user (không phân trang)
-     * Dùng cho dropdown trên header
-     */
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Notification>> getNotificationsByUserId(
             @PathVariable Integer userId,
@@ -95,10 +85,6 @@ public class NotificationController {
         return ResponseEntity.ok(notifications);
     }
 
-    /**
-     * Đếm số notifications CHƯA ĐỌC
-     * Dùng để hiển thị badge số đỏ trên chuông
-     */
     @GetMapping("/user/{userId}/unread/count")
     public ResponseEntity<Map<String, Long>> getUnreadCount(
             @PathVariable Integer userId,
@@ -114,9 +100,6 @@ public class NotificationController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Đánh dấu 1 notification đã đọc
-     */
     @PutMapping("/{id}/read")
     public ResponseEntity<Notification> markAsRead(
             @PathVariable Integer id,
@@ -130,9 +113,6 @@ public class NotificationController {
         return ResponseEntity.ok(updated);
     }
 
-    /**
-     * Đánh dấu TẤT CẢ notifications đã đọc
-     */
     @PutMapping("/user/{userId}/read-all")
     public ResponseEntity<Map<String, String>> markAllAsRead(
             @PathVariable Integer userId,
@@ -149,9 +129,6 @@ public class NotificationController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Xóa notification
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteNotification(
             @PathVariable Integer id,
@@ -180,11 +157,11 @@ public class NotificationController {
         }
 
         Notification notification = Notification.builder()
-                .senderId(userDetails.getId())   // 🔥 BẮT BUỘC
-                .userId(userDetails.getId())     // để thỏa NOT NULL
+                .senderId(userDetails.getId())
+                .userId(userDetails.getId())
                 .title(req.getTitle())
                 .message(req.getMessage())
-                .type(NotificationType.SYSTEM)   // 🔥 ép SYSTEM
+                .type(NotificationType.SYSTEM)
                 .status(NotificationStatus.DRAFT)
                 .sendTo(req.getSendTo())
                 .roomIds(objectMapper.writeValueAsString(req.getRoomIds()))
@@ -206,7 +183,6 @@ public class NotificationController {
         Notification notification = notificationRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        // check quyền: chỉ chủ trọ tạo mới được gửi
         if (!notification.getSenderId().equals(userDetails.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
@@ -231,7 +207,6 @@ public class NotificationController {
         Notification notification = notificationRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        // chỉ cho xem nếu là người tạo hoặc người nhận
         if (
                 notification.getSenderId() != null &&
                         !notification.getSenderId().equals(userDetails.getId()) &&
@@ -256,10 +231,9 @@ public class NotificationController {
         Notification old = notificationRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        // 🔥 TẠO BẢN GHI MỚI
         Notification resend = Notification.builder()
-                .senderId(userDetails.getId())          // ✅ luôn có
-                .userId(old.getUserId())                // người nhận
+                .senderId(userDetails.getId())
+                .userId(old.getUserId())
                 .title(old.getTitle())
                 .message(old.getMessage())
                 .type(old.getType())

@@ -48,10 +48,12 @@ public class BuildingDTO {
     @NoArgsConstructor
     public static class RoomBasicInfo {
         private Integer id;
+        private String status;
         private List<ImageInfo> images;
 
-        public RoomBasicInfo(Integer id, List<ImageInfo> images) {
+        public RoomBasicInfo(Integer id, String status, List<ImageInfo> images) {
             this.id = id;
+            this.status = status;
             this.images = images;
         }
     }
@@ -109,6 +111,7 @@ public class BuildingDTO {
             this.rooms = building.getRooms().stream()
                 .map(room -> new RoomBasicInfo(
                     room.getId(),
+                    room.getStatus() != null ? room.getStatus().name() : null,
                     room.getImages() != null ? room.getImages().stream()
                         .map(img -> new ImageInfo(img.getImageUrl()))
                         .collect(Collectors.toList())

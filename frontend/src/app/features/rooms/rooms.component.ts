@@ -142,7 +142,6 @@ export class RoomsComponent implements OnInit {
     } else if (this.sortOption.includes('Giá cao')) {
       this.rooms.sort((a, b) => b.price - a.price);
     } else if (this.sortOption.includes('Mới nhất')) {
-      // So sánh bằng .getTime() để sort theo ngày tháng
       this.rooms.sort((a, b) => toDate(b.createdAt).getTime() - toDate(a.createdAt).getTime());
     } else if (this.sortOption.includes('Cũ nhất')) {
       this.rooms.sort((a, b) => toDate(a.createdAt).getTime() - toDate(b.createdAt).getTime());

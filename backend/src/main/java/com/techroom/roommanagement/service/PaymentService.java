@@ -30,9 +30,6 @@ public class PaymentService {
     @Autowired
     private PaymentRepository paymentRepository;
 
-    /**
-     * Tạo URL thanh toán VNPay
-     */
     public String createPaymentUrl(Integer invoiceId, HttpServletRequest request) {
 
         Invoice invoice = invoiceRepository.findById(invoiceId)
@@ -61,7 +58,6 @@ public class PaymentService {
         vnpParams.put("vnp_CurrCode", "VND");
         vnpParams.put("vnp_TxnRef", txnRef);
 
-        // CHỈ ASCII - KHÔNG DẤU
         String orderInfo =
                 "Payment invoice " + invoice.getId() +
                         " month " + invoice.getMonth().replace("-", "");
@@ -94,9 +90,6 @@ public class PaymentService {
         return paymentUrl;
     }
 
-    /**
-     * Xử lý ReturnUrl
-     */
     @Transactional
     public Map<String, Object> processReturn(Map<String, String> vnpParams) {
         Map<String, Object> result = new HashMap<>();
@@ -147,9 +140,6 @@ public class PaymentService {
         return result;
     }
 
-    /**
-     * FIX IP cho VNPay Sandbox
-     */
     private String getClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
 
@@ -165,7 +155,6 @@ public class PaymentService {
             ip = ip.split(",")[0].trim();
         }
 
-        // FIX IPv6 localhost
         if ("0:0:0:0:0:0:0:1".equals(ip) || "::1".equals(ip) || (ip != null && ip.contains(":"))) {
             ip = "127.0.0.1";
         }

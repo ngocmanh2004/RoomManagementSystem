@@ -38,33 +38,24 @@ export class LoginComponent {
     }
 
     const { username, password } = this.loginForm.value;
-    console.log('🔐 LoginComponent: Attempting login for:', username);
 
     this.authService.login(username, password).subscribe({
       next: (res: any) => {
-        console.log('✅ LoginComponent: Login response received:', res);
-        
-        // ✅ 1. LƯU TOKEN VÀO LOCALSTORAGE (RẤT QUAN TRỌNG)
         if (res.accessToken) {
           localStorage.setItem('accessToken', res.accessToken);
-          console.log('✅ LoginComponent: Access token saved');
         }
         
         if (res.refreshToken) {
           localStorage.setItem('refreshToken', res.refreshToken);
-          console.log('✅ LoginComponent: Refresh token saved');
         }
         
         if (res.userInfo) {
           localStorage.setItem('currentUser', JSON.stringify(res.userInfo));
-          console.log('✅ LoginComponent: User info saved:', res.userInfo);
         }
 
         alert(`Đăng nhập thành công! Chào mừng ${res.userInfo?.fullName || 'bạn'}`);
         
-        // ✅ 2. ĐIỀU HƯỚNG THEO ROLE
-        const userRole = res.userInfo?.role; // Backend trả về "ADMIN", "LANDLORD", "TENANT"
-        console.log('🔑 LoginComponent: User role:', userRole);
+        const userRole = res.userInfo?.role;
         
         switch(userRole) {
           case 'ADMIN':
@@ -87,7 +78,6 @@ export class LoginComponent {
         }
       },
       error: (err) => {
-        console.error('❌ LoginComponent: Login error:', err);
         const errorMsg = err.error?.message || 'Sai tên đăng nhập hoặc mật khẩu';
         alert('Đăng nhập thất bại: ' + errorMsg);
       }

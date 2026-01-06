@@ -58,16 +58,13 @@ export class HomeComponent implements OnInit {
         this.currentPage = response.number;
         this.totalPages = response.totalPages;
         this.totalElements = response.totalElements;
-        console.log(`✅ Tải danh sách dãy trọ (trang ${this.currentPage + 1}):`, response);
       },
       error: (err) => {
-        console.error('❌ Lỗi khi tải danh sách dãy trọ:', err);
       }
     });
   }
 
   onPageChange(page: number): void {
-    // Chỉ load khi không có filter (chế độ xem tất cả)
     const hasFilter = this.selectedProvinceCode || this.selectedDistrictCode || 
                       this.selectedPrice || this.selectedAcreage;
     
@@ -82,7 +79,6 @@ export class HomeComponent implements OnInit {
     this.provinceService.getAllProvinces().subscribe({
       next: (data) => {
         this.provinces = data;
-        console.log('✅ Tải tỉnh thành thành công:', this.provinces);
       },
       error: (err) => console.error('❌ Lỗi khi tải tỉnh thành:', err)
     });
@@ -97,7 +93,6 @@ export class HomeComponent implements OnInit {
       this.provinceService.getDistrictsByProvince(provinceCode).subscribe({
         next: (data) => {
           this.districts = data;
-          console.log('✅ Tải quận huyện:', data);
         },
         error: (err) => console.error('❌ Lỗi khi tải quận huyện:', err)
       });
@@ -107,7 +102,6 @@ export class HomeComponent implements OnInit {
   onSearch(evt?: Event): void {
     evt?.preventDefault();
     
-    // Build filter params
     const filterParams: any = {};
     
     if (this.selectedProvinceCode) {
@@ -118,30 +112,25 @@ export class HomeComponent implements OnInit {
       filterParams.districtCode = this.selectedDistrictCode;
     }
     
-    // Parse price range
     if (this.selectedPrice) {
       const [min, max] = this.selectedPrice.split('-').map(p => parseInt(p));
       filterParams.minPrice = min;
       filterParams.maxPrice = max;
     }
     
-    // Parse acreage range
     if (this.selectedAcreage) {
       const [min, max] = this.selectedAcreage.split('-').map(a => parseInt(a));
       filterParams.minAcreage = min;
       filterParams.maxAcreage = max;
     }
     
-    // Call search API
     if (Object.keys(filterParams).length > 0) {
       this.buildingService.searchBuildings(filterParams).subscribe({
         next: (data) => {
           this.buildings = data;
-          // Reset pagination khi filter (vì API search không trả về phân trang)
           this.currentPage = 0;
           this.totalPages = 1;
           this.totalElements = data.length;
-          console.log('✅ Tìm kiếm thành công:', data.length, 'dãy trọ');
         },
         error: (err) => {
           console.error('❌ Lỗi khi tìm kiếm:', err);
@@ -169,7 +158,6 @@ export class HomeComponent implements OnInit {
     this.loadAllBuildings();
   }
 
-  // When user clicks on a building card, navigate to building-rooms page
   onBuildingClick(buildingId: number): void {
     this.router.navigate(['/buildings', buildingId]);
   }

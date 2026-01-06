@@ -65,33 +65,21 @@ public class TenantController {
     // Lấy tenant theo userId
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getTenantByUserId(@PathVariable int userId) {
-        System.out.println("🔍 getTenantByUserId - userId: " + userId);
-
         Optional<Tenant> tenantOpt = tenantRepository.findByUserId(userId);
 
         if (tenantOpt.isPresent()) {
             Tenant tenant = tenantOpt.get();
-            System.out.println("✅ Tenant found: " + tenant);
-            System.out.println("  - id: " + tenant.getId());
-            System.out.println("  - cccd: " + tenant.getCccd());
-            System.out.println("  - address: " + tenant.getAddress());
-            System.out.println("  - user.phone: " + (tenant.getUser() != null ? tenant.getUser().getPhone() : "null"));
-
             return ResponseEntity.ok(tenant);
         }
 
         // ❌ Nếu không tìm thấy Tenant → TẠO MỚI
-        System.out.println("⚠️ Tenant not found for userId: " + userId);
-
         // Lấy User
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {
-            System.out.println("❌ User not found for userId: " + userId);
             return ResponseEntity.notFound().build();
         }
 
         User user = userOpt.get();
-        System.out.println("✅ User found: " + user.getFullName());
 
         // ✅ Tạo Tenant mới tự động
         Tenant newTenant = new Tenant();
@@ -101,7 +89,6 @@ public class TenantController {
         newTenant.setDateOfBirth(null);
 
         Tenant savedTenant = tenantRepository.save(newTenant);
-        System.out.println("✅ Created new Tenant for userId: " + userId);
 
         return ResponseEntity.ok(savedTenant);
     }
@@ -213,10 +200,7 @@ public class TenantController {
 
     // Giả lập gửi SMS
     private void sendPasswordViaSMS(String phone, String password) {
-        System.out.println("=== GỬI SMS ===");
-        System.out.println("SĐT: " + phone);
-        System.out.println("Mật khẩu: " + password);
-        System.out.println("Nội dung: Chào bạn! Mật khẩu của bạn: " + password);
+        // SMS simulation placeholder
     }
 
     @GetMapping("/available")

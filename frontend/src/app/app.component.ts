@@ -17,8 +17,6 @@ export class AppComponent implements OnInit {
   constructor(private chatbotService: ChatbotService) {}
 
   ngOnInit(): void {
-    // Preload dữ liệu chatbot ngay khi app khởi động
-    console.log('🚀 App khởi động - bắt đầu preload dữ liệu phòng...');
     this.chatbotService.preloadCache();
   }
 }

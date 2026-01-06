@@ -20,13 +20,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println("========== LOAD USER BY USERNAME ==========");
-        System.out.println("Username: " + username);
-        
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-
-        System.out.println("✅ User found - ID: " + user.getId() + ", Role: " + user.getRole());
 
         String role = switch (user.getRole()) {
             case 0 -> "ADMIN";
@@ -34,8 +29,6 @@ public class CustomUserDetailsService implements UserDetailsService {
             case 2 -> "TENANT";
             default -> "USER";
         };
-
-        System.out.println("✅ Role mapped to: ROLE_" + role);
 
         CustomUserDetails userDetails = new CustomUserDetails(
                 user.getId(),
@@ -45,7 +38,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 true
         );
 
-        System.out.println("✅ CustomUserDetails created with ID: " + userDetails.getId());
         return userDetails;
     }
 }

@@ -76,9 +76,9 @@ export class DashboardAdminComponent implements OnInit, AfterViewInit {
       }
     });
 
-    // 3. Lấy tổng số phòng
-    this.roomService.getAllRooms().subscribe(rooms => {
-      this.totalRooms = rooms.length;
+    // 3. Lấy tổng số phòng (sử dụng getAllRoomsPaged với size lớn để lấy tất cả)
+    this.roomService.getAllRoomsPaged(0, 10000).subscribe(response => {
+      this.totalRooms = response.totalElements || response.content?.length || 0;
     });
   }
 

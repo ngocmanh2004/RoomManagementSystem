@@ -138,7 +138,23 @@ public class BuildingService {
     // Lấy danh sách building theo landlordId
     @Transactional(readOnly = true)
     public List<Building> getBuildingsByLandlord(Integer landlordId) {
-        return buildingRepository.findByLandlordId(landlordId);
+        List<Building> buildings = buildingRepository.findByLandlordId(landlordId);
+        
+        // Force load landlord, rooms và images
+        buildings.forEach(building -> {
+            if (building.getLandlord() != null && building.getLandlord().getUser() != null) {
+                building.getLandlord().getUser().getFullName();
+            }
+            if (building.getRooms() != null) {
+                building.getRooms().forEach(room -> {
+                    if (room.getImages() != null) {
+                        room.getImages().size();
+                    }
+                });
+            }
+        });
+        
+        return buildings;
     }
 
     // CRUD Building

@@ -22,13 +22,11 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
-    // ✅ Tạo signing key từ secret
     private Key getSigningKey() {
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // ✅ Tạo Access Token
     public String generateAccessToken(UserDetails userDetails) {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
@@ -38,7 +36,6 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // ✅ Tạo Refresh Token
     public String generateRefreshToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
@@ -48,7 +45,6 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // ✅ Extract username từ token
     public String extractUsername(String token) {
         try {
             return Jwts.parserBuilder()
@@ -64,7 +60,6 @@ public class JwtTokenProvider {
         }
     }
 
-    // ✅ Validate token
     public boolean validateToken(String token, UserDetails userDetails) {
         try {
             Claims claims = Jwts.parserBuilder()
@@ -90,7 +85,6 @@ public class JwtTokenProvider {
         }
     }
 
-    // ✅ Check token hết hạn
     public boolean isTokenExpired(String token) {
         try {
             Date expiration = Jwts.parserBuilder()
@@ -105,7 +99,6 @@ public class JwtTokenProvider {
         }
     }
 
-    // ✅ Validate refresh token
     public boolean validateRefreshToken(String token) {
         try {
             Jwts.parserBuilder()

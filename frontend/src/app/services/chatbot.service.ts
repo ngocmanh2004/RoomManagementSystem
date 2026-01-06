@@ -9,7 +9,7 @@ import { RoomService } from './room.service';
   providedIn: 'root',
 })
 export class ChatbotService {
-  private API_KEY = 'AIzaSyBFiRhVrTVQVD8PHbHpHSj7k9_G4Z6eSB8';
+  private API_KEY = 'AIzaSyBtn9VwxNQSBmxpHsq2RgovdLCgRWv4c_s';
   private URL = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${this.API_KEY}`;
 
   private cachedRooms: any[] | null = null;
@@ -27,13 +27,11 @@ export class ChatbotService {
   }
 
   preloadCache(): void {
-    console.log('Preloading room data...');
     this.roomService.getAllRoomsPaged(0, 100).subscribe({
       next: (response: any) => {
         const rooms = response.content || response.data || response || [];
         this.cachedRooms = rooms;
         this.cacheTime = Date.now();
-        console.log('Preloaded', rooms?.length, 'phòng vào cache');
       },
       error: (err) => console.error('⚠️ Preload failed:', err),
     });
@@ -46,7 +44,6 @@ export class ChatbotService {
   ): Observable<any> {
     const now = Date.now();
     if (this.cachedRooms && now - this.cacheTime < this.CACHE_DURATION) {
-      console.log('Sử dụng cache');
       return this.buildPromptAndSend(
         this.cachedRooms,
         userPrompt,
@@ -55,18 +52,15 @@ export class ChatbotService {
       );
     }
 
-    console.log('Đang tải dữ liệu phòng...');
     return this.roomService.getAllRoomsPaged(0, 100).pipe(
       switchMap((response: any) => {
         const rooms = response.content || response.data || response || [];
         this.cachedRooms = rooms;
         this.cacheTime = now;
-        console.log('Đã cache', rooms?.length, 'phòng');
 
         return this.buildPromptAndSend(rooms, userPrompt, userName, userPhone);
       }),
       catchError((error) => {
-        console.error('Error:', error);
         return of({
           candidates: [
             {
@@ -90,10 +84,7 @@ export class ChatbotService {
     userName: string,
     userPhone: string
   ): Observable<any> {
-    console.log('📊 Số phòng trong cache:', rooms?.length);
-
     const filteredRooms = this.filterRelevantRooms(rooms, userPrompt);
-    console.log('✅ Sau khi lọc:', filteredRooms.length, 'phòng');
 
     let roomsData = '\n\n=== DANH SÁCH PHÒNG PHÙ HỢP ===\n';
 
@@ -162,24 +153,8 @@ Lưu ý quan trọng:
       },
     };
 
-    console.log(
-      'Sending to Gemini, prompt length:',
-      fullPrompt.length,
-      'chars'
-    );
-
     return this.geminiClient.post(this.URL, body).pipe(
       catchError((error) => {
-        console.error('Gemini API Error:', error);
-        console.error('Status:', error.status);
-        console.error('URL:', this.URL);
-        console.error('API Key:', this.API_KEY);
-        if (error.error) {
-          console.error(
-            '❌ Error detail:',
-            JSON.stringify(error.error, null, 2)
-          );
-        }
 
         let errorMessage =
           'Xin lỗi Anh/Chị, em đang gặp trục trặc. Vui lòng liên hệ 0779 421 219!';
@@ -218,26 +193,16 @@ Lưu ý quan trọng:
     const prompt = userPrompt.toLowerCase();
     let filtered = rooms.filter((r: any) => r.status === 'AVAILABLE');
 
-    console.log('Filter Debug - Prompt:', prompt);
-    console.log('AVAILABLE rooms:', filtered.length);
-
     const priceMatch = prompt.match(/(\d+)\s*(triệu|tr|trieu)/);
     if (priceMatch) {
       const priceValue = parseInt(priceMatch[1]) * 1000000;
-      console.log('Price filter:', priceValue, 'VNĐ');
-      console.log(
-        'Sample room prices:',
-        filtered.slice(0, 3).map((r) => r.price)
-      );
 
       if (
         prompt.includes('dưới') ||
         prompt.includes('duoi') ||
         prompt.includes('<')
       ) {
-        console.log('Filtering: price <', priceValue);
         filtered = filtered.filter((r: any) => (r.price || 0) < priceValue);
-        console.log('After filter:', filtered.length, 'rooms');
       } else if (
         prompt.includes('trên') ||
         prompt.includes('tren') ||
@@ -299,7 +264,6 @@ Lưu ý quan trọng:
     const hasLocation = locationKeywords.some((k) => prompt.includes(k));
 
     if (hasLocation) {
-      console.log('📍 Location filter detected');
 
       const cityMap: { [key: string]: string[] } = {
         'hồ chí minh': [
@@ -328,7 +292,6 @@ Lưu ý quan trọng:
 
       for (const [city, variants] of Object.entries(cityMap)) {
         if (variants.some((v) => prompt.includes(v))) {
-          console.log(`📍 City detected: ${city}`);
           filtered = filtered.filter((r: any) => {
             const address = (r.buildingAddress || '').toLowerCase();
             return variants.some((v) => address.includes(v));
@@ -340,14 +303,11 @@ Lưu ý quan trọng:
 
       if (!locationMatched) {
         const words = prompt.split(' ').filter((w: string) => w.length > 2);
-        console.log('📍 Generic location search with words:', words);
         filtered = filtered.filter((r: any) => {
           const address = (r.buildingAddress || '').toLowerCase();
           return words.some((word: string) => address.includes(word));
         });
       }
-
-      console.log('📍 After location filter:', filtered.length, 'rooms');
     }
 
     filtered.sort((a: any, b: any) => (a.price || 0) - (b.price || 0));

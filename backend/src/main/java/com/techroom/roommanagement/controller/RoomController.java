@@ -31,7 +31,6 @@ public class RoomController {
     @Autowired
     private LandlordRepository landlordRepository;
 
-    // Lấy landlordId từ user đăng nhập
     private Integer getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal() instanceof CustomUserDetails) {
@@ -48,7 +47,6 @@ public class RoomController {
                 .orElse(null);
     }
 
-    // API lấy phòng theo landlordId (dùng cho dashboard chủ trọ)
     @GetMapping("/by-landlord/{landlordId}")
     public ResponseEntity<List<Room>> getRoomsByLandlordId(@PathVariable Integer landlordId) {
         if (landlordId == null) {
@@ -58,7 +56,6 @@ public class RoomController {
         return ResponseEntity.ok(rooms);
     }
 
-    // API public: trả về toàn bộ phòng với phân trang (trang chủ, tìm kiếm...)
     @GetMapping
     public ResponseEntity<PageResponseDTO<RoomDTO>> getAllRooms(
             @RequestParam(defaultValue = "0") int page,
@@ -79,7 +76,6 @@ public class RoomController {
         return ResponseEntity.ok(response);
     }
 
-    // API riêng cho landlord: chỉ trả về phòng của landlord đang đăng nhập
     @GetMapping("/my")
     public ResponseEntity<List<Room>> getMyRooms() {
         Integer landlordId = getCurrentLandlordId();
@@ -128,16 +124,12 @@ public class RoomController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * US 1.1: Thêm phòng trọ
-     */
     @PostMapping
     public ResponseEntity<?> createRoom(@RequestBody Room room) {
         try {
             if (room.getStatus() == null) {
                 room.setStatus(Room.RoomStatus.AVAILABLE);
             }
-            // Nếu là building mới (không có id), tự động gán landlord hiện tại
             if (room.getBuilding() != null && (room.getBuilding().getId() == null || room.getBuilding().getId() == 0)) {
                 Integer landlordId = getCurrentLandlordId();
                 if (landlordId != null) {
@@ -156,9 +148,6 @@ public class RoomController {
         }
     }
 
-    /**
-     * US 1.2: Chỉnh sửa phòng trọ
-     */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateRoom(@PathVariable int id, @RequestBody Room roomDetails) {
         try {
@@ -171,9 +160,6 @@ public class RoomController {
         }
     }
 
-    /**
-     * US 1.4: Cập nhật trạng thái phòng
-     */
     @PatchMapping("/{id}/status")
     public ResponseEntity<?> updateRoomStatus(@PathVariable int id, @RequestBody Map<String, String> statusUpdate) {
         try {
@@ -188,9 +174,6 @@ public class RoomController {
         }
     }
 
-    /**
-     * US 1.3: Xóa phòng trọ
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteRoom(@PathVariable int id) {
         try {

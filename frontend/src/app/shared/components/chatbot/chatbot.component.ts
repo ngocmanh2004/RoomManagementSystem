@@ -86,12 +86,10 @@ export class ChatbotComponent implements OnInit {
     this.isLoading = true;
     this.scrollToBottom();
 
-    console.log('🚀 Sending message:', msg);
     this.chatbotService
       .sendMessage(msg, this.userName, this.userPhone)
       .subscribe({
         next: (res: any) => {
-          console.log('✅ Received response:', res);
           this.isLoading = false;
           const reply =
             res.candidates?.[0]?.content?.parts?.[0]?.text ||
@@ -108,11 +106,10 @@ export class ChatbotComponent implements OnInit {
           this.scrollToBottom();
         },
         error: (err) => {
-          console.error('❌ Component error:', err);
           this.isLoading = false;
           this.messages.push({
             from: 'bot',
-            text: '❌ Rất tiếc, đã có lỗi xảy ra. Vui lòng thử lại sau.',
+            text: 'Rất tiếc, đã có lỗi xảy ra. Vui lòng thử lại sau.',
           });
           this.showSuggestions = true;
           this.scrollToBottom();

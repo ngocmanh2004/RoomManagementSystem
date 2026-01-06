@@ -16,14 +16,12 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    // Xóa user (soft delete)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> softDeleteUser(@PathVariable int id) {
         userService.deleteUser(id);
         return ResponseEntity.ok(Map.of("message", "User has been soft deleted (locked)"));
     }
 
-    // Lấy danh sách user (active only)
     @GetMapping
     public ResponseEntity<?> getAllUsers(
             @RequestParam(required = false) String keyword,
