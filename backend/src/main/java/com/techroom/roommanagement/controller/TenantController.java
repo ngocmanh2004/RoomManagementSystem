@@ -150,11 +150,12 @@ public class TenantController {
 
             // Giả lập gửi mật khẩu
             sendPasswordViaSMS(request.getPhone(), rawPassword);
-
+            Tenant savedTenant = tenantRepository.save(tenant);
             return ResponseEntity.ok(Map.of(
                     "message", "Thêm khách thuê thành công!",
                     "username", request.getPhone(),
-                    "password", rawPassword
+                    "password", rawPassword,
+                    "tenant", savedTenant
             ));
 
         } catch (Exception e) {
@@ -172,32 +173,6 @@ public class TenantController {
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
-    }
-
-    // Xóa tenant
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteTenant(@PathVariable int id) {
-        Optional<Tenant> tenantOpt = tenantRepository.findById(id);
-        if (tenantOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Tenant tenant = tenantOpt.get();
-        User user = tenant.getUser();
-
-        //  KHÔNG ĐƯỢC PHÉP XÓA KHI KHÁCH ĐANG Ở TRẠNG THÁI ĐANG THUÊ
-        if (user.getStatus() == User.Status.ACTIVE) {
-            return ResponseEntity.badRequest().body(
-                    Map.of("message", "Khách đang thuê, không thể xóa!")
-            );
-        }
-
-        // Nếu không ACTIVE → cho phép xóa
-        tenantRepository.delete(tenant);
-
-        return ResponseEntity.ok(Map.of(
-                "message", "Xóa khách thuê thành công!"
-        ));
     }
 
     // Sinh mật khẩu
@@ -257,4 +232,28 @@ public class TenantController {
                 .map(Landlord::getId)   // ✅ landlords.id
                 .orElse(null);
     }
+
+    @GetMapping("/all-created")
+    public ResponseEntity<?> getAllCreatedTenants() {
+        try {
+            List<Tenant> tenants = tenantRepository.findAll();
+            return ResponseEntity.ok(tenants);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body("Không thể lấy danh sách khách thuê");
+        }
+    }
+    @GetMapping("/my")
+    @PreAuthorize("hasRole('LANDLORD')")
+    public ResponseEntity<?> getMyTenants() {
+        Integer landlordId = getCurrentLandlordId();
+        if (landlordId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        return ResponseEntity.ok(
+                tenantService.getTenantsByLandlord(landlordId)
+        );
+    }
+
 }

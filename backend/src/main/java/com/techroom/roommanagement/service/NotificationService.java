@@ -1,5 +1,7 @@
 package com.techroom.roommanagement.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techroom.roommanagement.dto.SendNotificationRequest;
 import com.techroom.roommanagement.dto.SendNotificationResponse;
 import com.techroom.roommanagement.model.*;
@@ -23,6 +25,8 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final ContractRepository contractRepository;
+    private final ObjectMapper objectMapper;
+
 
     /**
      * Tạo notification đơn cho 1 user
@@ -70,8 +74,8 @@ public class NotificationService {
     /**
      * Gửi notification hàng loạt (cho landlord gửi nhiều tenant)
      */
-    @Transactional
-    public SendNotificationResponse send(SendNotificationRequest req) {
+    /*@Transactional
+    public SendNotificationResponse send(SendNotificationRequest req, Integer senderId){
         if (req.getTitle() == null || req.getTitle().trim().isEmpty()) {
             throw new IllegalArgumentException("Tiêu đề không được để trống");
         }
@@ -129,20 +133,69 @@ public class NotificationService {
 
             for (User user : targetUsers) {
                 Notification n = new Notification();
+
+                // người nhận
                 n.setUserId(user.getId());
+
+                // 🔥 người gửi (CHỦ TRỌ)
+                n.setSenderId(
+                        userRepository.findByRole(1).get(0).getId()
+                        // hoặc tốt hơn: truyền senderId từ controller
+                );
+
                 n.setTitle(req.getTitle());
                 n.setMessage(req.getMessage());
                 n.setType(NotificationType.SYSTEM);
+
+                n.setStatus(NotificationStatus.SENT);
+                n.setSentAt(LocalDateTime.now());
+
                 n.setIsRead(false);
                 n.setCreatedAt(LocalDateTime.now());
 
-                Notification s = notificationRepository.save(n);
-
-                if (s.getId() == null) {
-                    throw new RuntimeException("Lỗi lưu notification vào CSDL.");
-                }
-                saved.add(s);
+                notificationRepository.save(n);
+                saved.add(n);
             }
+            /*Integer landlordId = userRepository.findByRole(1).get(0).getId();
+
+            // 🔔 Notification cho CHỦ TRỌ (lịch sử gửi + chuông)
+            Notification historyNoti = new Notification();
+            historyNoti.setUserId(landlordId);      // 👈 CHỦ TRỌ
+            historyNoti.setSenderId(landlordId);
+            historyNoti.setTitle(req.getTitle());
+            historyNoti.setMessage(
+                    "Bạn đã gửi thông báo đến " + saved.size() + " khách thuê."
+            );
+            historyNoti.setType(NotificationType.SYSTEM);
+            historyNoti.setStatus(NotificationStatus.SENT);
+            historyNoti.setIsRead(false);
+            historyNoti.setCreatedAt(LocalDateTime.now());
+            historyNoti.setSentAt(LocalDateTime.now());
+
+            // 👉 Dùng để phân biệt với noti tenant
+            historyNoti.setSendTo("HISTORY");
+
+            notificationRepository.save(historyNoti);*
+            // ======================
+            // 🔔 LỊCH SỬ GỬI (CHO CHỦ TRỌ)
+            // ======================
+            Notification historyNoti = new Notification();
+            historyNoti.setUserId(senderId);      // 👈 CHỦ TRỌ ĐANG LOGIN
+            historyNoti.setSenderId(senderId);
+            historyNoti.setTitle(req.getTitle());
+            historyNoti.setMessage(
+                    "Bạn đã gửi thông báo đến " + saved.size() + " khách thuê."
+            );
+            historyNoti.setType(NotificationType.SYSTEM);
+            historyNoti.setStatus(NotificationStatus.SENT);
+            historyNoti.setIsRead(false);
+            historyNoti.setCreatedAt(LocalDateTime.now());
+            historyNoti.setSentAt(LocalDateTime.now());
+
+            // 🔥 ĐÁNH DẤU HISTORY
+            historyNoti.setSendTo("HISTORY");
+
+            notificationRepository.save(historyNoti);
 
         } catch (Exception e) {
             response.setSuccess(false);
@@ -154,6 +207,108 @@ public class NotificationService {
         response.setMessage("Gửi thông báo thành công đến " + saved.size() + " khách.");
         response.setSentToCount(saved.size());
         return response;
+    }*/
+    @Transactional
+    public SendNotificationResponse send(SendNotificationRequest req, Integer senderId) {
+
+        if (req.getTitle() == null || req.getTitle().isBlank()) {
+            throw new IllegalArgumentException("Tiêu đề không được để trống");
+        }
+        if (req.getMessage() == null || req.getMessage().isBlank()) {
+            throw new IllegalArgumentException("Nội dung không được để trống");
+        }
+
+        Set<Integer> recipientUserIds = new HashSet<>();
+
+        // ====== XÁC ĐỊNH NGƯỜI NHẬN ======
+        if ("ROOMS".equalsIgnoreCase(req.getSendTo()) && req.getRoomIds() != null) {
+            for (Integer roomId : req.getRoomIds()) {
+                contractRepository
+                        .findByRoomIdAndStatus(roomId, ContractStatus.ACTIVE)
+                        .forEach(c -> {
+                            if (c.getTenant() != null && c.getTenant().getUser() != null) {
+                                recipientUserIds.add(c.getTenant().getUser().getId());
+                            }
+                        });
+            }
+        } else if ("ALL_TENANTS".equalsIgnoreCase(req.getSendTo())) {
+            userRepository.findByRole(2)
+                    .forEach(u -> recipientUserIds.add(u.getId()));
+        }
+
+        if (recipientUserIds.isEmpty()) {
+            SendNotificationResponse res = new SendNotificationResponse();
+            res.setSuccess(false);
+            res.setMessage("Không có người nhận hợp lệ");
+            res.setSentToCount(recipientUserIds.size());
+            return res;
+        }
+
+        // ====== TẠO NOTIFICATION CHO TENANT (SENT) ======
+        for (Integer userId : recipientUserIds) {
+            Notification n = new Notification();
+            n.setUserId(userId);                 // người nhận
+            n.setSenderId(senderId);             // chủ trọ
+            n.setTitle(req.getTitle());
+            n.setMessage(req.getMessage());
+            n.setType(NotificationType.SYSTEM);
+
+            n.setStatus(NotificationStatus.SENT);      // 🔥 SENT
+            n.setSentAt(LocalDateTime.now());          // 🔥 CÓ sentAt
+
+            n.setIsRead(false);
+            n.setCreatedAt(LocalDateTime.now());
+
+            notificationRepository.save(n);
+        }
+
+        // ====== LỊCH SỬ GỬI CHO CHỦ TRỌ ======
+        Notification history = new Notification();
+        history.setUserId(senderId);
+        history.setSenderId(senderId);
+        history.setTitle(req.getTitle());
+        history.setMessage("Bạn đã gửi thông báo đến " + recipientUserIds.size() + " khách thuê.");
+        history.setType(NotificationType.SYSTEM);
+        history.setStatus(NotificationStatus.SENT);
+        history.setSendTo("HISTORY");
+        history.setIsRead(false);
+        history.setCreatedAt(LocalDateTime.now());
+        history.setSentAt(LocalDateTime.now());
+
+        notificationRepository.save(history);
+
+        SendNotificationResponse res = new SendNotificationResponse();
+        res.setSuccess(true);
+        res.setMessage("Gửi thông báo thành công");
+        res.setSentToCount(recipientUserIds.size());
+        return res;
+    }
+
+    @Transactional
+    public Notification saveDraft(SendNotificationRequest req, Integer senderId) throws JsonProcessingException {
+
+        Notification draft = new Notification();
+        draft.setUserId(senderId);          // chủ trọ
+        draft.setSenderId(senderId);
+
+        draft.setTitle(req.getTitle());
+        draft.setMessage(req.getMessage());
+        draft.setType(NotificationType.SYSTEM);
+
+        draft.setStatus(NotificationStatus.DRAFT); // 🔥 DRAFT
+        draft.setSentAt(null);                     // 🔥 KHÔNG CÓ sentAt
+
+        draft.setSendTo(req.getSendTo());
+        draft.setRoomIds(
+                req.getRoomIds() != null
+                        ? new ObjectMapper().writeValueAsString(req.getRoomIds())
+                        : null
+        );
+
+        draft.setIsRead(true); // draft không cần unread
+        draft.setCreatedAt(LocalDateTime.now());
+
+        return notificationRepository.save(draft);
     }
 
     /**
@@ -176,7 +331,13 @@ public class NotificationService {
         if (userId == null) {
             return Collections.emptyList();
         }
-        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+
+        // 🔥 CHỈ LẤY NOTIFICATION ĐÃ GỬI
+        return notificationRepository
+                .findByUserIdAndStatusOrderByCreatedAtDesc(
+                        userId,
+                        NotificationStatus.SENT
+                );
     }
 
     /**
@@ -186,7 +347,11 @@ public class NotificationService {
         if (userId == null) {
             return 0;
         }
-        return notificationRepository.countByUserIdAndIsRead(userId, false);
+        return notificationRepository
+                .countByUserIdAndStatusAndIsReadFalse(
+                        userId,
+                        NotificationStatus.SENT
+                );
     }
 
     /**

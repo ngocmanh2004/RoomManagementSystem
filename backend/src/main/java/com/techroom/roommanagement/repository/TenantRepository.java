@@ -41,5 +41,16 @@ public interface TenantRepository extends JpaRepository<Tenant, Integer> {
            "JOIN Building b ON r.building.id = b.id " +
            "WHERE b.landlord.id = :landlordId")
     List<Tenant> findAllByLandlordId(@Param("landlordId") Integer landlordId);
+
+    @Query("""
+        SELECT DISTINCT t
+        FROM Tenant t
+        JOIN Contract c ON c.tenant.id = t.id
+        JOIN Room r ON c.room.id = r.id
+        JOIN Building b ON r.building.id = b.id
+        WHERE b.landlord.id = :landlordId
+        """)
+    List<Tenant> findTenantsByLandlord(@Param("landlordId") Integer landlordId);
+
 }
 

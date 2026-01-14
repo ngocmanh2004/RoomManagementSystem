@@ -8,7 +8,7 @@
 
   <!-- Controls: Tìm kiếm + Filter + Thêm mới -->
   <div class="top-controls">
-    <input type="text" [(ngModel)]="searchText" (input)="filterTenants()" 
+    <input type="text" [(ngModel)]="searchText" (input)="filterTenants()"
            class="search-box" placeholder="Tìm kiếm theo tên, SĐT, CCCD..." />
 
     <select [(ngModel)]="selectedStatus" (change)="filterTenants()">
@@ -55,8 +55,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let t of filteredTenants">
-          
+        <tr *ngFor="let t of pagedTenants">
+
           <!-- Thông tin khách thuê: avatar + tên + ngày tham gia -->
           <td>
             <div class="tenant-info">
@@ -94,12 +94,27 @@
           <td class="actions text-center">
             <span class="icon view" title="Xem" (click)="viewTenant(t)">👁️</span>
             <span class="icon edit" title="Sửa" (click)="editTenant(t)">✏️</span>
-            <span class="icon delete" title="Xóa" (click)="deleteTenant(t)">🗑️</span>
           </td>
 
         </tr>
       </tbody>
     </table>
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button (click)="prevPage()" [disabled]="currentPage === 1">
+        ◀
+      </button>
+
+      <button
+        *ngFor="let page of [].constructor(totalPages); let i = index"
+        (click)="goToPage(i + 1)"
+        [class.active]="currentPage === i + 1">
+        {{ i + 1 }}
+      </button>
+
+      <button (click)="nextPage()" [disabled]="currentPage === totalPages">
+        ▶
+      </button>
+    </div>
   </div>
 
   <!-- Modal thêm / sửa / xem khách thuê -->
@@ -139,7 +154,7 @@
 
 
 
-  
+
       <!-- Chế độ xem -->
       <ng-template #viewMode>
   <div class="view-mode">

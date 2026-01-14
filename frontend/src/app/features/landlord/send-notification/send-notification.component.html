@@ -135,7 +135,7 @@
             <button 
               class="btn-primary"
               *ngIf="selectedHistoryId"
-              (click)="resendNotification(selectedHistoryId)">
+              (click)="resendNotification()">
               <i class="fa fa-paper-plane"></i> Gửi lại
             </button>
           </div>
@@ -179,7 +179,7 @@
                 <button 
                   class="btn-icon"
                   title="Gửi lại"
-                  (click)="resendNotification(item.id)">
+                  (click)="resendNotification()">
                   <i class="fa fa-paper-plane"></i>
                 </button>
               </div>

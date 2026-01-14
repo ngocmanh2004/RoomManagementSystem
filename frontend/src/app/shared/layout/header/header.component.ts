@@ -118,12 +118,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (!this.currentUser) return;
     
     this.notificationLoading = true;
-    this.notificationService.getNotificationsByUserId(this.currentUser.id).subscribe({
+    this.notificationService.getMyNotifications().subscribe({
       next: (data) => {
-        this.notifications = data.slice(0, 6); // Chỉ lấy 6 notifications mới nhất
+        // 🔥 đảm bảo chỉ SENT
+        this.notifications = data
+          .filter(n => n.status === 'SENT')
+          .slice(0, 6);// Chỉ lấy 6 notifications mới nhất
         this.notificationLoading = false;
 
-        // Auto-mark visible unread notifications as read
+        /*// Auto-mark visible unread notifications as read
         const unread = this.notifications.filter(n => !n.isRead);
         if (unread.length > 0) {
           unread.forEach(n => {
@@ -135,7 +138,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
               error: (err) => console.error('Error marking notif read:', err)
             });
           });
-        }
+        }*/
       },
       error: (err) => {
         console.error('Lỗi tải thông báo (header):', err);
@@ -209,9 +212,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     
     // Navigate based on role
     if (this.currentUser.role === 0) {
-      this.router.navigate(['/admin/notifications']);
+      this.router.navigate(['/admin/notification']);
     } else if (this.currentUser.role === 1) {
-      this.router.navigate(['/landlord/landlord-feedback']);
+      this.router.navigate(['/landlord/notification']);
     } else {
       this.router.navigate(['/notification']);
     }

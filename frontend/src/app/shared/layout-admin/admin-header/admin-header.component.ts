@@ -125,12 +125,12 @@ export class AdminHeaderComponent implements OnInit, OnDestroy {
     if (!this.currentUser) return;
     
     this.notificationLoading = true;
-    this.notificationService.getNotificationsByUserId(this.currentUser.id).subscribe({
+    this.notificationService.getMyNotifications().subscribe({
       next: (data) => {
         this.notifications = data.slice(0, 6);
         this.notificationLoading = false;
 
-        // Auto-mark visible unread notifications as read
+        /*// Auto-mark visible unread notifications as read
         const unread = this.notifications.filter(n => !n.isRead);
         if (unread.length > 0) {
           unread.forEach(n => {
@@ -144,7 +144,7 @@ export class AdminHeaderComponent implements OnInit, OnDestroy {
               error: (err) => console.error('Error marking notif read:', err)
             });
           });
-        }
+        }*/
       },
       error: (err) => {
         console.error('Lỗi tải thông báo (admin header):', err);

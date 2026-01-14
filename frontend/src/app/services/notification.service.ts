@@ -25,9 +25,9 @@ export class NotificationService {
   // LẤY TẤT CẢ NOTIFICATIONS (KHÔNG PHÂN TRANG)
   // Dùng cho dropdown header
   // =====================================================
-  getNotificationsByUserId(userId: number): Observable<Notification[]> {
+  /*getNotificationsByUserId(userId: number): Observable<Notification[]> {
     return this.http.get<Notification[]>(`${this.apiUrl}/user/${userId}`);
-  }
+  }*/
 
   // =====================================================
   // LẤY NOTIFICATIONS PHÂN TRANG
@@ -53,6 +53,13 @@ export class NotificationService {
         totalPages: res.totalPages || 0,
         number: res.number || 0
       }))
+    );
+  }
+
+  getMyNotifications(): Observable<Notification[]> {
+    return this.http.get<Notification[]>(
+      'http://localhost:8081/api/notifications/my',
+      { withCredentials: true }
     );
   }
 
@@ -170,6 +177,12 @@ export class NotificationService {
 
   resend(id: number) {
     return this.http.post(`${this.apiUrl}/${id}/resend`, {});
+  }
+  getSendHistory(): Observable<any[]> {
+    return this.http.get<any[]>(
+      'http://localhost:8081/api/notifications/history',
+      { withCredentials: true }
+    );
   }
 
 }

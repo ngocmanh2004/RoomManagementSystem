@@ -63,18 +63,30 @@ export class SendNotificationComponent implements OnInit {
   }
 
   loadSentHistory() {
-    // Mock sent history - có thể tạo API riêng để lấy lịch sử
-    this.sentHistory = [
-      {
-        id: 1,
-        title: 'Nhắc nhở đóng tiền phòng tháng 12',
-        message: 'Kính gửi quý khách, đây là thông báo nhắc nhở...',
-        recipient: 'Tất cả phòng',
-        sentAt: '2024-12-01 09:00',
-        sentCount: 15
+    this.notificationService.getSendHistory().subscribe({
+      next: (data) => {
+        console.log('HISTORY DATA:', data);
+        this.sentHistory = data.map(item => ({
+          id: item.id,
+          title: item.title,
+          message: item.message,
+          recipient: item.sendTo === 'HISTORY'
+            ? 'Lịch sử gửi'
+            : item.sendTo,
+          sentAt: item.sentAt,
+          //sentCount: this.extractSentCount(item.message)
+        }));
+      },
+      error: (err) => {
+        console.error('Load history error', err);
       }
-    ];
+    });
   }
+
+  /*extractSentCount(message: string): number {
+    const match = message.match(/(\d+)\s+khách/);
+    return match ? Number(match[1]) : 0;
+  }*/
 
   toggleRoomSelection(roomId: number) {
     const index = this.selectedRooms.indexOf(roomId);
@@ -181,11 +193,20 @@ export class SendNotificationComponent implements OnInit {
     });
   }
 
-  resendNotification(id: number) {
-    if (!confirm('Bạn có chắc muốn gửi lại thông báo này?')) return;
+  resendNotification() {
+    if (!this.notification.title || !this.notification.message) {
+      alert('Vui lòng nhập đầy đủ nội dung');
+      return;
+    }
 
-    this.notificationService.resend(id).subscribe({
-      next: () => alert('Đã gửi lại thông báo'),
+    this.notification.roomIds = this.selectedRooms;
+
+    this.notificationService.send(this.notification).subscribe({
+      next: (res) => {
+        alert('Đã gửi lại thông báo');
+        this.resetForm();
+        this.loadSentHistory(); // ✅ LỊCH SỬ CÓ DÒNG MỚI
+      },
       error: () => alert('Gửi lại thất bại')
     });
   }

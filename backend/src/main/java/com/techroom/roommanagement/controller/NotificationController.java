@@ -1,5 +1,6 @@
 package com.techroom.roommanagement.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.security.auth.UserPrincipal;
 import com.techroom.roommanagement.dto.SendNotificationRequest;
@@ -21,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.techroom.roommanagement.security.CustomUserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,8 +49,26 @@ public class NotificationController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Chưa đăng nhập");
         }
 
-        SendNotificationResponse result = notificationService.send(req);
+        SendNotificationResponse result =
+                notificationService.send(req, userDetails.getId());
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<Notification>> getMyNotifications(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        // 🔥 CHỈ SENT → DRAFT TUYỆT ĐỐI KHÔNG LÊN CHUÔNG
+        return ResponseEntity.ok(
+                notificationRepository.findByUserIdAndStatusOrderByCreatedAtDesc(
+                        userDetails.getId(),
+                        NotificationStatus.SENT
+                )
+        );
     }
 
     /**
@@ -82,17 +102,15 @@ public class NotificationController {
      * Lấy TẤT CẢ notifications của user (không phân trang)
      * Dùng cho dropdown trên header
      */
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Notification>> getNotificationsByUserId(
-            @PathVariable Integer userId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        if (userDetails == null || !userDetails.getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không có quyền truy cập");
+    public List<Notification> getNotificationsByUserId(Integer userId) {
+        if (userId == null) {
+            return Collections.emptyList();
         }
-
-        List<Notification> notifications = notificationService.getNotificationsByUserId(userId);
-        return ResponseEntity.ok(notifications);
+        return notificationRepository
+                .findByUserIdAndStatusOrderByCreatedAtDesc(
+                        userId,
+                        NotificationStatus.SENT
+                );
     }
 
     /**
@@ -168,7 +186,7 @@ public class NotificationController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('LANDLORD')")
+    /*@PreAuthorize("hasRole('LANDLORD')")
     @PostMapping("/draft")
     public ResponseEntity<Notification> saveDraft(
             @RequestBody SendNotificationRequest req,
@@ -191,6 +209,16 @@ public class NotificationController {
                 .build();
 
         return ResponseEntity.ok(notificationRepository.save(notification));
+    }*/
+    @PostMapping("/draft")
+    @PreAuthorize("hasRole('LANDLORD')")
+    public ResponseEntity<Notification> saveDraft(
+            @RequestBody SendNotificationRequest req,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) throws JsonProcessingException {
+        return ResponseEntity.ok(
+                notificationService.saveDraft(req, user.getId())
+        );
     }
 
     @PreAuthorize("hasRole('LANDLORD')")
@@ -247,31 +275,60 @@ public class NotificationController {
     @PostMapping("/{id}/resend")
     public ResponseEntity<?> resend(
             @PathVariable Integer id,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        Notification old = notificationRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        // 1️⃣ GỬI LẠI CHO TENANT
+        Notification resendTenant = new Notification();
+        resendTenant.setUserId(old.getUserId());
+        resendTenant.setSenderId(user.getId());
+        resendTenant.setTitle(old.getTitle());
+        resendTenant.setMessage(old.getMessage());
+        resendTenant.setType(NotificationType.SYSTEM);
+        resendTenant.setStatus(NotificationStatus.SENT);
+        resendTenant.setIsRead(false);
+        resendTenant.setCreatedAt(LocalDateTime.now());
+        resendTenant.setSentAt(LocalDateTime.now());
+
+        notificationRepository.save(resendTenant);
+
+        // 2️⃣ HISTORY MỚI (GIỮ NGUYÊN DỮ LIỆU)
+        Notification history = new Notification();
+        history.setUserId(user.getId());
+        history.setSenderId(user.getId());
+        history.setTitle(old.getTitle());
+        history.setMessage(old.getMessage());     // ✅ GIỮ MESSAGE
+        history.setType(NotificationType.SYSTEM);
+        history.setStatus(NotificationStatus.SENT);
+        history.setSendTo("HISTORY");
+        history.setRoomIds(old.getRoomIds());
+        history.setIsRead(false);
+        history.setCreatedAt(LocalDateTime.now());
+        history.setSentAt(LocalDateTime.now());
+
+        notificationRepository.save(history);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PreAuthorize("hasRole('LANDLORD')")
+    @GetMapping("/history")
+    public ResponseEntity<List<Notification>> getSendHistory(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         if (userDetails == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
 
-        Notification old = notificationRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        List<Notification> history =
+                notificationRepository.findByUserIdAndSendToOrderByCreatedAtDesc(
+                        userDetails.getId(),
+                        "HISTORY"
+                );
 
-        // 🔥 TẠO BẢN GHI MỚI
-        Notification resend = Notification.builder()
-                .senderId(userDetails.getId())          // ✅ luôn có
-                .userId(old.getUserId())                // người nhận
-                .title(old.getTitle())
-                .message(old.getMessage())
-                .type(old.getType())
-                .sendTo(old.getSendTo())
-                .roomIds(old.getRoomIds())
-                .status(NotificationStatus.SENT)
-                .sentAt(LocalDateTime.now())
-                .build();
-
-        notificationRepository.save(resend);
-
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(history);
     }
 
 }

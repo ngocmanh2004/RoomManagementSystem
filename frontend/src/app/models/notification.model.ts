@@ -8,6 +8,7 @@ export interface Notification {
   title: string;
   message: string;
   type: NotificationType;
+  status: 'DRAFT' | 'SENT'; 
   isRead: boolean;
   createdAt: string;
   loading?: boolean; // UI state

@@ -25,6 +25,13 @@ export class TenantManagementComponent implements OnInit {
    searchText = '';                  // input tìm kiếm
   selectedStatus = '';              // filter trạng thái
 
+  // ===== PAGINATION =====
+  currentPage = 1;
+  pageSize = 5;           // số khách / trang
+  totalPages = 0;
+
+  // danh sách hiển thị theo trang
+  pagedTenants: any[] = [];
 
   // ✅ Tenant gồm cả user
   currentTenant: any = {
@@ -99,28 +106,46 @@ export class TenantManagementComponent implements OnInit {
   }
 
   loadTenants() {
-    this.tenantService.getAll().subscribe({
+    this.tenantService.getMyTenants().subscribe({
       next: (data) => {
         this.tenants = data;
-        this.filterTenants();       // cập nhật filteredTenants
+        this.filterTenants();
       },
-      error: (err) => console.error('Lỗi tải tenants', err)
+      error: (err) => {
+        console.error(err);
+        alert('Không thể tải danh sách khách thuê');
+      }
     });
   }
 
   // ----- FILTER & SEARCH -----
   filterTenants() {
+    const keyword = this.searchText?.toLowerCase() || '';
+
     this.filteredTenants = this.tenants.filter(t => {
-      const matchStatus = this.selectedStatus ? t.user?.status === this.selectedStatus : true;
-      const matchSearch = this.searchText ? (
-        t.user?.fullName?.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        t.user?.phone.includes(this.searchText) ||
-        t.cccd.includes(this.searchText)
-      ) : true;
+      const status = t.user?.status || '';
+
+      const fullName = (t.user?.fullName || '').toLowerCase();
+      const phone = (t.user?.phone || '');
+      const cccd = (t.cccd || '');
+
+      const matchStatus = this.selectedStatus
+        ? status === this.selectedStatus
+        : true;
+
+      const matchSearch = keyword
+        ? fullName.includes(keyword) ||
+          phone.includes(keyword) ||
+          cccd.includes(keyword)
+        : true;
+
       return matchStatus && matchSearch;
     });
 
     this.updateCounts();
+
+    this.currentPage = 1;
+    this.applyPagination();
   }
 
   openAddForm() {
@@ -135,7 +160,7 @@ export class TenantManagementComponent implements OnInit {
    };
   this.isFormVisible = true;
 }
-  
+
   viewTenant(t: any) {
     this.mode = 'view';
     this.currentTenant = JSON.parse(JSON.stringify(t));
@@ -150,20 +175,6 @@ export class TenantManagementComponent implements OnInit {
 
    closeForm() {
     this.isFormVisible = false;
-  }
-
-  deleteTenant(t: any) {
-    if (confirm(`Xác nhận xóa khách thuê "${t.user?.fullName}"?`)) {
-      this.tenantService.delete(t.id).subscribe({
-        next: (res: any) => {
-          alert(res.message || 'Xóa thành công!');
-          this.loadTenants();
-        },
-        error: (err) => {
-          alert(err.error?.message || 'Không thể xóa khách thuê!');
-        }
-      });
-    }
   }
 
   saveTenant() {
@@ -184,7 +195,7 @@ export class TenantManagementComponent implements OnInit {
         },
         error: () => alert('Không thể cập nhật!')
       });
-    } 
+    }
     else {
       // add
       const registerRequest = {
@@ -198,20 +209,25 @@ export class TenantManagementComponent implements OnInit {
       };
 
       this.tenantService.add(registerRequest).subscribe({
-        next: (response: any) => {
+        next: (res: any) => {
+
+          const newTenant = res.tenant;
+
+          // ✅ Gán user cho chắc
+          newTenant.user.createdAt = new Date();
+          newTenant.user.status = 'ACTIVE';
+
+          // ✅ Thêm ngay vào danh sách
+          this.tenants.unshift(newTenant);
+          this.filterTenants();
+
           alert(`
-  Thêm khách thuê thành công!
-  Tài khoản: ${response.username}
-  Mật khẩu: ${response.password}
+      Thêm khách thuê thành công!
+      Tài khoản: ${res.username}
+      Mật khẩu: ${res.password}
           `);
-          this.loadTenants();
+
           this.closeForm();
-        },
-        error: (err) => {
-          let errorMsg = 'Không thể thêm khách thuê!';
-          if (typeof err.error === 'string') errorMsg = err.error;
-          if (err.error?.message) errorMsg = err.error.message;
-          alert(errorMsg);
         }
       });
     }
@@ -244,4 +260,34 @@ export class TenantManagementComponent implements OnInit {
       return created.getMonth() === currentMonth && created.getFullYear() === currentYear;
     }).length;
   }
+
+  applyPagination() {
+    this.totalPages = Math.ceil(this.filteredTenants.length / this.pageSize);
+
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+
+    this.pagedTenants = this.filteredTenants.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.applyPagination();
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.applyPagination();
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.applyPagination();
+    }
+  }
+
 }

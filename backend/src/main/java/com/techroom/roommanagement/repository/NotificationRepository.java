@@ -1,6 +1,7 @@
 package com.techroom.roommanagement.repository;
 
 import com.techroom.roommanagement.model.Notification;
+import com.techroom.roommanagement.model.NotificationStatus;
 import com.techroom.roommanagement.model.NotificationType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +55,17 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
             Integer userId,
             LocalDateTime startDate,
             LocalDateTime endDate
+    );
+
+    long countByUserIdAndStatusAndIsReadFalse(Integer userId, NotificationStatus status);
+
+    List<Notification> findByUserIdAndSendToOrderByCreatedAtDesc(
+            Integer userId,
+            String sendTo
+    );
+    List<Notification> findByUserIdAndStatusOrderByCreatedAtDesc(
+            Integer userId,
+            NotificationStatus status
     );
 
     /**

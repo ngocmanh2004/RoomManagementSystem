@@ -30,6 +30,7 @@ export class TenantFeedbackComponent implements OnInit {
   
   // Form data
   newFeedback = {
+    roomId: this.currentRoomId,
     title: '',
     content: '',
     attachmentUrl: ''
@@ -38,6 +39,7 @@ export class TenantFeedbackComponent implements OnInit {
   editingFeedbackId: number | null = null;
 
   filterStatus: 'all' | 'PENDING' | 'PROCESSING' | 'RESOLVED' = 'all';
+  currentBuildingId: number = 1; // hoặc lấy động từ phòng
 
   private apiUrl = 'http://localhost:8081/api/feedbacks';
 
@@ -134,6 +136,7 @@ export class TenantFeedbackComponent implements OnInit {
 
   resetForm() {
     this.newFeedback = {
+      roomId: this.currentRoomId,
       title: '',
       content: '',
       attachmentUrl: ''
@@ -204,29 +207,31 @@ export class TenantFeedbackComponent implements OnInit {
     }
   }
   uploadImage() {
-    if (!this.selectedFile) return;
+  if (!this.selectedFile) return;
 
-    const formData = new FormData();
-    formData.append('file', this.selectedFile);
-    formData.append('roomId', this.currentRoomId.toString());
+  const formData = new FormData();
+  formData.append('file', this.selectedFile);
+  formData.append('buildingId', this.currentBuildingId.toString());
+  formData.append('roomId', this.currentRoomId.toString());
 
-    this.http.post<any>('http://localhost:8081/api/upload', formData)
-      .subscribe({
-        next: res => {
-          console.log('UPLOAD RESPONSE:', res); // 👈 THÊM
-          this.newFeedback.attachmentUrl = res.url;
-          console.log('ATTACHMENT URL:', this.newFeedback.attachmentUrl); // 👈 THÊM
-        },
-        error: err => {
-          console.error(err);
-          alert('Upload ảnh thất bại');
-        }
-      });
+  this.http.post<any>('http://localhost:8081/api/upload', formData)
+    .subscribe({
+      next: res => {
+        console.log('UPLOAD OK:', res);
+        this.newFeedback.attachmentUrl = res.url;
+      },
+      error: err => {
+        console.error('UPLOAD ERROR:', err);
+        alert('Upload ảnh thất bại');
+      }
+    });
   }
+
   editFeedback(feedback: Feedback) {
     this.editingFeedbackId = feedback.id;
 
     this.newFeedback = {
+      roomId: this.currentRoomId,
       title: feedback.title,
       content: feedback.content,
       attachmentUrl: feedback.attachmentUrl || ''
