@@ -42,17 +42,16 @@ public class TenantController {
 
     @Autowired
     private LandlordRepository landlordRepository;
+    
+    @Autowired
+    private com.techroom.roommanagement.repository.ContractRepository contractRepository;
 
     // Lấy tất cả tenant
     @GetMapping
     public List<Tenant> getAllTenants() {
-        Integer landlordId = getCurrentLandlordId();
-        if (landlordId != null) {
-            return tenantService.getTenantsByLandlord(landlordId);
-        }
-        else {
-            return tenantService.getAllTenants();
-        }
+        // Landlord cần thấy TẤT CẢ tenant để có thể tạo hợp đồng
+        // Không filter theo landlord vì tenant mới chưa có hợp đồng
+        return tenantService.getAllTenants();
     }
     // Lấy tenant theo ID
     @GetMapping("/{id}")
@@ -113,6 +112,18 @@ public class TenantController {
             // Kiểm tra trùng số điện thoại
             if (userRepository.findByUsername(request.getPhone()).isPresent()) {
                 return ResponseEntity.badRequest().body("Số điện thoại đã được sử dụng!");
+            }
+            
+            // Kiểm tra trùng email
+            if (request.getEmail() != null && !request.getEmail().isBlank() 
+                && userRepository.findByEmail(request.getEmail()).isPresent()) {
+                return ResponseEntity.badRequest().body("Email đã được sử dụng!");
+            }
+            
+            // Kiểm tra trùng CCCD
+            if (request.getCccd() != null && !request.getCccd().isBlank() 
+                && tenantRepository.findByCccd(request.getCccd()).isPresent()) {
+                return ResponseEntity.badRequest().body("CCCD đã được sử dụng!");
             }
 
             // Sinh mật khẩu ngẫu nhiên
@@ -183,16 +194,20 @@ public class TenantController {
         }
 
         Tenant tenant = tenantOpt.get();
-        User user = tenant.getUser();
 
-        //  KHÔNG ĐƯỢC PHÉP XÓA KHI KHÁCH ĐANG Ở TRẠNG THÁI ĐANG THUÊ
-        if (user.getStatus() == User.Status.ACTIVE) {
+        // Kiểm tra xem tenant có hợp đồng ACTIVE không
+        boolean hasActiveContract = contractRepository.existsByTenantIdAndStatus(
+            id, 
+            com.techroom.roommanagement.model.ContractStatus.ACTIVE
+        );
+        
+        if (hasActiveContract) {
             return ResponseEntity.badRequest().body(
-                    Map.of("message", "Khách đang thuê, không thể xóa!")
+                    Map.of("message", "Khách thuê đang có hợp đồng hoạt động, không thể xóa!")
             );
         }
 
-        // Nếu không ACTIVE → cho phép xóa
+        // Nếu không có hợp đồng ACTIVE → cho phép xóa
         tenantRepository.delete(tenant);
 
         return ResponseEntity.ok(Map.of(

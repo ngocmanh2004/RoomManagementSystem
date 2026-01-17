@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 
+
 @Service
 public class TenantService {
 
@@ -21,9 +22,21 @@ public class TenantService {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private com.techroom.roommanagement.repository.ContractRepository contractRepository;
 
     public List<Tenant> getAllTenants() {
-        return tenantRepository.findAll();
+        List<Tenant> tenants = tenantRepository.findAll();
+        // Populate rental status for each tenant
+        for (Tenant tenant : tenants) {
+            boolean hasActiveContract = contractRepository.existsByTenantIdAndStatus(
+                tenant.getId(), 
+                com.techroom.roommanagement.model.ContractStatus.ACTIVE
+            );
+            tenant.setRentalStatus(hasActiveContract ? "Đã thuê" : "Chưa thuê");
+        }
+        return tenants;
     }
 
     // Lấy tất cả tenant thuộc landlord

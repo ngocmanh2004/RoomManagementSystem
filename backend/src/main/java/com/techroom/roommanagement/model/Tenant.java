@@ -36,4 +36,8 @@ public class Tenant {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
+    // Transient field để hiển thị trạng thái thuê phòng
+    @Transient
+    private String rentalStatus; // "Đã thuê" hoặc "Chưa thuê"
+
 }
