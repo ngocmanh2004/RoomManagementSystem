@@ -51,11 +51,11 @@ export const routes: Routes = [
       { path: 'contact', component: ContactComponent },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
-      { path: 'register-landlord', component: RegisterLandlordComponent},
+      { path: 'register-landlord', component: RegisterLandlordComponent },
       { path: 'tenant-profile', component: TenantProfileComponent },
       { path: 'contract-detail', component: ContractDetailComponent },
-      { path: 'tenant-feedback', component: TenantFeedbackComponent},
-      { path: 'notification', component: TenantNotificationComponent}
+      { path: 'tenant-feedback', component: TenantFeedbackComponent },
+      { path: 'notification', component: TenantNotificationComponent }
     ],
   },
   // ADMIN ROUTES (role = 0)
@@ -77,42 +77,43 @@ export const routes: Routes = [
   },
 
   // LANDLORD ROUTES (role = 1)
-{
-  path: 'landlord',
-  component: LandlordLayoutComponent,
-  canActivate: [authGuard, roleGuard([1])],
-  children: [
-    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-    { path: 'dashboard', component: DashboardLandlordComponent },
-    { path: 'tenants', component: TenantManagementComponent },
-    { path: 'buildings', component: BuildingManagementComponent },
-    { path: 'buildings/:buildingId/rooms', component: RoomManagementComponent },
-    { path: 'rooms', component: RoomManagementComponent },
-    { path: 'bookings', component: LandlordBookingComponent },
-    { path: 'bookings/create', component: CreateDirectContractComponent },
-    { path: 'bookings/:id', component: LandlordBookingDetailComponent },
-    { path: 'electricity', component: ElectricityManagementComponent },
-    { path: 'water', component: WaterManagementComponent },
-    { path: 'extra-cost', component: ExtraCostManagementComponent },
-    { path: 'invoices', component: InvoiceManagementComponent },
-    { path: 'notification', component: SendNotificationComponent},
-    { path: 'landlord-feedback', component: LandlordFeedbackComponent},
-  ],
-},
+  {
+    path: 'landlord',
+    component: LandlordLayoutComponent,
+    canActivate: [authGuard, roleGuard([1])],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: DashboardLandlordComponent },
+      { path: 'tenants', component: TenantManagementComponent },
+      { path: 'buildings', component: BuildingManagementComponent },
+      { path: 'buildings/:buildingId/rooms', component: RoomManagementComponent },
+      { path: 'rooms', component: RoomManagementComponent },
+      { path: 'bookings', component: LandlordBookingComponent },
+      { path: 'bookings/create', component: CreateDirectContractComponent },
+      { path: 'bookings/:id', component: LandlordBookingDetailComponent },
+      { path: 'electricity', component: ElectricityManagementComponent },
+      { path: 'water', component: WaterManagementComponent },
+      { path: 'extra-cost', component: ExtraCostManagementComponent },
+      { path: 'invoices', component: InvoiceManagementComponent },
+      { path: 'notification', component: SendNotificationComponent },
+      { path: 'landlord-feedback', component: LandlordFeedbackComponent },
+    ],
+  },
 
-// TENANT ROUTES (role = 2)
-{
-  path: 'tenant',
-  component: TenantLayoutComponent,
-  canActivate: [authGuard, roleGuard([2])],
-  children: [
-    { path: '', redirectTo: 'invoices', pathMatch: 'full' },
-    { path: 'invoices', component: InvoiceViewComponent },
-    { path: 'vnpay-return', component: VnpayReturnComponent },
-    { path: 'notification', component: TenantNotificationComponent },
-    { path: 'tenant-feedback', component: TenantFeedbackComponent }
-  ],
-},
+  // TENANT ROUTES (role = 2)
+  {
+    path: 'tenant',
+    component: TenantLayoutComponent,
+    canActivate: [authGuard, roleGuard([2])],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', loadComponent: () => import('./features/tenant/dashboard-tenant/dashboard-tenant.component').then(m => m.DashboardTenantComponent) },
+      { path: 'invoices', component: InvoiceViewComponent },
+      { path: 'vnpay-return', component: VnpayReturnComponent },
+      { path: 'notification', component: TenantNotificationComponent },
+      { path: 'tenant-feedback', component: TenantFeedbackComponent }
+    ],
+  },
 
 
   { path: '**', redirectTo: '' }

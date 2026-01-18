@@ -48,36 +48,41 @@
 
           <div class="form-group">
             <label>Tiêu đề phản hồi</label>
-            <input 
-              type="text" 
-              class="form-control" 
-              [(ngModel)]="newFeedback.title"
+            <input type="text" class="form-control" [(ngModel)]="newFeedback.title"
               placeholder="Ví dụ: Máy lạnh phòng 101 không hoạt động...">
           </div>
 
           <div class="form-group">
             <label>Nội dung chi tiết</label>
-            <textarea 
-              class="form-control" 
-              rows="5"
-              [(ngModel)]="newFeedback.content"
+            <textarea class="form-control" rows="5" [(ngModel)]="newFeedback.content"
               placeholder="Mô tả chi tiết vấn đề bạn gặp phải..."></textarea>
           </div>
 
           <div class="form-group">
             <label>Đính kèm ảnh minh họa</label>
 
-            <input
-              type="file"
-              accept="image/*"
-              (change)="onFileSelected($event)"
-            />
+            <div class="file-upload-wrapper">
+              <input type="file" id="fileInput" accept="image/*" (change)="onFileSelected($event)"
+                style="display: none;" />
+              <button type="button" class="btn-upload" onclick="document.getElementById('fileInput').click()">
+                <i class="fa fa-upload"></i> Chọn ảnh
+              </button>
+              <span class="file-name" *ngIf="selectedFile">
+                {{ selectedFile.name }}
+              </span>
+            </div>
 
-            <div *ngIf="newFeedback.attachmentUrl" class="preview">
-              <img *ngIf="newFeedback.attachmentUrl"
-                [src]="newFeedback.attachmentUrl"
-                alt="Ảnh đính kèm"
-                style="max-width:300px; border-radius:8px">
+            <!-- Preview ảnh sau khi upload -->
+            <div *ngIf="newFeedback.attachmentUrl" class="image-preview">
+              <p style="color: #28a745; font-size: 13px; margin-bottom: 8px;">
+                <i class="fa fa-check-circle"></i> Ảnh đã tải lên thành công
+              </p>
+              <img [src]="newFeedback.attachmentUrl" alt="Ảnh đính kèm"
+                style="max-width: 100%; max-height: 300px; border-radius: 8px; border: 2px solid #e5e7eb;" />
+              <button type="button" class="btn-remove-image" (click)="removeImage()"
+                style="margin-top: 8px; background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
+                <i class="fa fa-times"></i> Xóa ảnh
+              </button>
             </div>
           </div>
 
@@ -122,7 +127,7 @@
 
       <div *ngFor="let feedback of feedbacks" class="feedback-card">
         <div class="card-left-indicator" [ngClass]="'indicator-' + feedback.status.toLowerCase()"></div>
-        
+
         <div class="card-icon" [ngClass]="'icon-' + feedback.status.toLowerCase()">
           <i class="fa fa-{{getStatusIconCard(feedback.status)}}"></i>
         </div>
@@ -150,11 +155,7 @@
           <p class="card-description">{{ feedback.content }}</p>
           <!-- Ảnh đính kèm -->
           <div class="card-attachment" *ngIf="feedback.attachmentUrl">
-            <img
-              [src]="feedback.attachmentUrl"
-              alt="Ảnh đính kèm"
-              class="feedback-image"
-            />
+            <img [src]="feedback.attachmentUrl" alt="Ảnh đính kèm" class="feedback-image" />
           </div>
 
           <div class="card-response" *ngIf="feedback.landlordNote">
@@ -168,18 +169,11 @@
           </div>
 
           <div class="card-actions">
-            <button
-              class="btn-action btn-edit"
-              *ngIf="feedback.status === 'PENDING'"
-              (click)="editFeedback(feedback)"
-            >
+            <button class="btn-action btn-edit" *ngIf="feedback.status === 'PENDING'" (click)="editFeedback(feedback)">
               <i class="fa fa-edit"></i> Chỉnh sửa
             </button>
-            <button
-              class="btn-action btn-delete"
-              *ngIf="feedback.status === 'PENDING'"
-              (click)="deleteFeedback(feedback.id)"
-            >
+            <button class="btn-action btn-delete" *ngIf="feedback.status === 'PENDING'"
+              (click)="deleteFeedback(feedback.id)">
               <i class="fa fa-trash"></i> Xóa
             </button>
           </div>

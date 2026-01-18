@@ -1,6 +1,6 @@
 import { Component, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router} from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -12,17 +12,28 @@ import { AuthService } from '../../../services/auth.service';
 })
 export class TenantHeaderComponent {
   @Output() toggleSidebar = new EventEmitter<void>();
-  constructor(private router: Router) {}
+
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   currentUser = this.authService.getCurrentUser();
+  isDropdownOpen = false;
 
   onToggleSidebar() {
     this.toggleSidebar.emit();
   }
 
+  toggleDropdown() {
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
+
+  closeDropdown() {
+    this.isDropdownOpen = false;
+  }
+
   onLogout() {
-    localStorage.removeItem('token'); 
-    this.router.navigate(['/']);
+    this.authService.logout().subscribe(() => {
+      this.router.navigate(['/login']);
+    });
   }
 }

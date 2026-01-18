@@ -9,7 +9,7 @@ import { RoomService } from './room.service';
   providedIn: 'root',
 })
 export class ChatbotService {
-  private API_KEY = 'AIzaSyBFiRhVrTVQVD8PHbHpHSj7k9_G4Z6eSB8';
+  private API_KEY = 'AIzaSyCxjXrM8-rWaD-ScpZynd4sMYUAJEeTl94';
   private URL = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${this.API_KEY}`;
 
   private cachedRooms: any[] | null = null;

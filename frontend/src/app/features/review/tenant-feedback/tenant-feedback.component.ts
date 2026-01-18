@@ -27,7 +27,7 @@ export class TenantFeedbackComponent implements OnInit {
   feedbacks: Feedback[] = [];
   loading = false;
   showCreateForm = false;
-  
+
   // Form data
   newFeedback = {
     title: '',
@@ -41,7 +41,7 @@ export class TenantFeedbackComponent implements OnInit {
 
   private apiUrl = 'http://localhost:8081/api/feedbacks';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   ngOnInit() {
     this.loadFeedbacks();
@@ -189,7 +189,7 @@ export class TenantFeedbackComponent implements OnInit {
     };
     return iconMap[status] || 'circle';
   }
-  
+
   get filteredFeedbacks(): Feedback[] {
     if (this.filterStatus === 'all') {
       return this.feedbacks;
@@ -208,18 +208,73 @@ export class TenantFeedbackComponent implements OnInit {
 
     const formData = new FormData();
     formData.append('file', this.selectedFile);
-    formData.append('roomId', this.currentRoomId.toString());
+    formData.append('buildingId', '1'); // Default building ID
+    formData.append('roomId', this.currentRoomId?.toString() || '1');
+
+    console.log('📤 Uploading file:', this.selectedFile.name);
+    console.log('📤 BuildingId: 1, RoomId:', this.currentRoomId || 1);
 
     this.http.post<any>('http://localhost:8081/api/upload', formData)
       .subscribe({
         next: res => {
-          console.log('UPLOAD RESPONSE:', res); // 👈 THÊM
-          this.newFeedback.attachmentUrl = res.url;
-          console.log('ATTACHMENT URL:', this.newFeedback.attachmentUrl); // 👈 THÊM
+          console.log('✅ RAW Upload response:', res);
+          console.log('✅ Response type:', typeof res);
+          console.log('✅ Response keys:', Object.keys(res || {}));
+
+          let imageUrl = '';
+
+          if (typeof res === 'string') {
+            imageUrl = res;
+            console.log('📌 Format: Direct string');
+          } else if (res.url) {
+            imageUrl = res.url;
+            console.log('📌 Format: res.url');
+          } else if (res.data && res.data.url) {
+            imageUrl = res.data.url;
+            console.log('📌 Format: res.data.url');
+          } else if (res.data && typeof res.data === 'string') {
+            imageUrl = res.data;
+            console.log('📌 Format: res.data (string)');
+          }
+
+          console.log('🔗 Final imageUrl:', imageUrl);
+
+          // Fix URL if backend returns localhost:8080 instead of 8081
+          if (imageUrl && imageUrl.includes('localhost:8080')) {
+            imageUrl = imageUrl.replace('localhost:8080', 'localhost:8081');
+            console.log('🔧 Fixed URL to use port 8081:', imageUrl);
+          }
+
+          if (imageUrl) {
+            this.newFeedback.attachmentUrl = imageUrl;
+            console.log('✅ Image URL set to newFeedback.attachmentUrl:', this.newFeedback.attachmentUrl);
+            console.log('✅ Current newFeedback object:', JSON.stringify(this.newFeedback, null, 2));
+            alert('Upload ảnh thành công! URL: ' + imageUrl);
+          } else {
+            console.error('❌ No URL in response:', res);
+            alert('Upload ảnh thất bại: Không nhận được URL từ server');
+          }
         },
         error: err => {
-          console.error(err);
-          alert('Upload ảnh thất bại');
+          console.error('❌ Upload error:', err);
+          console.error('❌ Error status:', err.status);
+          console.error('❌ Error message:', err.message);
+          let errorMsg = 'Upload ảnh thất bại';
+
+          if (err.error?.message) {
+            errorMsg += ': ' + err.error.message;
+          } else if (err.status === 413) {
+            errorMsg = 'Ảnh quá lớn! Vui lòng chọn ảnh nhỏ hơn 5MB';
+          } else if (err.status === 415) {
+            errorMsg = 'Định dạng file không hợp lệ! Chỉ chấp nhận: JPG, PNG, GIF';
+          } else if (err.status === 0) {
+            errorMsg = 'Không kết nối được server! Kiểm tra backend đang chạy không';
+          } else if (err.status === 400) {
+            errorMsg = 'Yêu cầu không hợp lệ: ' + (err.error?.message || 'Thiếu thông tin cần thiết');
+          }
+
+          alert(errorMsg);
+          this.selectedFile = null;
         }
       });
   }
@@ -249,6 +304,16 @@ export class TenantFeedbackComponent implements OnInit {
         alert('Xóa phản hồi thất bại!');
       }
     });
+  }
+
+  removeImage() {
+    this.newFeedback.attachmentUrl = '';
+    this.selectedFile = null;
+    // Reset file input
+    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
   }
 
 }

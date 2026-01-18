@@ -58,10 +58,10 @@ export class HomeComponent implements OnInit {
         this.currentPage = response.number;
         this.totalPages = response.totalPages;
         this.totalElements = response.totalElements;
-        console.log(`✅ Tải danh sách dãy trọ (trang ${this.currentPage + 1}):`, response);
+        console.log(`Tải danh sách dãy trọ (trang ${this.currentPage + 1}):`, response);
       },
       error: (err) => {
-        console.error('❌ Lỗi khi tải danh sách dãy trọ:', err);
+        console.error('Lỗi khi tải danh sách dãy trọ:', err);
       }
     });
   }
@@ -82,9 +82,9 @@ export class HomeComponent implements OnInit {
     this.provinceService.getAllProvinces().subscribe({
       next: (data) => {
         this.provinces = data;
-        console.log('✅ Tải tỉnh thành thành công:', this.provinces);
+        console.log('Tải tỉnh thành thành công:', this.provinces);
       },
-      error: (err) => console.error('❌ Lỗi khi tải tỉnh thành:', err)
+      error: (err) => console.error('Lỗi khi tải tỉnh thành:', err)
     });
   }
 
@@ -97,9 +97,9 @@ export class HomeComponent implements OnInit {
       this.provinceService.getDistrictsByProvince(provinceCode).subscribe({
         next: (data) => {
           this.districts = data;
-          console.log('✅ Tải quận huyện:', data);
+          console.log('Tải quận huyện:', data);
         },
-        error: (err) => console.error('❌ Lỗi khi tải quận huyện:', err)
+        error: (err) => console.error('Lỗi khi tải quận huyện:', err)
       });
     }
   }
@@ -141,10 +141,10 @@ export class HomeComponent implements OnInit {
           this.currentPage = 0;
           this.totalPages = 1;
           this.totalElements = data.length;
-          console.log('✅ Tìm kiếm thành công:', data.length, 'dãy trọ');
+          console.log('Tìm kiếm thành công:', data.length, 'dãy trọ');
         },
         error: (err) => {
-          console.error('❌ Lỗi khi tìm kiếm:', err);
+          console.error('Lỗi khi tìm kiếm:', err);
           this.buildings = [];
           this.totalPages = 0;
           this.totalElements = 0;

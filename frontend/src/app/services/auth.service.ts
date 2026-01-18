@@ -1,31 +1,31 @@
-  /**
-   * Lấy landlordId từ user hiện tại (nếu có)
-   */
+/**
+ * Lấy landlordId từ user hiện tại (nếu có)
+ */
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, map, catchError } from 'rxjs/operators';
 import { AuthResponse, UserInfo, RefreshTokenRequest } from '../models/users';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private apiUrl = 'http://localhost:8081/api/auth';
-  
+
   private currentUserSubject = new BehaviorSubject<UserInfo | null>(this.getCurrentUser());
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   private convertRoleToNumber(role: string | number): number {
     if (typeof role === 'number') return role;
-    
+
     const roleMap: { [key: string]: number } = {
       'ADMIN': 0,
       'LANDLORD': 1,
       'TENANT': 2
     };
-    return roleMap[role] ?? 2; 
+    return roleMap[role] ?? 2;
   }
 
   private normalizeUser(user: any): UserInfo {
@@ -47,7 +47,7 @@ export class AuthService {
           const normalizedUser = this.normalizeUser(response.user);
           this.saveUser(normalizedUser);
           this.currentUserSubject.next(normalizedUser);
-          
+
           console.log('✅ Login - Saved user:', normalizedUser);
         })
       );
@@ -58,7 +58,7 @@ export class AuthService {
     if (!refreshToken) {
       throw new Error('No refresh token available');
     }
-    
+
     const request: RefreshTokenRequest = { refreshToken };
     return this.http.post<AuthResponse>(`${this.apiUrl}/refresh`, request)
       .pipe(
@@ -75,13 +75,13 @@ export class AuthService {
 
   saveUser(user: UserInfo) {
     localStorage.setItem('currentUser', JSON.stringify(user));
-    this.currentUserSubject.next(user); 
+    this.currentUserSubject.next(user);
   }
 
   updateUserInfo(partialUser: Partial<UserInfo>) {
     const current = this.currentUserSubject.value;
     if (!current) return;
-    
+
     const updated = { ...current, ...partialUser };
     this.saveUser(updated);
   }
@@ -97,7 +97,7 @@ export class AuthService {
   getCurrentUser(): UserInfo | null {
     const userStr = localStorage.getItem('currentUser');
     if (!userStr) return null;
-    
+
     try {
       const user = JSON.parse(userStr);
       return this.normalizeUser(user);
@@ -112,7 +112,7 @@ export class AuthService {
     return user ? user.id : null;
   }
 
-    getCurrentLandlordId(): number | null {
+  getCurrentLandlordId(): number | null {
     const user = this.getCurrentUser();
     if (user && user.landlord && user.landlord.id) {
       return user.landlord.id;
@@ -131,7 +131,7 @@ export class AuthService {
       })
     );
   }
-  
+
   getUserRole(): number | null {
     const user = this.getCurrentUser();
     return user ? user.role : null;
@@ -149,19 +149,44 @@ export class AuthService {
     return this.getUserRole() === 2;
   }
 
+  /**
+   * Check if current tenant has an active contract
+   * Used for smart routing: tenant with contract → dashboard, without → homepage
+   */
+  hasActiveContract(): Observable<boolean> {
+    const userId = this.getCurrentUserId();
+    if (!userId) {
+      return new BehaviorSubject<boolean>(false).asObservable();
+    }
+
+    // Call backend to check for active contracts
+    return this.http.get<any>(`/api/bookings/my-contract`, { withCredentials: true }).pipe(
+      map((response: any) => {
+        // If we get a contract back, tenant has active contract
+        return response && response.data !== null;
+      }),
+      tap(hasContract => console.log('🔍 Has active contract:', hasContract)),
+      catchError((error: any) => {
+        console.log('⚠️ No active contract found:', error.status);
+        // If 404 or any error, assume no active contract
+        return new BehaviorSubject<boolean>(false).asObservable();
+      })
+    );
+  }
+
   logout(): Observable<any> {
     const refreshToken = this.getRefreshToken();
-    
+
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
-    
+
     if (refreshToken) {
       const request: RefreshTokenRequest = { refreshToken };
       return this.http.post(`${this.apiUrl}/logout`, request);
     }
-    
+
     return new Observable(subscriber => {
       subscriber.next(null);
       subscriber.complete();
@@ -175,7 +200,7 @@ export class AuthService {
   isTokenExpired(): boolean {
     const token = this.getAccessToken();
     if (!token) return true;
-    
+
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       return payload.exp * 1000 < Date.now();

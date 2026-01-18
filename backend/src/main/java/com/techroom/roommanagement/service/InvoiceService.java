@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -156,13 +157,43 @@ public class InvoiceService {
     }
 
     /**
-     * Lấy hóa đơn theo người thuê
+     * Lấy hóa đơn theo người thuê (thông qua contracts)
      */
     public List<InvoiceDTO> getInvoicesByTenantId(Integer tenantId) {
-        return invoiceRepository.findByTenantId(tenantId)
-                .stream()
+        System.out.println("🔍 getInvoicesByTenantId - tenantId: " + tenantId);
+        
+        // Lấy tất cả contracts
+        List<Contract> allContracts = contractRepository.findAll();
+        System.out.println("📋 Total contracts in DB: " + allContracts.size());
+        
+        // Filter contracts của tenant
+        List<Contract> contracts = allContracts.stream()
+                .filter(c -> {
+                    if (c.getTenant() == null) {
+                        return false;
+                    }
+                    boolean matches = Objects.equals(c.getTenant().getId(), tenantId);
+                    if (matches) {
+                        System.out.println("✅ Found contract: " + c.getId() + " for tenant: " + c.getTenant().getId());
+                    }
+                    return matches;
+                })
+                .collect(Collectors.toList());
+        
+        System.out.println("📊 Filtered contracts for tenant " + tenantId + ": " + contracts.size());
+        
+        // Lấy invoices từ các contracts
+        List<InvoiceDTO> invoices = contracts.stream()
+                .flatMap(contract -> {
+                    List<Invoice> contractInvoices = invoiceRepository.findByContractId(contract.getId());
+                    System.out.println("💰 Contract " + contract.getId() + " has " + contractInvoices.size() + " invoices");
+                    return contractInvoices.stream();
+                })
                 .map(InvoiceDTO::fromEntity)
                 .collect(Collectors.toList());
+        
+        System.out.println("✅ Total invoices found: " + invoices.size());
+        return invoices;
     }
 
     /**

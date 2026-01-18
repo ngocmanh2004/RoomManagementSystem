@@ -33,7 +33,8 @@
       <div class="field">
         <span>Thống kê</span>
         <div class="muted">
-          <small>Tổng: {{ stats().totalCount }} | Chưa: {{ stats().unpaidCount }} | Tổng tiền: {{ stats().totalAmount | currency:'VND' }}</small>
+          <small>Tổng: {{ stats().totalCount }} | Chưa: {{ stats().unpaidCount }} | Tổng tiền: {{ stats().totalAmount |
+            currency:'VND' }}</small>
         </div>
       </div>
     </div>
@@ -71,7 +72,8 @@
           </td>
           <td class="text-center nowrap">
             <button class="act" (click)="viewInvoiceDetail(invoice)">Xem</button>
-            <button class="act primary" title="Thanh toán" (click)="payInvoice(invoice)">Thanh toán</button>
+            <button *ngIf="invoice.status !== 'PAID'" class="act primary" title="Thanh toán"
+              (click)="payInvoice(invoice)">Thanh toán</button>
           </td>
         </tr>
 
@@ -149,7 +151,8 @@
       <div class="invoice-section">
         <h3 class="section-title">Trạng Thái</h3>
         <div class="status-container">
-          <span [ngClass]="getStatusClass(selectedInvoice()?.status!)" class="badge">{{ getStatusLabel(selectedInvoice()?.status!) }}</span>
+          <span [ngClass]="getStatusClass(selectedInvoice()?.status!)" class="badge">{{
+            getStatusLabel(selectedInvoice()?.status!) }}</span>
         </div>
       </div>
 
@@ -163,7 +166,8 @@
     <!-- Footer -->
     <footer class="modal-footer">
       <button class="btn outline" (click)="closeDetailModal()">Đóng</button>
-      <button *ngIf="selectedInvoice()?.status !== 'PAID'" class="btn primary" (click)="payInvoice(selectedInvoice()!)">Thanh Toán</button>
+      <button *ngIf="selectedInvoice()?.status !== 'PAID'" class="btn primary"
+        (click)="payInvoice(selectedInvoice()!)">Thanh Toán</button>
       <button class="btn primary" (click)="downloadInvoice(selectedInvoice()!)">Tải Xuống</button>
     </footer>
   </div>

@@ -1,7 +1,7 @@
 <header class="main-header">
   <div class="container">
     <a routerLink="/" class="logo">TechRoom</a>
-    
+
     <nav>
       <ul>
         <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Trang chủ</a></li>
@@ -22,7 +22,7 @@
       </ng-container>
 
       <ng-container *ngIf="isLoggedIn && currentUser">
-         <!-- NOTIFICATION BELL ICON -->
+        <!-- NOTIFICATION BELL ICON -->
         <div class="notification-wrapper">
           <button class="notification-bell" (click)="toggleNotifications($event)" title="Thông báo">
             <i class="fa fa-bell"></i>
@@ -49,10 +49,8 @@
             </div>
 
             <ul class="notif-list" *ngIf="!notificationLoading && notifications.length > 0">
-              <li *ngFor="let n of notifications" 
-                  class="notif-item" 
-                  [class.unread]="!n.isRead"
-                  [class.important]="isImportant(n)">
+              <li *ngFor="let n of notifications" class="notif-item" [class.unread]="!n.isRead"
+                [class.important]="isImportant(n)">
                 <div class="left" (click)="onNotificationClick(n, $event)">
                   <div class="notif-icon-inline">{{ getNotificationIcon(n.type) }}</div>
                   <div class="notif-content">
@@ -85,42 +83,25 @@
             <span class="user-name">{{ currentUser.fullName }}</span>
             <i class="fa fa-caret-down"></i>
           </button>
-          
-          <ul class="dropdown-menu">
-            <!-- ADMIN (0) hoặc LANDLORD (1) mới có Dashboard -->
-            <ng-container *ngIf="currentUser.role === 0 || currentUser.role === 1">
-              <li>
-                <a [routerLink]="getDashboardLink()">
-                  <i class="fa fa-tachometer-alt"></i>
-                  Dashboard {{ getRoleName(currentUser.role) }}
-                </a>
-              </li>
-              <li class="divider"></li>
-            </ng-container>
 
-            <!-- TENANT (2) hiển thị Đăng ký chủ trọ -->
+          <ul class="dropdown-menu">
+            <!-- Dashboard cho TẤT CẢ user đã đăng nhập -->
+            <li>
+              <a [routerLink]="getDashboardLink()">
+                <i class="fa fa-tachometer-alt"></i>
+                Dashboard
+              </a>
+            </li>
+            <li class="divider"></li>
+
+            <!-- TENANT (2) - Chỉ giữ "Đăng ký chủ trọ" -->
             <ng-container *ngIf="currentUser.role === 2">
               <li>
                 <a routerLink="/register-landlord">
                   <i class="fa fa-user-tie"></i> Đăng ký chủ trọ
                 </a>
               </li>
-              <li class="divider"></li>
-              <li>
-                <a routerLink="/contract-detail">
-                  <i class="fa fa-user-tie"></i> Hợp đồng
-                </a>
-              </li>
-              <li class="divider"></li>
-              
-              <li class="divider"></li>
             </ng-container>
-
-            <li>
-              <a [routerLink]="['/tenant-profile']">
-                <i class="fa fa-user"></i> Thông tin cá nhân
-              </a>
-            </li>
 
             <ng-container *ngIf="currentUser.role === 0">
               <li>
@@ -137,26 +118,6 @@
                 </a>
               </li>
 
-            </ng-container>
-
-            <ng-container *ngIf="currentUser.role === 2">
-              <li>
-                <a [routerLink]="['notification']">
-                  <i class="fa fa-bell"></i> Thông báo
-                </a>
-              </li>
-
-              <li>
-                <a [routerLink]="['/tenant-feedback']">
-                  <i class="fa fa-comment"></i> Gửi phản hồi
-                </a>
-              </li>
-
-              <li>
-                <a [routerLink]="['/tenant/bookings']">
-                  <i class="fa fa-calendar-check"></i> Đặt phòng của tôi
-                </a>
-              </li>
             </ng-container>
 
             <li class="divider"></li>
