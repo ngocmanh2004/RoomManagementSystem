@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Amenity } from './amenity.service';
 import { PageResponse } from '../models/page-response.model';
 
@@ -29,10 +30,18 @@ export interface RoomImage {
 export class RoomService {
   private readonly apiBase = '/api';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAllRooms(): Observable<Room[]> {
-    return this.http.get<Room[]>(`${this.apiBase}/rooms`);
+    return this.http.get<any>(`${this.apiBase}/rooms`).pipe(
+      map((res: any) => {
+        // Backend can return PageResponse or Array
+        if (res.content && Array.isArray(res.content)) {
+          return res.content; // PageResponse format
+        }
+        return Array.isArray(res) ? res : [];
+      })
+    );
   }
 
   getAllRoomsPaged(page: number = 0, size: number = 10): Observable<PageResponse<Room>> {

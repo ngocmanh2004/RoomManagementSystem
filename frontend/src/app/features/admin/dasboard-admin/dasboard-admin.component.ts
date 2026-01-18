@@ -20,7 +20,7 @@ Chart.register(...registerables);
 })
 export class DashboardAdminComponent implements OnInit, AfterViewInit {
   currentDate = new Date();
-  
+
   // Thống kê
   totalUsers = 0;
   totalLandlords = 0;
@@ -43,7 +43,7 @@ export class DashboardAdminComponent implements OnInit, AfterViewInit {
     private landlordService: LandlordService,
     private roomService: RoomService,
     private reviewService: ReviewService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadStatsAndCharts();
@@ -58,7 +58,7 @@ export class DashboardAdminComponent implements OnInit, AfterViewInit {
     // 1. Lấy TẤT CẢ người dùng (Role = undefined để lấy hết, Size lớn để tính biểu đồ)
     this.userService.getUsers('', undefined, '', 0, 1000).subscribe(res => {
       const allUsers = res.content || [];
-      
+
       // Cập nhật tổng số người dùng (Bao gồm Admin, Chủ trọ, Khách thuê)
       this.totalUsers = res.totalElements;
 
@@ -76,9 +76,9 @@ export class DashboardAdminComponent implements OnInit, AfterViewInit {
       }
     });
 
-    // 3. Lấy tổng số phòng
-    this.roomService.getAllRooms().subscribe(rooms => {
-      this.totalRooms = rooms.length;
+    // 3. Lấy tổng số phòng từ totalElements
+    this.roomService.getAllRoomsPaged(0, 1).subscribe(pageRes => {
+      this.totalRooms = pageRes.totalElements;
     });
   }
 
@@ -106,7 +106,7 @@ export class DashboardAdminComponent implements OnInit, AfterViewInit {
   processUserGrowthData(users: User[]): void {
     const months: string[] = [];
     const counts: number[] = [];
-    
+
     const today = new Date();
 
     // Loop 6 tháng gần nhất (bao gồm tháng hiện tại)
@@ -114,15 +114,15 @@ export class DashboardAdminComponent implements OnInit, AfterViewInit {
       // Tạo ngày mốc (ví dụ: tháng 8, tháng 9...)
       const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
       const monthLabel = `T${date.getMonth() + 1}`;
-      
+
       months.push(monthLabel);
 
       // Đếm số user được tạo trong tháng này
       const count = users.filter(user => {
         if (!user.createdAt) return false;
         const created = new Date(user.createdAt);
-        return created.getMonth() === date.getMonth() && 
-               created.getFullYear() === date.getFullYear();
+        return created.getMonth() === date.getMonth() &&
+          created.getFullYear() === date.getFullYear();
       }).length;
 
       counts.push(count);
@@ -131,7 +131,7 @@ export class DashboardAdminComponent implements OnInit, AfterViewInit {
     // Vẽ biểu đồ sau khi tính toán xong
     setTimeout(() => {
       this.initUserGrowthChart(months, counts);
-    }, 500); 
+    }, 500);
   }
 
   processUserRatioData(users: User[]): void {
@@ -150,7 +150,7 @@ export class DashboardAdminComponent implements OnInit, AfterViewInit {
   initUserGrowthChart(labels: string[], data: number[]): void {
     if (!this.userGrowthChartRef) return;
     const ctx = this.userGrowthChartRef.nativeElement.getContext('2d');
-    
+
     if (this.chartUserGrowth) this.chartUserGrowth.destroy();
 
     this.chartUserGrowth = new Chart(ctx, {
@@ -177,8 +177,8 @@ export class DashboardAdminComponent implements OnInit, AfterViewInit {
           }
         },
         scales: {
-          y: { 
-            beginAtZero: true, 
+          y: {
+            beginAtZero: true,
             grid: { display: false },
             ticks: { stepSize: 1 } // Vì số lượng ít nên chia vạch số nguyên
           },
@@ -191,7 +191,7 @@ export class DashboardAdminComponent implements OnInit, AfterViewInit {
   updateRatioChart(tenants: number, landlords: number, admins: number): void {
     if (!this.userRatioChartRef) return;
     const ctx = this.userRatioChartRef.nativeElement.getContext('2d');
-    
+
     if (this.chartUserRatio) this.chartUserRatio.destroy();
 
     this.chartUserRatio = new Chart(ctx, {
@@ -209,7 +209,7 @@ export class DashboardAdminComponent implements OnInit, AfterViewInit {
         maintainAspectRatio: false,
         cutout: '70%',
         plugins: {
-          legend: { 
+          legend: {
             position: 'bottom',
             labels: {
               usePointStyle: true,
@@ -218,14 +218,14 @@ export class DashboardAdminComponent implements OnInit, AfterViewInit {
           },
           tooltip: {
             callbacks: {
-              label: function(context) {
+              label: function (context) {
                 const label = context.label || '';
                 const value = context.raw || 0;
-                
+
                 // --- SỬA LỖI Ở ĐÂY ---
                 // Ép kiểu context.chart về any để truy cập thuộc tính ẩn _metasets
                 const total = (context.chart as any)._metasets[context.datasetIndex].total;
-                
+
                 const percentage = Math.round((value as number / total) * 100) + '%';
                 return `${label}: ${value} (${percentage})`;
               }
@@ -238,7 +238,7 @@ export class DashboardAdminComponent implements OnInit, AfterViewInit {
 
   // --- Xử lý hành động bảng ---
   approveRequest(id: number): void {
-    if(confirm('Duyệt yêu cầu này?')) {
+    if (confirm('Duyệt yêu cầu này?')) {
       this.landlordService.approveRequest(id).subscribe(() => {
         alert('Đã duyệt thành công!');
         this.loadRecentData();
