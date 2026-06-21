@@ -1,0 +1,96 @@
+<div class="building-rooms-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="container">
+      <div class="breadcrumb">
+        <a (click)="goBack()">Trang chủ</a> / {{ building?.name || 'Danh sách phòng' }}
+      </div>
+      <h1>{{ building?.name || 'Dãy trọ' }}</h1>
+      <p *ngIf="building">
+        <i class="fa-solid fa-location-dot"></i> {{ building.address }}
+        <span *ngIf="building.landlord" class="landlord-info">
+          | <i class="fa-solid fa-user"></i> {{ building.landlord.fullName }}
+          | <i class="fa-solid fa-phone"></i> {{ building.landlord.phoneNumber }}
+        </span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container main-section">
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <form class="filter-form-grid" (ngSubmit)="applyFilter()">
+        <div class="filter-options">
+          <select [(ngModel)]="selectedPrice" name="price">
+            <option value="">Tất cả mức giá</option>
+            <option value="0-2000000">Dưới 2 triệu</option>
+            <option value="2000000-4000000">2 - 4 triệu</option>
+            <option value="4000000-6000000">4 - 6 triệu</option>
+            <option value="6000000-10000000">6 - 10 triệu</option>
+          </select>
+
+          <select [(ngModel)]="selectedAcreage" name="acreage">
+            <option value="">Tất cả diện tích</option>
+            <option value="0-15">Dưới 15 m²</option>
+            <option value="15-25">15 - 25 m²</option>
+            <option value="25-40">25 - 40 m²</option>
+            <option value="40-999">Trên 40 m²</option>
+          </select>
+
+          <select [(ngModel)]="selectedStatus" name="status">
+            <option value="">Tất cả trạng thái</option>
+            <option value="AVAILABLE">Còn trống</option>
+            <option value="OCCUPIED">Đã thuê</option>
+          </select>
+        </div>
+
+        <div class="filter-actions">
+          <div class="form-group-buttons">
+            <button type="submit" class="btn btn-primary">
+              <i class="fa-solid fa-magnifying-glass"></i> Lọc
+            </button>
+            <button type="button" class="btn btn-outline" (click)="clearFilters()">
+              <i class="fa-solid fa-rotate-right"></i> Làm mới
+            </button>
+          </div>
+
+          <div class="sort-options">
+            <span>Sắp xếp:</span>
+            <select [(ngModel)]="sortOption" (change)="onSortChange($event)" name="sort">
+              <option>Mới nhất</option>
+              <option>Cũ nhất</option>
+              <option>Giá thấp đến cao</option>
+              <option>Giá cao đến thấp</option>
+            </select>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Room Grid -->
+    <div class="rooms-info">
+      <h3>Có {{ totalElements }} phòng</h3>
+    </div>
+
+    <div class="room-grid" *ngIf="filteredRooms.length > 0">
+      <app-room-card *ngFor="let room of filteredRooms" [room]="room"></app-room-card>
+    </div>
+
+    <!-- Pagination -->
+    <app-pagination 
+      *ngIf="totalPages > 1"
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
+      (pageChange)="onPageChange($event)">
+    </app-pagination>
+
+    <div class="no-rooms" *ngIf="filteredRooms.length === 0">
+      <i class="fa-solid fa-inbox"></i>
+      <p>Không tìm thấy phòng nào phù hợp</p>
+      <button class="btn btn-outline" (click)="clearFilters()">
+        Làm mới
+      </button>
+    </div>
+  </div>
+</div>

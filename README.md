@@ -1,0 +1,214 @@
+# Hướng dẫn sử dụng Git cho dự án **RoomManagementSystem** (Monorepo FE + BE)
+
+> **Cấu trúc repo**: Một repo duy nhất chứa 2 thư mục con:
+```
+RoomManagementSystem/
+ ├─ frontend/   # Angular
+ └─ backend/    # Spring Boot
+```
+
+---
+
+## 1) Clone repo về máy
+```bash
+git clone https://github.com/ngocmanh2004/RoomManagementSystem.git
+cd RoomManagementSystem
+```
+
+> FE làm trong `frontend/`, BE làm trong `backend/`.  
+> **Git quản lý nhánh ở cấp repo**, không phải theo thư mục.
+
+---
+
+## 2) Các nhánh trong dự án
+- **main** → code ổn định, dùng để demo / nộp bài.
+- **develop** → nhánh tích hợp chung, dev merge hằng ngày.
+- **feature-\*** → nhánh làm tính năng mới.
+- **fix-\*** → nhánh sửa lỗi.
+- **hotfix-\*** → sửa lỗi gấp trực tiếp trên `main`.
+- **release-sprintX** → nhánh tester kiểm thử Sprint.
+
+---
+
+## 3) Quy tắc đặt tên nhánh
+- Tính năng: `feature-ten-tinh-nang`  
+  Ví dụ: `feature-room-search`, `feature-auth-ui`
+- Sửa lỗi: `fix-ten-loi`  
+  Ví dụ: `fix-login-bug`
+- Hotfix: `hotfix-ten-loi`  
+  Ví dụ: `hotfix-payment-bug`
+- Tester: `release-sprint1`
+
+---
+
+## 4) Quy trình làm việc của **Dev**
+
+### 4.1. Kéo code mới nhất & tạo nhánh
+```bash
+git checkout develop
+git pull origin develop
+git checkout -b feature-home-page
+```
+
+### 4.2. Commit theo từng bước nhỏ
+```bash
+git add .
+git commit -m "feat: tạo layout trang Home"
+```
+
+Hoặc chỉ FE:
+```bash
+git add frontend/
+git commit -m "feat: component Home + route"
+```
+
+### 4.3. Push nhánh
+```bash
+git push -u origin feature-home-page
+```
+
+### 4.4. Tạo Pull Request → merge vào `develop`
+
+---
+
+## 5) Quy trình cho **Tester**
+
+### 5.1. Leader tạo nhánh release
+```bash
+git checkout develop
+git pull origin develop
+git checkout -b release-sprint1
+git push origin release-sprint1
+```
+
+### 5.2. Tester test
+```bash
+git checkout release-sprint1
+git pull origin release-sprint1
+```
+
+### 5.3. Nếu có bug
+Dev sửa trên nhánh `feature-*` hoặc `fix-*`, merge lại `develop`, sau đó leader cập nhật `release-sprint1`.
+
+### 5.4. Test OK
+Merge `release-sprint1` → `main`.
+
+> Tester **không test** trực tiếp trên `main` hoặc `develop`.
+
+---
+
+## 6) Commit message chuẩn (Conventional Commits)
+
+- `feat:` → thêm tính năng
+- `fix:` → sửa lỗi
+- `docs:` → cập nhật tài liệu
+- `style:` → chỉnh UI
+- `refactor:` → cải tiến code
+- `test:` → cập nhật test
+
+Ví dụ:
+```bash
+git commit -m "feat: thêm API đăng nhập"
+git commit -m "fix: validate số điện thoại khi đăng ký"
+```
+
+---
+
+## 7) Lưu ý quan trọng
+
+### 7.1. Luôn kéo code mới trước khi tạo nhánh
+```bash
+git checkout develop
+git pull origin develop
+```
+
+### 7.2. Không commit file rác
+```gitignore
+frontend/node_modules/
+frontend/dist/
+backend/target/
+.idea/
+.vscode/
+*.iml
+*.log
+.DS_Store
+```
+
+### 7.3. Sau khi hotfix trên `main`, phải merge ngược về `develop`
+```bash
+git checkout develop
+git pull origin develop
+git merge main
+git push origin develop
+```
+
+### 7.4. Tự kiểm tra trước khi tạo PR
+- FE:
+  ```bash
+  npm run lint && ng build
+  ```
+- BE:
+  ```bash
+  mvn -q -DskipTests package
+  ```
+
+---
+
+## 8) Ví dụ nhanh **Dev FE**
+```bash
+git checkout develop
+git pull origin develop
+git checkout -b features/home
+
+git add frontend/
+git commit -m "feat: trang Home - banner, search form, room list"
+git push -u origin features/home
+```
+
+---
+
+## 9) Ví dụ nhanh **Dev BE**
+```bash
+git checkout develop
+git pull origin develop
+git checkout -b feature-invoice-api
+
+git add backend/
+git commit -m "feat: thêm API tạo hóa đơn theo hợp đồng"
+git push -u origin feature-invoice-api
+```
+
+---
+
+## 10) Quy trình **Release** & **Hotfix**
+
+### Release:
+`develop` → `release-sprintX` → test OK → merge `release-sprintX` → `main`
+
+### Hotfix:
+```bash
+git checkout main
+git pull origin main
+git checkout -b hotfix-payment-bug
+
+# sửa lỗi
+git commit -m "hotfix: xử lý lỗi thanh toán 500"
+git push -u origin hotfix-payment-bug
+```
+
+Sau khi merge:
+```bash
+git checkout develop
+git pull origin develop
+git merge main
+git push origin develop
+```
+
+---
+
+## Tips teamwork
+- Mỗi dev 1 nhánh feature.
+- Merge develop mỗi ngày.
+- FE/BE làm riêng thư mục nhưng chung repo Git.
+- Có README chạy FE/BE để giảng viên test nhanh.
+

@@ -1,0 +1,68 @@
+<div class="sidebar-container" [class.collapsed]="isCollapsed">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <i class="fa-solid fa-building"></i>
+    </div>
+    <span class="logo-text">Quản Lý Trọ</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <ul>
+      <li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <a routerLink="/admin/dashboard">
+          <i class="fa-solid fa-chart-line"></i>
+          <span class="nav-text">Dashboard</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active">
+        <a routerLink="/admin/users">
+          <i class="fa-solid fa-user-gear"></i>
+          <span class="nav-text">Quản lý người dùng</span>
+        </a>
+      </li>
+
+       <li routerLinkActive="active">
+        <a routerLink="/admin/landlords">
+          <i class="fa-solid fa-users"></i>
+          <span class="nav-text">Quản lý Kiểm duyệt</span>
+        </a>
+      </li>
+
+      <!-- <li routerLinkActive="active">
+        <a routerLink="/admin/contracts">
+          <i class="fa-solid fa-file-contract"></i>
+          <span class="nav-text">Quản lý Hợp đồng</span>
+        </a>
+      </li> -->
+
+      <!-- <li routerLinkActive="active">
+        <a routerLink="/admin/electricity">
+          <i class="fa-solid fa-bolt"></i>
+          <span class="nav-text">Quản lý Điện</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active">
+        <a routerLink="/admin/water">
+          <i class="fa-solid fa-tint"></i>
+          <span class="nav-text">Quản lý Nước</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active">
+        <a routerLink="/admin/extra-fees">
+          <i class="fa-solid fa-receipt"></i>
+          <span class="nav-text">Quản lý Phát sinh</span>
+        </a>
+      </li> -->
+      
+      <li routerLinkActive="active">
+        <a routerLink="/admin/report-management">
+          <i class="fa-solid fa-flag"></i> 
+          <span class="nav-text">Quản lý báo cáo vi phạm</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>

@@ -1,0 +1,171 @@
+<div class="landlord-booking-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1>Quản lý Hợp đồng</h1>
+    <p class="subtitle">Quản lý hợp đồng thuê phòng của khách thuê</p>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid">
+    <div class="stat-card stat-total">
+      <div class="stat-icon">
+        <i class="fa-solid fa-file-contract"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Tổng hợp đồng</div>
+        <div class="stat-value">{{ totalElements }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-active">
+      <div class="stat-icon">
+        <i class="fa-solid fa-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Đang hiệu lực</div>
+        <div class="stat-value">{{ getCountByStatus('ACTIVE') }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-expired">
+      <div class="stat-icon">
+        <i class="fa-solid fa-clock"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Hết hạn</div>
+        <div class="stat-value">{{ getCountByStatus('EXPIRED') }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-cancelled">
+      <div class="stat-icon">
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Đã chấm dứt</div>
+        <div class="stat-value">{{ getCountByStatus('CANCELLED') }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter & Search Section -->
+<div class="filter-section">
+  <div class="search-box">
+    <i class="fa-solid fa-search"></i>
+    <input 
+      type="text" 
+      placeholder="Tìm kiếm theo mã HĐ, tên khách, phòng..." 
+      [(ngModel)]="searchText"
+      (input)="onSearch()">
+  </div>
+  
+  <div class="filter-group">
+    <select [(ngModel)]="selectedStatus" (change)="onStatusChange()" class="form-select">
+      <option *ngFor="let opt of statusOptions" [value]="opt.value">
+        {{ opt.label }}
+      </option>
+    </select>
+
+    <button class="btn-create" routerLink="/landlord/bookings/create">
+      <i class="fa-solid fa-plus"></i> Tạo hợp đồng mới
+    </button>
+  </div>
+</div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <i class="fa-solid fa-spinner fa-spin"></i>
+    <p>Đang tải dữ liệu...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage && !isLoading" class="alert alert-danger">
+    <i class="fa-solid fa-circle-exclamation"></i> {{ errorMessage }}
+  </div>
+
+  <!-- Contracts Table -->
+  <div *ngIf="!isLoading && !errorMessage" class="contracts-section">
+    <div *ngIf="filteredContracts.length === 0" class="empty-state">
+      <i class="fa-solid fa-inbox"></i>
+      <p>Không có hợp đồng nào</p>
+    </div>
+
+    <div *ngIf="filteredContracts.length > 0" class="contracts-table-container">
+      <table class="contracts-table">
+        <thead>
+          <tr>
+            <th>MÃ HỢP ĐỒNG</th>
+            <th>KHÁCH THUÊ</th>
+            <th>PHÒNG</th>
+            <th>NGÀY BẮT ĐẦU</th>
+            <th>NGÀY KẾT THÚC</th>
+            <th>GIÁ THUÊ</th>
+            <th>TRẠNG THÁI</th>
+            <th>THAO TÁC</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let contract of filteredContracts">
+            <td>
+              <span class="contract-code">{{ contract.contractCodeGenerated }}</span>
+            </td>
+            <td>
+              <div class="tenant-info">
+                <div class="tenant-name">{{ contract.fullName }}</div>
+                <div class="tenant-phone">{{ contract.phone }}</div>
+              </div>
+            </td>
+            <td>
+              <span class="room-name">{{ contract.roomName }}</span>
+            </td>
+            <td>
+              <span class="contract-date">{{ formatDate(contract.startDate) }}</span>
+            </td>
+            <td>
+              <span class="contract-date">{{ contract.endDate ? formatDate(contract.endDate) : 'Không xác định' }}</span>
+            </td>
+            <td>
+              <span class="price">{{ formatPrice(contract.monthlyRentCalculated) }} đ</span>
+            </td>
+            <td>
+              <span class="status-badge" [ngClass]="getStatusClass(contract.status)">
+                {{ getStatusLabel(contract.status) }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn-icon btn-view" (click)="viewDetail(contract.id)" title="Xem chi tiết">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+                <button class="btn-icon btn-terminate" *ngIf="contract.status === 'ACTIVE'" title="Thanh lý">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="pagination">
+      <button 
+        class="btn btn-secondary" 
+        (click)="onPageChange(currentPage - 1)" 
+        [disabled]="currentPage === 0">
+        <i class="fa-solid fa-chevron-left"></i> Trước
+      </button>
+
+      <span class="page-info">
+        Trang {{ currentPage + 1 }} / {{ totalPages }} ({{ totalElements }} kết quả)
+      </span>
+
+      <button 
+        class="btn btn-secondary" 
+        (click)="onPageChange(currentPage + 1)" 
+        [disabled]="currentPage >= totalPages - 1">
+        Sau <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>

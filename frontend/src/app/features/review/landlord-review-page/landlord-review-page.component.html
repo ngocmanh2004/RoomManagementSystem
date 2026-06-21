@@ -1,0 +1,34 @@
+<div class="notification-page">
+
+  <!-- TAB HEADER -->
+  <div class="tab-header">
+    <div
+      class="tab-item"
+      [class.active]="activeTab === 'notification'"
+      (click)="activeTab = 'notification'"
+    >
+      🔔 Thông báo
+    </div>
+
+    <div
+      class="tab-item"
+      [class.active]="activeTab === 'feedback'"
+      (click)="activeTab = 'feedback'"
+    >
+      💬 Phản hồi
+    </div>
+  </div>
+
+  <!-- TAB CONTENT -->
+  <div class="tab-content">
+
+    <app-send-notification
+      *ngIf="activeTab === 'notification'">
+    </app-send-notification>
+
+    <app-landlord-feedback
+      *ngIf="activeTab === 'feedback'">
+    </app-landlord-feedback>
+
+  </div>
+</div>

@@ -1,0 +1,312 @@
+<!-- PAGE SHELL -->
+<div class="page">
+  <!-- Top bar -->
+  <div class="topbar">
+    <div>
+      <h1>Tổng hợp Hóa đơn</h1>
+      <p class="sub">Tạo và quản lý hóa đơn hàng tháng cho khách thuê</p>
+    </div>
+
+    <div class="topbar-actions">
+      <button class="btn outline">✅ Đánh dấu tất cả đã trả</button>
+      <button class="btn primary" (click)="openCreateModal()">+ Tạo hóa đơn tháng</button>
+    </div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="grid grid-4 gap">
+    <div class="card kpi">
+      <div class="icon blue">₫</div>
+      <div class="kpi-body">
+        <div class="label">Tổng số tiền chưa thanh toán</div>
+        <div class="value">{{ stats().totalAmount | currency: 'VND' }}</div>
+      </div>
+    </div>
+
+    <div class="card kpi">
+      <div class="icon emerald">✓</div>
+      <div class="kpi-body">
+        <div class="label">Đã thanh toán</div>
+        <div class="value">{{ stats().paidCount }}</div>
+      </div>
+    </div>
+
+    <div class="card kpi">
+      <div class="icon amber">○</div>
+      <div class="kpi-body">
+        <div class="label">Chưa thanh toán</div>
+        <div class="value">{{ stats().unpaidCount }}</div>
+      </div>
+    </div>
+
+    <div class="card kpi">
+      <div class="icon rose">!</div>
+      <div class="kpi-body">
+        <div class="label">Quá hạn</div>
+        <div class="value">{{ stats().overdueCount }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="card filters">
+    <div class="filter-grid">
+      <label class="field">
+        <span>Tháng</span>
+        <select [value]="filters().month" (change)="onFilterMonthChange($event)">
+          <option value="">Tất cả tháng</option>
+          <option *ngFor="let month of months()" [value]="month">
+            T{{ month.split('-')[1] }}/{{ month.split('-')[0] }}
+          </option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Hợp Đồng</span>
+        <select [value]="filters().contractId" (change)="onFilterContractChange($event)">
+          <option value="0">Tất cả hợp đồng</option>
+          <option *ngFor="let contract of contracts()" [value]="contract.id">
+            {{ contract.contractCode }} - {{ contract.fullName }}
+          </option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Trạng Thái</span>
+        <select [value]="filters().status" (change)="onFilterStatusChange($event)">
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="UNPAID">Chưa thanh toán</option>
+          <option value="PAID">Đã thanh toán</option>
+          <option value="OVERDUE">Quá hạn</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Tìm kiếm</span>
+        <input type="text" placeholder="Từ khóa..." [value]="filters().keyword" (input)="onFilterKeywordChange($event)" />
+      </label>
+    </div>
+
+    <div class="filter-actions">
+      <button class="btn primary" (click)="openCreateModal()">+ Tạo Hóa Đơn Mới</button>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW -->
+  <div class="grid grid-2 gap">
+    <!-- So sánh Điện - Nước -->
+    <div class="card">
+      <div class="card-head">
+        <h3>So sánh Điện - Nước theo Phòng</h3>
+      </div>
+
+      <div class="cmp-list">
+        <div class="cmp-item" *ngFor="let invoice of filteredInvoices() | slice:0:5">
+          <div class="cmp-title">
+            <span class="room">{{ invoice.roomName }}</span>
+            <span class="meta">
+              Điện: {{ invoice.electricity | currency: 'VND' }} ·
+              Nước: {{ invoice.water | currency: 'VND' }}
+            </span>
+          </div>
+
+          <!-- hai thanh tiến trình mô phỏng ảnh -->
+          <div class="cmp-bars">
+            <div class="prog">
+              <div class="bar blue"
+                   [style.width]="(invoice.electricity / (invoice.electricity + invoice.water + 1)) * 100 + '%'">
+              </div>
+            </div>
+
+            <div class="prog small">
+              <div class="bar cyan"
+                   [style.width]="(invoice.water / (invoice.electricity + invoice.water + 1)) * 100 + '%'">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="muted" *ngIf="(filteredInvoices() || []).length === 0">
+          Không có dữ liệu để so sánh.
+        </div>
+      </div>
+    </div>
+
+    <!-- Cơ cấu Chi phí -->
+    <div class="card">
+      <div class="card-head">
+        <h3>Cơ cấu Chi phí</h3>
+      </div>
+
+      <div class="donut-wrap">
+        <div class="donut"
+             [style.background]="
+               'conic-gradient(#2563eb ' + (stats().electricityPct || 40) + '%, ' +
+               '#06b6d4 0 ' + ((stats().electricityPct || 40) + (stats().waterPct || 20)) + '%, ' +
+               '#f97316 0)'">
+          <div class="donut-hole">
+            <div class="donut-center">
+              <div class="center-label">Tổng</div>
+              <div class="center-value">{{ stats().totalAmount | currency: 'VND' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="lg-item"><span class="dot blue"></span> Điện</div>
+          <div class="lg-item"><span class="dot cyan"></span> Nước</div>
+          <div class="lg-item"><span class="dot orange"></span> Khác</div>
+          <div class="legend-note">* Biểu đồ minh họa tỉ trọng chi phí.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Mã Hợp Đồng</th>
+          <th>Phòng</th>
+          <th>Khách Thuê</th>
+          <th>Tháng</th>
+          <th class="text-right">Tiền Phòng</th>
+          <th class="text-right">Tiền Điện</th>
+          <th class="text-right">Tiền Nước</th>
+          <th class="text-right">Chi Phí Khác</th>
+          <th class="text-right">Tổng Tiền</th>
+          <th class="text-center">Trạng Thái</th>
+          <th class="text-center">Hành Động</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let invoice of filteredInvoices()">
+          <td>{{ invoice.contractCode }}</td>
+          <td>{{ invoice.roomName }}</td>
+          <td>{{ invoice.tenantName }}</td>
+          <td>T{{ invoice.month.split('-')[1] }}/{{ invoice.month.split('-')[0] }}</td>
+          <td class="text-right">{{ invoice.roomRent | currency: 'VND' }}</td>
+          <td class="text-right">{{ invoice.electricity | currency: 'VND' }}</td>
+          <td class="text-right">{{ invoice.water | currency: 'VND' }}</td>
+          <td class="text-right">{{ invoice.extraCost | currency: 'VND' }}</td>
+          <td class="text-right strong">{{ invoice.totalAmount | currency: 'VND' }}</td>
+          <td class="text-center">
+            <span [ngClass]="getStatusClass(invoice.status)" class="badge">
+              {{ getStatusLabel(invoice.status) }}
+            </span>
+          </td>
+          <td class="text-center nowrap">
+            <button class="act edit" (click)="editInvoice(invoice)" title="Chỉnh Sửa">✏️</button>
+            <button class="act pay"
+                    (click)="updateInvoiceStatus(invoice, invoice.status === 'PAID' ? 'UNPAID' : 'PAID')"
+                    title="Cập Nhật Thanh Toán">
+              {{ invoice.status === 'PAID' ? '✓' : '○' }}
+            </button>
+            <button class="act delete" (click)="deleteInvoice(invoice)" title="Xóa">🗑️</button>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredInvoices().length === 0">
+          <td colspan="11" class="empty">Không tìm thấy hóa đơn nào phù hợp</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CREATE / EDIT MODAL -->
+<div *ngIf="isModalOpen()" class="modal-bg">
+  <div class="modal">
+    <header>
+      <h2>{{ isEditMode() ? 'Chỉnh Sửa Hóa Đơn' : 'Tạo Hóa Đơn Mới' }}</h2>
+    </header>
+
+    <div class="content">
+      <div class="form-grid">
+        <div class="col-2">
+          <label>Hợp Đồng *</label>
+          <select
+            [value]="form().contractId"
+            (change)="onFormContractChange($event)"
+            [disabled]="isEditMode()">
+            <option value="0">Chọn hợp đồng</option>
+            <option *ngFor="let contract of contracts()" [value]="contract.id">
+              {{ contract.contractCode }} - {{ contract.fullName }}
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label>Tháng *</label>
+          <input type="month"
+                 [value]="form().month"
+                 (change)="onFormMonthChange($event)"
+                 [disabled]="isEditMode()" />
+        </div>
+
+        <div>
+          <label>Tiền Phòng</label>
+          <input type="text" [value]="form().roomRent ? (form().roomRent | currency: 'VND') : ''" disabled />
+        </div>
+
+        <div>
+          <label>Tiền Điện</label>
+          <input type="text" [value]="form().electricity | currency: 'VND'" disabled />
+        </div>
+
+        <div>
+          <label>Tiền Nước</label>
+          <input type="text" [value]="form().water | currency: 'VND'" disabled />
+        </div>
+
+        <div>
+          <label>Chi Phí Khác</label>
+          <input type="number" min="0" step="1000"
+                 [value]="form().extraCost"
+                 (change)="onFormExtraCostChange($event)" />
+        </div>
+
+        <div class="col-2">
+          <label>Ghi Chú</label>
+          <textarea rows="3" [value]="form().notes" (change)="onFormNotesChange($event)"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <button class="btn outline" (click)="closeModal()">Hủy</button>
+      <button class="btn primary" (click)="saveInvoice()">
+        {{ isEditMode() ? 'Cập Nhật' : 'Tạo' }}
+      </button>
+    </footer>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div *ngIf="isConfirmModalOpen()" class="modal-bg">
+  <div class="modal small">
+    <header><h2>Xác Nhận</h2></header>
+
+    <div class="content">
+      <p class="mb">
+        Bạn có chắc chắn muốn
+        <strong>{{ actionType() === 'PAY' ? 'đánh dấu đã thanh toán' : 'đánh dấu chưa thanh toán' }}</strong>
+        hóa đơn này?
+      </p>
+
+      <div class="summary">
+        <div><b>Phòng:</b> {{ invoiceToConfirm()?.roomName }}</div>
+        <div><b>Khách:</b> {{ invoiceToConfirm()?.tenantName }}</div>
+        <div *ngIf="invoiceToConfirm()?.month as month"><b>Tháng:</b> T{{ month.split('-')[1] }}</div>
+        <div *ngIf="invoiceToConfirm()?.totalAmount as total"><b>Tổng:</b> {{ invoiceToConfirm()?.totalAmount | currency: 'VND' }}</div>
+      </div>
+    </div>
+
+    <footer>
+      <button class="btn outline" (click)="cancelAction()">Hủy</button>
+      <button class="btn primary" (click)="confirmAction()">Xác Nhận</button>
+    </footer>
+  </div>
+</div>

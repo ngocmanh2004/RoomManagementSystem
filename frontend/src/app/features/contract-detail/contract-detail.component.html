@@ -1,0 +1,147 @@
+<!-- Loading State -->
+<div *ngIf="loading" class="loading-state">
+  <div class="spinner"></div>
+  <p>Đang tải hợp đồng...</p>
+</div>
+
+<!-- Empty State - Chưa có hợp đồng -->
+<div *ngIf="!hasContract && !loading" class="empty-state">
+  <i class="fa fa-file-text-o"></i>
+  <h3>Bạn chưa có hợp đồng thuê phòng</h3>
+  <p>{{ error || 'Hãy tìm và đặt phòng phù hợp với nhu cầu của bạn' }}</p>
+  <button class="btn-browse" (click)="goToRoomSearch()">
+    <i class="fa fa-search"></i> Tìm phòng ngay
+  </button>
+</div>
+
+<!-- Contract Detail - HIỂN THỊ KHI CÓ HỢP ĐỒNG -->
+<div class="page-container" *ngIf="hasContract && contract">
+  
+  <!-- Breadcrumb -->
+  <div class="top-nav">
+    <span>Trang chủ > Thông tin phòng & hợp đồng</span>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab" (click)="navigateTo('/rooms')">
+      <i class="fa fa-home"></i> Thông tin phòng
+    </div>
+    <div class="tab active">
+      <i class="fa fa-file-text-o"></i> Hợp đồng thuê
+    </div>
+    <div class="tab" (click)="navigateTo('/reviews')">
+      <i class="fa fa-star-o"></i> Đánh giá
+    </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="main-card">
+    
+    <!-- Contract Header -->
+    <div class="contract-header">
+      <div class="title-group">
+        <h1>Hợp đồng thuê phòng</h1>
+        <p>Mã hợp đồng: <strong>{{ getContractCode() }}</strong></p>
+      </div>
+      <div class="action-group">
+        <!-- ✅ SỬA: Dynamic status badge -->
+        <span class="badge" [ngClass]="getStatusClass()">
+          {{ getStatusDisplayName() }}
+        </span>
+        <button class="btn-download" (click)="downloadPDF()">
+          <i class="fa fa-download"></i> Tải PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Info Grid -->
+    <div class="info-grid">
+      
+      <!-- Box 1: Thông tin cơ bản -->
+      <div class="info-box">
+        <h3>Thông tin cơ bản</h3>
+        <div class="info-row">
+          <span class="label">Ngày bắt đầu:</span>
+          <span class="value">{{ contract.startDate | date:'dd tháng M, yyyy':'':'vi' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Ngày kết thúc:</span>
+          <span class="value">{{ contract.endDate | date:'dd tháng M, yyyy':'':'vi' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Ngày ký:</span>
+          <span class="value">{{ contract.createdAt | date:'dd tháng M, yyyy':'':'vi' }}</span>
+        </div>
+      </div>
+
+      <!-- Box 2: Thông tin tài chính -->
+      <div class="info-box bg-light-green">
+        <h3>Thông tin tài chính</h3>
+        <div class="info-row">
+          <span class="label">Tiền thuê hàng tháng:</span>
+          <!-- ✅ SỬA: Dùng helper method -->
+          <span class="value price-green">{{ getMonthlyRent() | number:'1.0-0' }} đ</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Tiền đặt cọc:</span>
+          <span class="value bold">{{ contract.deposit | number:'1.0-0' }} đ</span>
+        </div>
+        <div class="divider"></div>
+        <div class="info-row total">
+          <span class="label">Tổng chi phí ban đầu:</span>
+          <span class="value bold">{{ contract.totalInitialCost | number:'1.0-0' }} đ</span>
+        </div>
+      </div>
+
+      <!-- Box 3: Thông tin chủ trọ -->
+      <div class="info-box">
+        <h3>Thông tin chủ trọ</h3>
+        <div class="info-row">
+          <span class="label">Họ tên:</span>
+          <span class="value">{{ contract.landlordName || 'Chưa cập nhật' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Số điện thoại:</span>
+          <span class="value">{{ contract.landlordPhone || 'Chưa cập nhật' }}</span>
+        </div>
+      </div>
+
+      <!-- Box 4: Thời hạn hợp đồng -->
+      <div class="info-box bg-light-blue text-center">
+        <h3>Thời hạn hợp đồng</h3>
+        <div class="duration-display">
+          <div class="duration-number">{{ contract.durationMonths }} tháng</div>
+          <div class="duration-text">Thời gian thuê</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Điều khoản hợp đồng -->
+    <div class="section-terms">
+      <h3>Điều khoản hợp đồng</h3>
+      <div class="terms-grid">
+        <!-- ✅ Kiểm tra terms có tồn tại -->
+        <div class="term-item" *ngFor="let term of contract.terms || []; let i = index">
+          <div class="term-number">{{ i + 1 }}</div>
+          <div class="term-text">{{ term }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lưu ý quan trọng -->
+    <div class="warning-box">
+      <div class="warning-header">
+        <i class="fa fa-info-circle"></i> Lưu ý quan trọng
+      </div>
+      <ul>
+        <li>Vui lòng đọc kỹ tất cả điều khoản trong hợp đồng</li>
+        <li>Liên hệ chủ trọ nếu có thắc mắc về hợp đồng</li>
+        <li>Lưu giữ bản sao hợp đồng để tham khảo khi cần</li>
+        <li>Thông báo trước khi muốn gia hạn hoặc chấm dứt hợp đồng</li>
+      </ul>
+    </div>
+
+  </div>
+</div>

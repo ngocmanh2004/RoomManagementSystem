@@ -1,0 +1,14 @@
+<div class="star-rating-container" [class.readonly]="readOnly">
+  <div class="stars">
+    <span 
+      *ngFor="let star of stars"
+      [ngClass]="getStarClass(star.id)"
+      (click)="onStarClick(star.id)"
+      (mouseenter)="onStarHover(star.id)"
+      (mouseleave)="onStarLeave()"
+      [attr.aria-label]="'Rating ' + star.id + ' out of 5'">
+      ★
+    </span>
+  </div>
+  <span *ngIf="!readOnly" class="rating-text">{{ rating }}/5</span>
+</div>

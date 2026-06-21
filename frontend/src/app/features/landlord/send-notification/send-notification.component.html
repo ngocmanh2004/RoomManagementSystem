@@ -1,0 +1,192 @@
+<div class="send-notification-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1><i class="fa fa-paper-plane"></i> Gửi thông báo mới</h1>
+      <p>Gửi thông báo đến khách thuê</p>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="form-section">
+      <div class="section-card">
+        <div class="card-header">
+          <h2><i class="fa fa-edit"></i> Tạo thông báo mới</h2>
+          <p>Điền thông tin để gửi thông báo đến khách thuê</p>
+        </div>
+
+        <div class="card-body">
+          <div class="form-group">
+            <label>Người nhận *</label>
+            <div class="recipient-options">
+              <label class="radio-option">
+                <input 
+                  type="radio" 
+                  name="sendTo" 
+                  value="ROOMS"
+                  [(ngModel)]="notification.sendTo">
+                <span>Gửi theo phòng</span>
+              </label>
+              <label class="radio-option">
+                <input 
+                  type="radio" 
+                  name="sendTo" 
+                  value="ALL_TENANTS"
+                  [(ngModel)]="notification.sendTo">
+                <span>Gửi tất cả khách thuê</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" *ngIf="notification.sendTo === 'ROOMS'">
+            <label>Chọn phòng *</label>
+            <div class="room-selection">
+              <div class="select-all">
+                <label class="checkbox-option">
+                  <input 
+                    type="checkbox" 
+                    [checked]="selectedRooms.length === rooms.length"
+                    (change)="selectAllRooms()">
+                  <span>Chọn tất cả ({{ rooms.length }} phòng)</span>
+                </label>
+              </div>
+
+              <div class="room-grid">
+                <label 
+                  *ngFor="let room of rooms" 
+                  class="room-card"
+                  [class.selected]="selectedRooms.includes(room.id)">
+                  <input 
+                    type="checkbox" 
+                    [checked]="selectedRooms.includes(room.id)"
+                    (change)="toggleRoomSelection(room.id)">
+                  <div class="room-info">
+                    <i class="fa fa-door-open"></i>
+                    <div>
+                      <strong>{{ room.name }}</strong>
+                      <span class="building" *ngIf="room.building">{{ room.building.name }}</span>
+                      <span class="tenant" *ngIf="room.tenant">
+                        {{ room.tenant.user.fullName }}
+                      </span>
+                      <span class="vacant" *ngIf="!room.tenant">Trống</span>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="selected-count" *ngIf="selectedRoomsCount > 0">
+                <i class="fa fa-check-circle"></i>
+                Đã chọn {{ selectedRoomsCount }} phòng
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Ngày gửi</label>
+            <input 
+              type="date" 
+              class="form-control"
+              [value]="getCurrentDate()">
+          </div>
+
+          <div class="form-group">
+            <label>Tiêu đề thông báo *</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              [(ngModel)]="notification.title"
+              placeholder="Ví dụ: Nhắc nhở đóng tiền phòng tháng 12...">
+          </div>
+
+          <div class="form-group">
+            <label>Nội dung thông báo *</label>
+            <textarea 
+              class="form-control" 
+              rows="6"
+              [(ngModel)]="notification.message"
+              placeholder="Nhập nội dung chi tiết thông báo tại đây..."></textarea>
+          </div>
+
+          <div class="info-box">
+            <i class="fa fa-info-circle"></i>
+            <div>
+              <strong>Lưu ý khi gửi thông báo:</strong>
+              <ul>
+                <li>Thông báo sẽ được gửi đến tất cả khách thuê trong phòng đã chọn</li>
+                <li>Khách thuê sẽ nhận được thông báo trong hệ thống</li>
+                <li>Bạn có thể lưu nháp để chỉnh sửa và gửi sau</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-secondary" (click)="resetForm()">
+              <i class="fa fa-times"></i> Hủy
+            </button>
+            <button class="btn-draft" (click)="saveDraft()">
+              <i class="fa fa-save"></i> Lưu nháp
+            </button>
+            <button 
+              class="btn-primary" 
+              (click)="sendNotification()"
+              [disabled]="sending">
+              <i class="fa" [class.fa-spinner]="sending" [class.fa-spin]="sending" [class.fa-paper-plane]="!sending"></i>
+              {{ sending ? 'Đang gửi...' : 'Gửi ngay' }}
+            </button>
+            <button 
+              class="btn-primary"
+              *ngIf="selectedHistoryId"
+              (click)="resendNotification(selectedHistoryId)">
+              <i class="fa fa-paper-plane"></i> Gửi lại
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="history-section">
+      <div class="section-card">
+        <div class="card-header">
+          <h2><i class="fa fa-history"></i> Lịch sử gửi</h2>
+        </div>
+
+        <div class="card-body">
+          <div class="history-list">
+            <div 
+                *ngFor="let item of sentHistory" 
+                class="history-item"
+                (click)="viewHistory(item.id)"
+              >
+              <div class="history-icon">
+                <i class="fa fa-check-circle"></i>
+              </div>
+              <div class="history-content">
+                <h4>{{ item.title }}</h4>
+                <p>{{ item.message | slice:0:80 }}...</p>
+                <div class="history-meta">
+                  <span><i class="fa fa-users"></i> {{ item.recipient }}</span>
+                  <span><i class="fa fa-calendar"></i> {{ item.sentAt }}</span>
+                  <span class="sent-count">Đã gửi: {{ item.sentCount }}</span>
+                </div>
+              </div>
+              <div class="history-actions" (click)="$event.stopPropagation()">
+                <button 
+                  class="btn-icon" 
+                  title="Xem / chỉnh sửa"
+                  (click)="viewHistory(item.id)">
+                  <i class="fa fa-edit"></i>
+                </button>
+
+                <button 
+                  class="btn-icon"
+                  title="Gửi lại"
+                  (click)="resendNotification(item.id)">
+                  <i class="fa fa-paper-plane"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

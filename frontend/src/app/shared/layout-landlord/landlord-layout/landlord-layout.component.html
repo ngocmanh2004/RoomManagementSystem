@@ -1,0 +1,17 @@
+<div class="admin-layout-container" [class.sidebar-collapsed]="isSidebarCollapsed">
+  <app-landlord-sidebar 
+    class="admin-sidebar" 
+    [isCollapsed]="isSidebarCollapsed">
+  </app-landlord-sidebar>
+
+  <div class="admin-main-content">
+    <app-landlord-header 
+      class="admin-header"
+      (toggleSidebar)="toggleSidebar()">
+    </app-landlord-header>
+
+    <main class="admin-page-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

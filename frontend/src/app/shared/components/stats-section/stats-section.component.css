@@ -1,0 +1,30 @@
+.stats-section {
+    padding: 60px 0;
+    /* Bạn có thể thêm màu nền ở đây nếu muốn, ví dụ: background-color: #007bff; color: white; */
+}
+
+/* Thêm màu nền xanh và chữ trắng giống trong thiết kế */
+.stats-section {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    text-align: center;
+    gap: 20px;
+}
+
+.stat-item h3 {
+    font-size: 40px;
+    margin-top: 0;
+    margin-bottom: 5px;
+    /* Nếu nền xanh, chữ có thể để trắng hoặc màu sáng */
+}
+
+.stat-item p {
+    font-size: 16px;
+    margin: 0;
+    opacity: 0.9;
+}

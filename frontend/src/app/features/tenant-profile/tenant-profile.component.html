@@ -1,0 +1,149 @@
+<div class="profile-page-container">
+
+  <!-- Decorative Header Background -->
+  <div class="profile-cover">
+    <div class="cover-overlay"></div>
+  </div>
+
+  <div class="profile-content-wrapper">
+    <!-- Left Sidebar: Avatar & Main Actions -->
+    <div class="profile-sidebar card">
+      <div class="avatar-section">
+        <div class="avatar-circle">
+          {{ user?.fullName?.charAt(0) || 'U' }}
+        </div>
+        <h2 class="user-name">{{ user?.fullName }}</h2>
+        <span class="user-role-badge">Khách thuê</span>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-info">
+        <div class="sidebar-item">
+          <i class="fa-solid fa-envelope"></i>
+          <span>{{ user?.email || 'Chưa cập nhật' }}</span>
+        </div>
+        <div class="sidebar-item">
+          <i class="fa-solid fa-phone"></i>
+          <span>{{ user?.phone || 'Chưa cập nhật' }}</span>
+        </div>
+
+      </div>
+
+      <div class="sidebar-actions">
+        <button class="btn-primary-action" (click)="toggleEditMode()" *ngIf="!editMode">
+          <i class="fa-solid fa-pen-to-square"></i> Chỉnh sửa hồ sơ
+        </button>
+        <button class="btn-secondary-action" (click)="goToHome()">
+          <i class="fa-solid fa-arrow-left"></i> Về trang chủ
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Content: Detailed Info & Edit Form -->
+    <div class="profile-main card">
+      <div class="card-header">
+        <h3>{{ editMode ? 'Cập nhật thông tin' : 'Thông tin chi tiết' }}</h3>
+      </div>
+
+      <!-- VIEW MODE -->
+      <div class="profile-details-view" *ngIf="!editMode">
+        <div class="details-grid">
+          <div class="detail-group">
+            <label>Họ và tên</label>
+            <p>{{ user?.fullName || '---' }}</p>
+          </div>
+
+          <div class="detail-group">
+            <label>CCCD/CMND</label>
+            <p>{{ tenant?.cccd || '---' }}</p>
+          </div>
+
+          <div class="detail-group">
+            <label>Ngày sinh</label>
+            <p>{{ tenant?.dateOfBirth ? (tenant?.dateOfBirth | date:'dd/MM/yyyy') : '---' }}</p>
+          </div>
+
+          <div class="detail-group">
+            <label>Quê quán (Tỉnh/Thành)</label>
+            <p>{{ getProvinceName(tenant?.provinceCode) || '---' }}</p>
+          </div>
+
+          <div class="detail-group full-width">
+            <label>Địa chỉ liên hệ</label>
+            <p>{{ tenant?.address || '---' }}</p>
+          </div>
+        </div>
+
+        <div class="empty-state-hint" *ngIf="!tenant?.cccd && !tenant?.dateOfBirth">
+          <i class="fa-solid fa-circle-info"></i> Bạn chưa cập nhật đầy đủ thông tin cá nhân.
+        </div>
+      </div>
+
+      <!-- EDIT MODE FORM -->
+      <form *ngIf="editMode" [formGroup]="profileForm" (ngSubmit)="onSave()" class="profile-edit-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Họ và tên <span class="required">*</span></label>
+            <input type="text" formControlName="fullName" class="form-control" placeholder="Nhập họ tên">
+            <small class="error-msg"
+              *ngIf="profileForm.get('fullName')?.invalid && profileForm.get('fullName')?.touched">
+              Vui lòng nhập họ tên
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label>Số điện thoại <span class="required">*</span></label>
+            <input type="text" formControlName="phone" class="form-control" placeholder="Nhập số điện thoại">
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" formControlName="email" class="form-control" placeholder="Nhập email" readonly
+              style="background-color: #f9fafb; cursor: not-allowed;">
+            <small class="hint-msg">Email không thể thay đổi</small>
+          </div>
+
+          <div class="form-group">
+            <label>CCCD/CMND</label>
+            <input type="text" formControlName="cccd" class="form-control" placeholder="Số định danh cá nhân">
+          </div>
+
+          <div class="form-group">
+            <label>Ngày sinh</label>
+            <input type="date" formControlName="dateOfBirth" class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Tỉnh/Thành phố</label>
+            <select formControlName="provinceCode" class="form-control" (change)="onProvinceChange($event)">
+              <option [ngValue]="null">-- Chọn Tỉnh/Thành --</option>
+              <option *ngFor="let p of provinces" [value]="p.code">{{ p.name }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Quận/Huyện</label>
+            <select formControlName="districtCode" class="form-control">
+              <option [ngValue]="null">-- Chọn Quận/Huyện --</option>
+              <option *ngFor="let d of districts" [value]="d.code">{{ d.name }}</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
+            <label>Địa chỉ cụ thể</label>
+            <textarea formControlName="address" class="form-control" rows="3"
+              placeholder="Số nhà, tên đường..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions-bar">
+          <button type="button" class="btn-cancel" (click)="toggleEditMode()">Hủy bỏ</button>
+          <button type="submit" class="btn-save" [disabled]="profileForm.invalid || saving">
+            <i class="fa-solid fa-save"></i> {{ saving ? 'Đang lưu...' : 'Lưu thay đổi' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

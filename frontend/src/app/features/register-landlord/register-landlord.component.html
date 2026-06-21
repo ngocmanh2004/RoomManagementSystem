@@ -1,0 +1,183 @@
+<div class="register-landlord-container">
+  <div class="header">
+    <button class="btn-back" (click)="goBack()">← Quay lại</button>
+    <h1>Đăng ký trở thành Chủ trọ</h1>
+    <p class="subtitle">Vui lòng điền đầy đủ thông tin để gửi yêu cầu</p>
+  </div>
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+    <div class="form-section">
+      <h2>Thông tin cá nhân</h2>
+
+      <!-- CCCD - readonly nếu đã có từ tenant, cho phép nhập nếu chưa có -->
+      <div class="form-group">
+        <label>CCCD/CMND <span class="required">*</span></label>
+        <input 
+          type="text" 
+          formControlName="cccd"
+          class="form-control"
+          placeholder="Nhập số CCCD/CMND (9-12 số)"
+          [attr.readonly]="hasCccdFromTenant ? true : null"
+          [ngStyle]="{
+            'background-color': hasCccdFromTenant ? '#f5f5f5' : 'white',
+            'cursor': hasCccdFromTenant ? 'not-allowed' : 'text'
+          }"
+        />
+        <small *ngIf="hasCccdFromTenant" class="form-text" style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
+          ℹ️ Thông tin này được lấy từ hồ sơ khách thuê của bạn
+        </small>
+        <span *ngIf="registerForm.get('cccd')?.invalid && registerForm.get('cccd')?.touched" 
+              class="error-text">
+          Vui lòng nhập số CCCD hợp lệ (9-12 số)
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label>Tỉnh/Thành phố</label>
+        <select 
+          formControlName="provinceCode"
+          class="form-control"
+          (change)="onProvinceChange($event)">
+          <option [ngValue]="null">-- Chọn Tỉnh/Thành --</option>
+          <option *ngFor="let province of provinces" [value]="province.code">
+            {{ province.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Quận/Huyện</label>
+        <select 
+          formControlName="districtCode"
+          class="form-control"
+          [disabled]="!districts.length">
+          <option [ngValue]="null">-- Chọn Quận/Huyện --</option>
+          <option *ngFor="let district of districts" [value]="district.code">
+            {{ district.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Địa chỉ chi tiết <span class="required">*</span></label>
+        <textarea 
+          formControlName="address"
+          class="form-control"
+          rows="3"
+          placeholder="Nhập số nhà, tên đường, phường/xã"
+        ></textarea>
+        <span *ngIf="registerForm.get('address')?.invalid && registerForm.get('address')?.touched" 
+              class="error-text">
+          Vui lòng nhập địa chỉ
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label>Số phòng dự kiến quản lý <span class="required">*</span></label>
+        <input 
+          type="number" 
+          formControlName="expectedRoomCount"
+          class="form-control"
+          placeholder="Nhập số phòng"
+          min="1"
+        />
+        <span *ngIf="registerForm.get('expectedRoomCount')?.invalid && registerForm.get('expectedRoomCount')?.touched" 
+              class="error-text">
+          Vui lòng nhập số phòng (tối thiểu 1)
+        </span>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h2>Tài liệu đính kèm</h2>
+
+      <div class="form-group">
+        <label>Ảnh CCCD mặt trước <span class="required">*</span></label>
+        <div class="file-upload-area">
+          <input 
+            type="file" 
+            accept="image/*"
+            (change)="onFileChange($event, 'frontImage')"
+            #frontImageInput
+            style="display: none"
+          />
+          <button type="button" class="btn-upload" (click)="frontImageInput.click()">
+            📁 Chọn file
+          </button>
+          <div *ngIf="frontImagePreview" class="image-preview">
+            <img [src]="frontImagePreview" alt="Front" />
+          </div>
+        </div>
+        <span *ngIf="registerForm.get('frontImage')?.invalid && registerForm.get('frontImage')?.touched" 
+              class="error-text">
+          Vui lòng tải ảnh mặt trước CCCD
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label>Ảnh CCCD mặt sau <span class="required">*</span></label>
+        <div class="file-upload-area">
+          <input 
+            type="file" 
+            accept="image/*"
+            (change)="onFileChange($event, 'backImage')"
+            #backImageInput
+            style="display: none"
+          />
+          <button type="button" class="btn-upload" (click)="backImageInput.click()">
+            📁 Chọn file
+          </button>
+          <div *ngIf="backImagePreview" class="image-preview">
+            <img [src]="backImagePreview" alt="Back" />
+          </div>
+        </div>
+        <span *ngIf="registerForm.get('backImage')?.invalid && registerForm.get('backImage')?.touched" 
+              class="error-text">
+          Vui lòng tải ảnh mặt sau CCCD
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label>Giấy phép kinh doanh <span class="required">*</span></label>
+        <div class="file-upload-area">
+          <input 
+            type="file" 
+            accept="image/*,application/pdf"
+            (change)="onFileChange($event, 'businessLicense')"
+            #businessLicenseInput
+            style="display: none"
+          />
+          <button type="button" class="btn-upload" (click)="businessLicenseInput.click()">
+            📁 Chọn file
+          </button>
+          <div *ngIf="businessLicensePreview" class="image-preview">
+            <img [src]="businessLicensePreview" alt="License" />
+          </div>
+        </div>
+        <span *ngIf="registerForm.get('businessLicense')?.invalid && registerForm.get('businessLicense')?.touched" 
+              class="error-text">
+          Vui lòng tải giấy phép kinh doanh
+        </span>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button 
+        type="submit" 
+        class="btn-submit"
+        [disabled]="registerForm.invalid || submitting"
+      >
+        {{ submitting ? 'Đang gửi...' : 'Gửi yêu cầu' }}
+      </button>
+      
+      <button 
+        type="button" 
+        class="btn-cancel"
+        (click)="goBack()"
+        [disabled]="submitting"
+      >
+        Hủy
+      </button>
+    </div>
+  </form>
+</div>

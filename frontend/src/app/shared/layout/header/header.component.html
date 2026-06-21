@@ -1,0 +1,135 @@
+<header class="main-header">
+  <div class="container">
+    <a routerLink="/" class="logo">TechRoom</a>
+
+    <nav>
+      <ul>
+        <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Trang chủ</a></li>
+        <li><a routerLink="/rooms" routerLinkActive="active">Phòng trọ</a></li>
+        <li><a routerLink="/about" routerLinkActive="active">Giới thiệu</a></li>
+        <li><a routerLink="/contact" routerLinkActive="active">Liên hệ</a></li>
+      </ul>
+    </nav>
+
+    <div class="user-actions">
+      <ng-container *ngIf="!isLoggedIn">
+        <a routerLink="/login" class="btn btn-secondary">
+          <i class="fa fa-sign-in-alt"></i> Đăng nhập
+        </a>
+        <a routerLink="/register" class="btn btn-primary">
+          <i class="fa fa-user-plus"></i> Đăng ký
+        </a>
+      </ng-container>
+
+      <ng-container *ngIf="isLoggedIn && currentUser">
+        <!-- NOTIFICATION BELL ICON -->
+        <div class="notification-wrapper">
+          <button class="notification-bell" (click)="toggleNotifications($event)" title="Thông báo">
+            <i class="fa fa-bell"></i>
+            <span class="notif-badge" *ngIf="unreadCount > 0">
+              {{ unreadCount > 99 ? '99+' : unreadCount }}
+            </span>
+          </button>
+
+          <!-- Notifications dropdown panel -->
+          <div class="notification-dropdown" *ngIf="showNotifications">
+            <div class="notif-header">
+              <strong>Thông báo</strong>
+              <button class="mark-all" (click)="markAll()" *ngIf="hasUnread">
+                Đánh dấu tất cả
+              </button>
+            </div>
+
+            <div *ngIf="notificationLoading" class="notif-loading">
+              <i class="fa fa-spinner fa-spin"></i> Đang tải...
+            </div>
+
+            <div *ngIf="!notificationLoading && notifications.length === 0" class="notif-empty">
+              Không có thông báo
+            </div>
+
+            <ul class="notif-list" *ngIf="!notificationLoading && notifications.length > 0">
+              <li *ngFor="let n of notifications" class="notif-item" [class.unread]="!n.isRead"
+                [class.important]="isImportant(n)">
+                <div class="left" (click)="onNotificationClick(n, $event)">
+                  <div class="notif-icon-inline">{{ getNotificationIcon(n.type) }}</div>
+                  <div class="notif-content">
+                    <div class="notif-title">{{ n.title }}</div>
+                    <div class="notif-msg">
+                      {{ isExpanded(n) ? n.message : shortMessage(n) }}
+                    </div>
+                    <div class="time">{{ n.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
+                  </div>
+                </div>
+                <div class="right">
+                  <button class="btn-delete" (click)="onDeleteNotification(n.id, $event)" title="Xóa">
+                    <i class="fa fa-times"></i>
+                  </button>
+                </div>
+              </li>
+            </ul>
+
+            <div class="notif-footer" *ngIf="notifications.length > 0">
+              <a (click)="openAllNotifications()" class="view-all">
+                Xem tất cả <i class="fa fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="user-dropdown">
+          <button class="user-btn">
+            <i class="fa fa-user-circle"></i>
+            <span class="user-name">{{ currentUser.fullName }}</span>
+            <i class="fa fa-caret-down"></i>
+          </button>
+
+          <ul class="dropdown-menu">
+            <!-- Dashboard cho TẤT CẢ user đã đăng nhập -->
+            <li>
+              <a [routerLink]="getDashboardLink()">
+                <i class="fa fa-tachometer-alt"></i>
+                Dashboard
+              </a>
+            </li>
+            <li class="divider"></li>
+
+            <!-- TENANT (2) - Chỉ giữ "Đăng ký chủ trọ" -->
+            <ng-container *ngIf="currentUser.role === 2">
+              <li>
+                <a routerLink="/register-landlord">
+                  <i class="fa fa-user-tie"></i> Đăng ký chủ trọ
+                </a>
+              </li>
+            </ng-container>
+
+            <ng-container *ngIf="currentUser.role === 0">
+              <li>
+                <a [routerLink]="['/admin/users']">
+                  <i class="fa fa-users"></i> Quản lý người dùng
+                </a>
+              </li>
+            </ng-container>
+
+            <ng-container *ngIf="currentUser.role === 1">
+              <li>
+                <a [routerLink]="['/landlord/rooms']">
+                  <i class="fa fa-building"></i> Quản lý phòng trọ
+                </a>
+              </li>
+
+            </ng-container>
+
+            <li class="divider"></li>
+
+            <li>
+              <a (click)="logout()" class="logout-btn">
+                <i class="fa fa-sign-out-alt"></i> Đăng xuất
+              </a>
+            </li>
+          </ul>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</header>

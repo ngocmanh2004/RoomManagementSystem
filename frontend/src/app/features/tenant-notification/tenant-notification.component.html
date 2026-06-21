@@ -1,0 +1,93 @@
+<div class="notification-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Thông báo</h1>
+      <p>Bạn có {{ totalElements }} thông báo chưa đọc</p>
+    </div>
+    <button class="btn-mark-all" *ngIf="unreadCount > 0" (click)="markAllAsRead()">
+      <i class="fa fa-check"></i> Đánh dấu tất cả đã đọc
+    </button>
+  </div>
+
+  <div class="notification-container">
+    <div class="filter-tabs">
+      <button 
+        [class.active]="filterTab === 'all'"
+        (click)="setFilter('all')">
+        Tất cả ({{ totalElements }})
+      </button>
+      <button 
+        [class.active]="filterTab === 'unread'"
+        (click)="setFilter('unread')">
+        Chưa đọc ({{ unreadCount }})
+      </button>
+      <button 
+        [class.active]="filterTab === 'read'"
+        (click)="setFilter('read')">
+        Đã đọc ({{ readCount }})
+      </button>
+    </div>
+
+    <div class="notification-list" *ngIf="!loading">
+      <div *ngIf="filteredNotifications.length === 0" class="empty-state">
+        <i class="fa fa-bell-slash"></i>
+        <p>Không có thông báo</p>
+      </div>
+
+      <div 
+        *ngFor="let notification of filteredNotifications" 
+        class="notification-item"
+        [class.unread]="!notification.isRead"
+        (click)="markAsRead(notification)">
+        
+        <div class="notification-left">
+          <div class="notification-icon" [ngClass]="'icon-' + getNotificationColor(notification.type)">
+            <span class="icon-emoji">{{ getNotificationIcon(notification.type) }}</span>
+          </div>
+
+          <div class="notification-content">
+            <div class="notification-title-row">
+              <h3>{{ notification.title }}</h3>
+              <span class="unread-indicator" *ngIf="!notification.isRead">●</span>
+            </div>
+            <p class="notification-message">{{ notification.message }}</p>
+            <div class="notification-meta">
+              <span class="notification-badge" [ngClass]="'badge-' + getNotificationColor(notification.type)">
+                {{ getNotificationTypeLabel(notification.type) }}
+              </span>
+              <span class="notification-time">
+                <i class="fa fa-clock"></i> {{ notification.createdAt | date:'yyyy-MM-dd HH:mm' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="notification-actions">
+          <button class="btn-mark-read" *ngIf="!notification.isRead" (click)="markAsRead(notification); $event.stopPropagation()" title="Đánh dấu đã đọc">
+            <i class="fa fa-check"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading" *ngIf="loading">
+      <i class="fa fa-spinner fa-spin"></i> Đang tải...
+    </div>
+
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button 
+        [disabled]="currentPage === 0" 
+        (click)="previousPage()">
+        <i class="fa fa-chevron-left"></i> Trước
+      </button>
+      <span class="page-info">
+        Trang {{ currentPage + 1 }} / {{ totalPages }}
+      </span>
+      <button 
+        [disabled]="currentPage >= totalPages - 1" 
+        (click)="nextPage()">
+        Sau <i class="fa fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
